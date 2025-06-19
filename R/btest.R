@@ -1,0 +1,308 @@
+#'Build a bivariate colour map
+#'
+#'This function builds a map that visualises estimates and errors simultaneously
+#'with a bivariate colour scheme.
+#'
+#'If \code{geoData} remains \code{NULL}, the function will produce a map of
+#'plotted points representing specific sites; in this case, the data frame must
+#'include latitude and longitude coordinates in columns \code{"long"} and
+#'\code{"lat"}.
+#'
+#'@param data A data frame with estimates and errors,
+#' formatted with \code{read.uv}.
+#'@param geoData An sf or sp object.
+#'@param id Name of the common column shared by the objects passed to
+#'  \code{data} and \code{geoData}. The estimates and errors in the data frame
+#'  will be matched to the geographical regions through this column.
+#'@param border Name of geographical borders to be added to the map. It must be
+#'  one of \code{\link[maps]{county}}, \code{\link[maps]{france}},
+#'  \code{\link[maps]{italy}}, \code{\link[maps]{nz}},
+#'  \code{\link[maps]{state}}, \code{\link[maps]{usa}} or
+#'  \code{\link[maps]{world}} (see documentation for
+#'  \code{\link[ggplot2]{map_data}} for more information). The borders will be
+#'  refined to match latitute and longtidue coordinates from the geoData argument.
+#'@param palette Name of colour palette or character vector of hex colour codes
+#'  from the \code{\link{build_palette}} function. Colour palette names include
+#'  \code{BlueYellow}, \code{CyanMagenta}, \code{BlueRed} and \code{GreenBlue}.
+#'@param size An integer between 1 and 20. Value controls the size of points
+#'  when \code{geoData = NULL}. If \code{size = NULL}, the points will remain
+#'  the default size.
+#'@param terciles A logical value. This provides the option to define numerical
+#'  bounds for the colour key grid using terciles instead of equal intervals.
+#'@param bound Output from the \code{findNbounds} function if a different
+#' set of data is required to bound the map.  This is useful if you are wanting
+#' to create a bivariate map across multiple years and show colours that correspond
+#' to the same key. Default is NULL.
+#' @param flipAxis A logical value. Whether to place the axis on the opposite sides or not.
+#'
+#'@seealso \code{\link{build_bkey}}
+#'
+#'@examples
+#'data(us_data)
+#'data(us_geo)
+#'poverty <- read.uv(data = us_data, estimate = "pov_rate", error = "pov_moe")
+#'
+#'# bivariate map with a spatial polygons data frame
+#'map <- build_bmap(data = poverty, geoData = us_geo, id = "GEO_ID",
+#'  border = "state", terciles = TRUE)
+#'view(map)
+#'
+#'@export
+#'@import "ggplot2"
+#'@importFrom "dplyr" "left_join"
+#'@importFrom "plyr" "join"
+#'@importFrom "dplyr" "rename"
+#'@importFrom "dplyr" "%>%"
+#'@importFrom "ggmap" "make_bbox"
+#'@importFrom "spbabel" "sptable"
+
+library(dplyr) 
+library(plyr)
+library(ggmap)
+library(Vizumap)
+build_bmap_test <- function(data, geoData = NULL, id = NULL, border = NULL,
+                       palette = "BlueYellow", size = NULL,
+                       terciles = FALSE, bound = NULL, flipAxis = FALSE) {
+  
+  browser()
+  nms <- names(data)
+  estimate <- nms[1]
+  error <- nms[2]
+  
+  
+  
+  if (is.null(geoData)) {
+    l1 <- match("long", names(data))
+    l2 <- match("lat", names(data))
+    if (any(is.na(c(l1, l2))))
+      stop("There must be coordinates in data columns named long and lat.\n")
+  }
+  
+  if (!is.null(geoData) & is.null(id)) {
+    stop("Missing id. Must be a common column shared by data and geoData.")
+  }
+  
+  if (!is.null(border)) {
+    m <- (border %in% c("county", "france", "italy", "nz", "state", "usa", "world"))
+    if (length(m) == 0)
+      stop("Border name not recognised. Must be one of county, france, italy, nz, state, usa or world \n
+           (see documentation for map_data function in ggplot2 for more information)")
+    else
+      bord <- ggplot2::map_data(border)
+  }
+  else {
+    long <- numeric(0)
+    lat = numeric(0)
+    bord <- data.frame(long = long, lat = lat, group = numeric(0))
+  }
+  
+  if (!is.null(size)) {
+    s <- seq(1, 20, by = 1)
+    if (!(size %in% s) & !is.null(size))
+      stop("Size not recognised. Must be an integer between 1 and 20.")
+  }
+  
+  if (is.null(bound)) {
+    bound <- findNbounds(data = data, estimate = estimate, error = error, terciles = terciles)
+  }
+  
+  # define color ramps based on user input
+  if (class(palette)[1] == "character" & length(palette)==1) {
+    if (palette == "BlueYellow")
+      colors <- build_palette(name = "BlueYellow")
+    else if (palette == "CyanMagenta")
+      colors <- build_palette(name = "CyanMagenta")
+    else if (palette == "BlueRed")
+      colors <- build_palette(name = "BlueRed")
+    else if (palette == "GreenBlue")
+      colors <- build_palette(name = "GreenBlue")
+    else
+      stop("Palette name not recognised. Must be one of BlueYellow, CyanMagenta, BlueRed or GreenBlue.\n")
+  }
+  else if (class(palette)[1] == "palette")
+    colors <- palette  # assign a users palette creation
+  else
+    stop("Palette supplied is not of class 'palette'. Please create a palette using the 'build_palette' function.")
+  
+  if (!is.logical(flipAxis))
+    stop("flipAxis must be a logical value")
+  
+  # assign each region or point a color based on its estimate and its error
+  
+  if (!flipAxis) {
+    est_col <- cut(data[, estimate], breaks = bound[1:4], include.lowest = TRUE)
+    err_col <- cut(data[, error], breaks = bound[5:8], include.lowest = TRUE)
+  } else {
+    est_col <- cut(data[, error], breaks = bound[5:8], include.lowest = TRUE)
+    err_col <- cut(data[, estimate], breaks = bound[1:4], include.lowest = TRUE)
+  }
+  
+  est_err_levels <- c(paste(levels(est_col), levels(err_col)[1]),
+                      paste(levels(est_col), levels(err_col)[2]),
+                      paste(levels(est_col), levels(err_col)[3]))
+  
+  esterr <- factor(paste(as.vector(est_col), as.vector(err_col)),
+                   levels = est_err_levels)
+  levels(esterr) <- colors
+  data$hex_code <- as.character(esterr)
+  
+  
+  # determine whether geoData has been entered by user
+  # if so, link geoData and data and plot
+  if (!is.null(geoData) & inherits(geoData, "SpatialPolygonsDataFrame")) {
+    geoData@data %>% dplyr::mutate_if(is.factor, as.character) -> geoData@data
+    geoData@data <- left_join(geoData@data, data, by = id)
+    geoData@data$id <- rownames(geoData@data)
+    region_coord <- sptable(geoData, region = "id")
+    region_coord <- plyr::rename(region_coord, c("object_" = "id", "x_" = "long", "y_" = "lat", "branch_" = "group"))
+    output_data <- join(region_coord, geoData@data, by = "id")
+    bbox <- make_bbox(lat = lat, lon = long, data = output_data)
+  } else if (!is.null(geoData) & inherits(geoData, "sf")) {
+    output_data <- left_join(geoData, data, by = id)
+    bbox <- NULL
+  }
+  else {
+    output_data <- data
+    bbox <- make_bbox(lat = lat, lon = long, data = output_data)
+  }
+  
+  if (is.null(size))
+    m <- list(output_data = output_data, bord = bord, bbox = bbox)
+  else
+    m <- list(output_data = output_data, bord = bord, bbox = bbox, size = size)
+  
+  oldClass(m) <- c("bivmap", class(m))
+  
+  m
+  
+}
+
+#' findNbounds
+#'
+#' Find the bins for the colour grid
+#'
+#' @param data Dataset from which bounds are to be determined.
+#' @param estimate Name of the estimate column.
+#' @param error Name of the error column.
+#' @param terciles Should terciles be calculated? (Default: FALSE).
+#' @param expertR_est A vector consisting of the range of expert values for the
+#'   estimate (Default: NA).
+#' @param expertR_err A vector consisting of the range of expert values for the
+#'   error (Default: NA).
+#'
+#' @details Expert ranges for the estimate and error can be supplied to assist
+#'   with the comparison of multiple figures. By default these are set to NA,
+#'   which will result in the bounds being directly computed from the data.
+#'   Note, if the expert values do not span the range of the data, this function
+#'   will default to finding the bounds of the data.
+#'
+#' @export
+
+findNbounds <- function (data,
+            estimate,
+            error,
+            terciles,
+            expertR_est = NA,
+            expertR_err = NA)
+  {
+    max_estimate <- max(c(expertR_est, data[, estimate]), na.rm = TRUE)
+    min_estimate <-
+      min(c(expertR_est, data[, estimate]), na.rm = TRUE)
+    max_error <- max(c(expertR_err, data[, error]), na.rm = TRUE)
+    min_error <- min(c(expertR_err, data[, error]), na.rm = TRUE)
+    width_estimate <- (max_estimate - min_estimate) / 3
+    width_error <- (max_error - min_error) / 3
+    
+    estimate_bin1 <- calcbin(
+      terciles = terciles,
+      data = data,
+      x = estimate,
+      q = 1 / 3,
+      bin = 1,
+      width = width_estimate,
+      min = min_estimate
+    )
+    estimate_bin2 <- calcbin(
+      terciles = terciles,
+      data = data,
+      x = estimate,
+      q = 2 / 3,
+      bin = 2,
+      width = width_estimate,
+      min = min_estimate
+    )
+    estimate_bin3 <- calcbin(
+      terciles = terciles,
+      data = data,
+      x = estimate,
+      q = 1,
+      bin = 3,
+      width = width_estimate,
+      min = min_estimate
+    )
+    error_bin1 <-
+      calcbin(
+        terciles = terciles,
+        data = data,
+        x = error,
+        q = 1 / 3,
+        bin = 1,
+        width = width_error,
+        min = min_error
+      )
+    error_bin2 <-
+      calcbin(
+        terciles = terciles,
+        data = data,
+        x = error,
+        q = 2 / 3,
+        bin = 2,
+        width = width_error,
+        min = min_error
+      )
+    error_bin3 <-
+      calcbin(
+        terciles = terciles,
+        data = data,
+        x = error,
+        q = 1,
+        bin = 3,
+        width = width_error,
+        min = min_error
+      )
+    bound <- c(
+      min_estimate,
+      estimate_bin1,
+      estimate_bin2,
+      estimate_bin3,
+      min_error,
+      error_bin1,
+      error_bin2,
+      error_bin3
+    )
+    bound
+  }
+
+#'@importFrom "stats" "quantile"
+
+
+calcbin <- function(terciles, data, x, q, bin, width, min){
+  
+  estbin <- ifelse(terciles, quantile(data[ ,x], q), (bin * width + min))
+  estbin
+}
+
+# load the package
+library(Vizumap)
+
+# load the upper Burdekin (UB) data and format it
+data(UB) # this returns a data frame, UB_tss, and a shapefile, UB_shp
+UB_dat <- read.uv(data = UB_tss, estimate = "TSS", error = "TSS_error")
+
+# build a bivariate color palette
+UB_pal <- build_palette(name = "usr", colrange = list(colour = c("gold", "red4"), difC = c(3, 3)))
+
+# build the bivariate map and key, and then attach the key to the map
+UB_biv_map <- build_bmap(data = UB_dat, geoData = UB_shp, id = "scID", palette = UB_pal, terciles = TRUE, flipAxis = TRUE)
+UB_biv_key <- build_bkey(data = UB_dat, palette = UB_pal, terciles = TRUE, flipAxis = TRUE)
+attach_key(map = UB_biv_map, mapkey = UB_biv_key)
