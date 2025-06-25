@@ -3,7 +3,7 @@ library(sf)
 
 StatGlyph <- ggproto("StatGlyph", Stat,
                      required_aes = c("geometry", "estimate", "error"),
-                     compute_panel = function(data, scales, size = 90, 
+                     compute_panel = function(data, scales, size = 70,
                                               glyph = "icone", max_error = NULL) {
                        centroids <- sf::st_centroid(data$geometry)
                        coords <- sf::st_coordinates(centroids)
@@ -43,9 +43,9 @@ StatGlyph <- ggproto("StatGlyph", Stat,
 
                          data.frame(val = rep(data$estimate[i], nrow(glyphDat)),
                                     err = rep(data$error[i], nrow(glyphDat)),
-                                    id = rep(data$id[i], nrow(glyphDat)), 
-                                    long = N$V1 + data$long[i], 
-                                    lat = N$V2 + data$lat[i], 
+                                    id = rep(data$id[i], nrow(glyphDat)),
+                                    long = N$V1 + data$long[i],
+                                    lat = N$V2 + data$lat[i],
                                     stringsAsFactors = FALSE)
                        })
                        do.call(rbind, polys)
@@ -54,11 +54,11 @@ StatGlyph <- ggproto("StatGlyph", Stat,
 
 stat_sf_glyph <- function(mapping = NULL, data = NULL, geom = "polygon",
                           position = "identity", show.legend = NA,
-                          inherit.aes = TRUE, size = 50, glyph = "icone",
+                          inherit.aes = TRUE, size = 70, glyph = "icone",
                           max_error = NULL, ...) {
-  extra_aes <- aes(x = after_stat(long), y = after_stat(lat), 
+  extra_aes <- aes(x = after_stat(long), y = after_stat(lat),
                    group = after_stat(id), fill = after_stat(val))
-  
+
   layer(
     stat = StatGlyph,
     data = data,
@@ -77,6 +77,6 @@ stat_sf_glyph <- function(mapping = NULL, data = NULL, geom = "polygon",
 }
 
 ggplot(nc, aes(geometry = geometry, estimate = value, error = sd)) +
-  stat_sf_glyph(size = 80, glyph = "icone") +
+  stat_sf_glyph(size = 50, glyph = "icone") +
   coord_sf() + theme_void()
 
