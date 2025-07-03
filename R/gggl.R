@@ -4,7 +4,7 @@ library(sf)
 StatGlyph <- ggproto("StatGlyph", Stat,
                      required_aes = c("geometry", "estimate", "error"),
                      compute_panel = function(data, scales, size = 70,
-                                              glyph = "icone", max_error = NULL) {
+                                              glyph = c("icone", "semi"), max_error = NULL) {
                        centroids <- sf::st_centroid(data$geometry)
                        coords <- sf::st_coordinates(centroids)
                        data$long <- coords[,1]
@@ -16,12 +16,11 @@ StatGlyph <- ggproto("StatGlyph", Stat,
 
                        data$id <- seq_len(nrow(data))
                        data$size <- size
-                       data$glyph <- glyph
+                       data$glyph <- match.arg(glyph)
 
                        polys <- lapply(seq_len(nrow(data)), function(i) {
                          shape_i <- data$glyph[i]
-                         if (! shape_i %in% c("icone","semi"))
-                           stop("Glyph name not recognised. Must be one of icone or semi.")
+
                          if (shape_i == "icone") {
                            x1 <- seq(-3, 3, .05)
                            y1 <- sqrt(9 - x1^2)
