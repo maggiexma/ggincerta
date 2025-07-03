@@ -1,5 +1,5 @@
 
-scale_fill_bivar <- function(colrange, subtractive = FALSE,
+scale_fill_bivariate <- function(colrange, subtractive = FALSE,
                              flip_vertical = FALSE, flip_horizontal = FALSE,
                              ...) {
 
@@ -51,6 +51,6 @@ scale_fill_bivar <- function(colrange, subtractive = FALSE,
 ggplot(nc) +
   stat_sf_bivariate(mapping = aes(estimate =  value, error = sd,
                                   fill = after_stat(fill)), terciles = TRUE) +
-  scale_fill_bivar(colrange = list(colour = c("gold", "red4"), difC = c(4,4)),
+  scale_fill_bivariate(colrange = list(colour = c("gold", "red4"), difC = c(4,4)),
     subtractive = FALSE, flip_vertical = FALSE, flip_horizontal = FALSE)
 

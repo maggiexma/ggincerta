@@ -78,6 +78,6 @@ stat_bkey <- function(mapping = NULL, data = NULL, geom = "polygon",
 ggplot(nc, aes(estimate = value, error = sd)) +
   stat_bkey(aes(fill = after_stat(fill), group = after_stat(fill)),
             colour = 'black', linewidth = 0.5) +
-  scale_fill_bivar(colrange = list(colour = c("gold","red4"), difC = c(4,4)),
+  scale_fill_bivariate(colrange = list(colour = c("gold","red4"), difC = c(4,4)),
                    subtractive  = FALSE, flip_vertical = FALSE,
                    flip_horizontal = FALSE) + coord_equal() + theme_void()

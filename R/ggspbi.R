@@ -48,16 +48,16 @@ StatSPBivariate <- ggproto('StatSPBivariate', Stat,
                              sp_object@data %>%
                                mutate_if(is.factor, as.character) -> sp_object@data
 
-                             sp_object@data <- left_join(sp_object@data, data, by = 'id')
+                             sp_object@data <- dplyr::left_join(sp_object@data, data, by = 'id')
 
                              sp_object@data$id <- rownames(sp_object@data)
 
                              region_coord <- sptable(sp_object, region = 'id')
-                             region_coord <- plyr::rename(region_coord, c(
+                             region_coord <- dplyr::rename(region_coord, c(
                                'object_' = 'id', 'x_' = 'long', 'y_' = 'lat', 'branch_' = 'group'
                              ))
 
-                             output_data <- plyr::join(region_coord, sp_object@data, by = 'id')
+                             output_data <- dplyr::left_join(region_coord, sp_object@data, by = 'id')
 
                              output_data
                            }
