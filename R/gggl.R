@@ -3,8 +3,11 @@ library(sf)
 
 StatGlyph <- ggproto("StatGlyph", Stat,
                      required_aes = c("geometry", "estimate", "error"),
-                     compute_panel = function(data, scales, size = 70,
-                                              glyph = c("icone", "semi"), max_error = NULL) {
+                     compute_panel = function(data,
+                                              scales,
+                                              size = 70,
+                                              glyph = c("icone", "semi"),
+                                              max_error = NULL) {
                        centroids <- sf::st_centroid(data$geometry)
                        coords <- sf::st_coordinates(centroids)
                        data$long <- coords[,1]
@@ -59,12 +62,20 @@ StatGlyph <- ggproto("StatGlyph", Stat,
 #' @examples
 #' stats_sf_glyph()
 #' @export
-stat_sf_glyph <- function(mapping = NULL, data = NULL, geom = "polygon",
-                          position = "identity", show.legend = NA,
-                          inherit.aes = TRUE, size = 70, glyph = "icone",
-                          max_error = NULL, ...) {
-  extra_aes <- aes(x = after_stat(long), y = after_stat(lat),
-                   group = after_stat(id), fill = after_stat(val))
+stat_sf_glyph <- function(mapping = NULL,
+                          data = NULL,
+                          geom = "polygon",
+                          position = "identity",
+                          show.legend = NA,
+                          inherit.aes = TRUE,
+                          size = 70,
+                          glyph = "icone",
+                          max_error = NULL,
+                          ...) {
+  extra_aes <- aes(x = after_stat(long),
+                   y = after_stat(lat),
+                   group = after_stat(id),
+                   fill = after_stat(val))
 
   layer(
     stat = StatGlyph,
