@@ -52,6 +52,14 @@ StatGlyph <- ggproto("StatGlyph", Stat,
                      }
 )
 
+
+#' @title Stats layer for sf glyph
+#' @description Stat object for sf glyph bla bla
+#' @param mapping Define here
+#' @param data The data object
+#' @examples
+#' stats_sf_glyph()
+#' @export
 stat_sf_glyph <- function(mapping = NULL, data = NULL, geom = "polygon",
                           position = "identity", show.legend = NA,
                           inherit.aes = TRUE, size = 70, glyph = "icone",

@@ -1,25 +1,17 @@
-library(Vizumap)
-library(ggplot2)
-library(dplyr)
-library(spbabel)
-library(plyr)
-
-data(UB) # this returns a data frame, UB_tss, and a shapefile, UB_shp
-UB_dat <- read.uv(data = UB_tss, estimate = "TSS", error = "TSS_error")
-
 StatSPBivariate <- ggproto('StatSPBivariate', Stat,
                            required_aes = c('id', 'estimate', 'error'),
                            compute_panel = function(data, scales, terciles, bound, flipAxis, sp_object) {
 
-                             x <- data$estimate; y <- data$error
+                             x <- data$estimate
+                             y <- data$error
                              if (is.null(bound)) {
 
                                if (terciles) {
                                  x_breaks <- unique(quantile(x, probs = c(0,1/3,2/3,1), na.rm=TRUE))
                                  y_breaks <- unique(quantile(y, probs = c(0,1/3,2/3,1), na.rm=TRUE))
                                } else {
-                                 x_breaks <- seq(min(x,na.rm=TRUE), max(x,na.rm=TRUE), length.out=4)
-                                 y_breaks <- seq(min(y,na.rm=TRUE), max(y,na.rm=TRUE), length.out=4)
+                                 x_breaks <- seq(min(x, na.rm=TRUE), max(x, na.rm = TRUE), length.out = 4)
+                                 y_breaks <- seq(min(y, na.rm=TRUE), max(y, na.rm = TRUE), length.out = 4)
                                }
                              }
 
@@ -45,14 +37,17 @@ StatSPBivariate <- ggproto('StatSPBivariate', Stat,
                              data$fill <- factor(combo_num,
                                                  levels = seq_len(n_err * n_err))
 
-                             sp_object@data %>%
-                               mutate_if(is.factor, as.character) -> sp_object@data
+                             sp_object@data <- dplyr::mutate_if(sp_object@data, is.factor, as.character)
 
                              sp_object@data <- dplyr::left_join(sp_object@data, data, by = 'id')
 
                              sp_object@data$id <- rownames(sp_object@data)
 
+<<<<<<< HEAD
                              region_coord <- sptable(sp_object, region = 'id')
+=======
+                             region_coord <- spbabel::sptable(sp_object, region = 'id')
+>>>>>>> 142e3a6716137aa1410d4d5851016710a6e917a4
                              region_coord <- dplyr::rename(region_coord, c(
                                'object_' = 'id', 'x_' = 'long', 'y_' = 'lat', 'branch_' = 'group'
                              ))
@@ -96,22 +91,3 @@ stat_sp_bivariate <- function(data = NULL, sp_object = NULL,
   )
 }
 
-ggplot() +
-  stat_sp_bivariate(
-    data = UB_dat,
-    sp_object = UB_shp,
-    id_col = 'scID',
-    estimate = 'TSS',
-    error = 'TSS_error',
-    terciles = TRUE
-  ) +
-  geom_sf(
-    data = UB_sf,
-    fill = NA,
-    color = "black",
-    size = 0.3,
-    inherit.aes = FALSE
-  ) +
-  scale_fill_bivar(colrange = list(colour = c('gold','red4'), difC = c(4,4))) +
-  coord_sf() +
-  theme_void()
