@@ -1,10 +1,18 @@
 Package: ggfuzzy
-Title: What the Package Does (One Line, Title Case)
+Title: Extending ggplot2 with specialized layers to simplify spatial uncertainty visualization.
 Version: 0.0.0.9000
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Description: 'ggfuzy' is an 'R' package designed to efficiently visualize spatial uncertainty by providing ggplot2 layer functions and corresponding scales, including bivariate maps, pixel maps, glyph maps, and exceedance probability maps.
+Imports:
+    dplyr,
+    ggplot2,
+    grDevices,
+    reshape2,
+    sf,
+    PBSmapping,
+    FRK
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

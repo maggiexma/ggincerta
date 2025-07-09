@@ -28,7 +28,7 @@ scale_fill_bivariate <- function(colrange,
 
   df <- expand.grid(r = 1:3, c = 1:3)
   tiles <- lapply(seq_len(9), function(i) {
-    rectGrob(
+    grid::rectGrob(
       x = unit((df$c[i] - .5)/3, "npc"),
       y = unit((df$r[i] - .5)/3, "npc"),
       width = unit(1/3, "npc"),
@@ -67,7 +67,7 @@ ggplot(nc) +
   stat_sf_bivariate(aes(estimate = value, error = sd, fill = after_stat(fill)),
                     terciles = TRUE) +
   scale_fill_bivariate(
-    colrange = list(colour = c("gold","red4"), difC = c(4,4)),
+    colrange = list(colour = c("blue","red4"), difC = c(4,4)),
     size = 2
   ) +
   theme_minimal()
