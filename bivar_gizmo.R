@@ -10,7 +10,8 @@ scale_fill_bivariate <- function(colrange,
                                  ...) {
   grad1 <- grDevices::colorRampPalette(c("white", colrange$colour[1]))
   grad2 <- grDevices::colorRampPalette(c("white", colrange$colour[2]))
-  dif1 <- rev(grad1(10)[1:4]); dif2 <- rev(grad2(10)[1:4])
+  dif1 <- rev(grad1(10)[1:4])
+  dif2 <- rev(grad2(10)[1:4])
   ramp1 <- grDevices::colorRamp(c(dif1[colrange$difC[1]], colrange$colour[1]))
   ramp2 <- grDevices::colorRamp(c(dif2[colrange$difC[2]], colrange$colour[2]))
   lam1 <- c(0,.5,1,0,.5,1,0,.5,1); lam2 <- c(0,0,0,.5,.5,.5,1,1,1)

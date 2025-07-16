@@ -1,14 +1,7 @@
 test_that('geom_point_bivariate works', {
-  nc_centroids <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) %>%
-    st_centroid() %>%
-    mutate(
-      x = st_coordinates(.)[, 1],
-      y = st_coordinates(.)[, 2],
-      estimate = rnorm(n()),
-      error = runif(n(), 0, 1)
-    )
+  data(nc_centroids)
 
-  ggplot(nc_centroids, aes(x = x, y = y)) +
+  p <- ggplot(nc_centroids, aes(x = x, y = y)) +
     geom_point_bivariate(
       mapping = aes(
         estimate = estimate,
@@ -20,7 +13,17 @@ test_that('geom_point_bivariate works', {
       terciles = TRUE,
       flipAxis = FALSE
     ) +
-    scale_fill_bivariate(colrange = list(colour = c("gold", "red4"), difC = c(4, 4))) +
-    coord_equal() +
-    theme_minimal()
+    scale_fill_bivariate(
+      data = nc,
+      estimate = "value",
+      error = "sd",
+      colrange = list(colour = c("gold", "red4"), difC = c(4, 4))
+    ) +
+    theme(
+      legend.position = "right",
+      legend.box.just = "left",
+      plot.margin = margin(10, 30, 10, 10)
+    ) +
+    coord_equal()
+  vdiffr::expect_doppelganger("bivariate point map", p)
 })

@@ -1,38 +1,3 @@
-#' @title Geom layer function for bivariate map on sf objects
-#' @description
-#' geom_sf_bivariate applies StatBivariate to sf data, classifying each region
-#' into joint estimate/error bins and returning a map with bivariate colour scheme.
-#'
-#' @param mapping Aesthetic mapping; must include \code{geometry}, \code{estimate}, and \code{error}.
-#' @param data An sf object.
-#' @param geom Geom type to use.
-#' @param position Position adjustment.
-#' @param show.legend Logical; whether to display a legend.
-#' @param inherit.aes Logical; whether to inherit global aesthetics.
-#' @param terciles Logical; whether to use tercile breaks.
-#' @param flipAxis Logical; whether to flip estimate/error axes.
-#' @param ... Additional arguments passed to \code{layer_sf()}.
-#'
-#' @examples
-#' set.seed(10086)
-#'
-#' nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) %>%
-#'   mutate(value = rnorm(n()), sd = rnorm(n()))
-#'
-#' ggplot(nc) +
-#'   geom_sf_bivariate(aes(estimate = value, error = sd)) +
-#'   scale_fill_bivariate(
-#'     colrange = list(colour = c("gold", "red4"), difC = c(4, 4)),
-#'     subtractive = FALSE,
-#'     flip_vertical = FALSE,
-#'     flip_horizontal = FALSE
-#'   )
-#'
-#' @return A ggproto object rendering the filled sf layer and a \code{coord_sf()}.
-#'
-#' @import ggplot2
-#' @export
-
 StatBivariate <- ggproto("StatBivariate",
                          Stat,
                          required_aes = c("estimate", "error"),
@@ -73,11 +38,46 @@ StatBivariate <- ggproto("StatBivariate",
                          }
 )
 
+#' @title Geom layer function for bivariate map on sf objects
+#' @description
+#' geom_sf_bivariate applies StatBivariate to sf data, classifying each region
+#' into joint estimate/error bins and returning a map with bivariate colour scheme.
+#'
+#' @param mapping Aesthetic mapping; must include \code{geometry}, \code{estimate}, and \code{error}.
+#' @param data An sf object.
+#' @param geom Geom type to use.
+#' @param position Position adjustment.
+#' @param show.legend Logical; whether to display a legend.
+#' @param inherit.aes Logical; whether to inherit global aesthetics.
+#' @param terciles Logical; whether to use tercile breaks.
+#' @param flipAxis Logical; whether to flip estimate/error axes.
+#' @param ... Additional arguments passed to \code{layer_sf()}.
+#'
+#' @examples
+#' set.seed(10086)
+#'
+#' data(nc)
+#' nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) %>%
+#'   mutate(value = rnorm(n()), sd = rnorm(n()))
+#'
+#' ggplot(nc) +
+#'   geom_sf_bivariate(aes(estimate = value, error = sd)) +
+#'   scale_fill_bivariate(
+#'     colrange = list(colour = c("gold", "red4"), difC = c(4, 4)),
+#'     subtractive = FALSE,
+#'     flip_vertical = FALSE,
+#'     flip_horizontal = FALSE
+#'   )
+#'
+#' @return A ggproto object rendering the filled sf layer and a \code{coord_sf()}.
+#'
+#' @import ggplot2
+#' @export
 geom_sf_bivariate <- function(mapping = NULL,
                               data = NULL,
                               stat = StatBivariate,
                               position = "identity",
-                              show.legend = NA,
+                              show.legend = TRUE,
                               inherit.aes = TRUE,
                               na.rm = FALSE,
                               terciles = TRUE,

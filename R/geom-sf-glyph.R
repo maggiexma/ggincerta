@@ -1,33 +1,3 @@
-#' @title Geom layer function for glyph map on sf objects
-#' @description
-#' \code{geom_sf_glyph} applies \code{StatGlyph} to sf data and returns a centroid map
-#'  with color and rotation based on estimate and error values.
-#'
-#' @param mapping Aesthetic mapping that must include \code{geometry}, \code{estimate}, and \code{error}.
-#' @param data An sf object.
-#' @param geom Geom type, default "polygon"
-#' @param position Position adjustment.
-#' @param show.legend Logical; whether to display a legend.
-#' @param inherit.aes Logical; whether to inherit global aesthetics.
-#' @param size Glyph scale factor.
-#' @param glyph Glyph type: "icone" or "semi".
-#' @param max_error Maximum error scale.
-#' @param ... Other params passed to layer()
-#'
-#' @examples
-#'set.seed(10086)
-#'
-#' nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) %>%
-#'   mutate(value = rnorm(n()), sd = rnorm(n()))
-#'
-#' ggplot(nc, aes(geometry = geometry, estimate = value, error = sd)) +
-#'   geom_sf_glyph(size = 50, glyph = "icone") +
-#'   coord_sf() + theme_void()
-#'
-#' @import sf
-#' @import ggplot2
-#' @export
-
 StatGlyph <- ggproto("StatGlyph",
                      Stat,
                      required_aes = c("geometry", "estimate", "error"),
@@ -88,9 +58,37 @@ StatGlyph <- ggproto("StatGlyph",
                      }
 )
 
+#' @title Geom layer function for glyph map on sf objects
+#' @description
+#' \code{geom_sf_glyph} applies \code{StatGlyph} to sf data and returns a centroid map
+#'  with color and rotation based on estimate and error values.
+#'
+#' @param mapping Aesthetic mapping that must include \code{geometry}, \code{estimate}, and \code{error}.
+#' @param data An sf object.
+#' @param geom Geom type, default "polygon"
+#' @param position Position adjustment.
+#' @param show.legend Logical; whether to display a legend.
+#' @param inherit.aes Logical; whether to inherit global aesthetics.
+#' @param size Glyph scale factor.
+#' @param glyph Glyph type: "icone" or "semi".
+#' @param max_error Maximum error scale.
+#' @param ... Other params passed to layer()
+#'
+#' @examples
+#'set.seed(10086)
+#'
+#' nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) %>%
+#'   mutate(value = rnorm(n()), sd = rnorm(n()))
+#'
+#' ggplot(nc, aes(geometry = geometry, estimate = value, error = sd)) +
+#'   geom_sf_glyph(size = 50, glyph = "icone") +
+#'   coord_sf() + theme_void()
+#'
+#' @import sf
+#' @import ggplot2
+#' @export
 geom_sf_glyph <- function(mapping = NULL,
                           data = NULL,
-                          geom = "polygon",
                           position = "identity",
                           show.legend = NA,
                           inherit.aes = TRUE,
@@ -109,7 +107,7 @@ geom_sf_glyph <- function(mapping = NULL,
     stat = StatGlyph,
     data = data,
     mapping = extra_aes,
-    geom = geom,
+    geom = 'polygon',
     position = position,
     show.legend = show.legend,
     inherit.aes = inherit.aes,

@@ -7,7 +7,6 @@ Authors@R:
 Description: 'ggfuzy' is an 'R' package designed to efficiently visualize spatial uncertainty by providing ggplot2 layer functions and corresponding scales, including bivariate maps, pixel maps, glyph maps, and exceedance probability maps.
 Imports:
     dplyr,
-    ggplot2,
     grDevices,
     reshape2,
     sf,
@@ -18,7 +17,10 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    vdiffr
 Config/testthat/edition: 3
-Enhances: 
-    ggplot2
+Depends: 
+    ggplot2,
+    R (>= 2.10)
+LazyData: true

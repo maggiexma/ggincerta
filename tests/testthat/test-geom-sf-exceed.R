@@ -1,8 +1,5 @@
 test_that('geom_sf_exceed works', {
-  set.seed(10086)
-
-  nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) %>%
-    dplyr::mutate(value = rnorm(dplyr::n()), sd = rnorm(dplyr::n()))
+  data(nc)
 
   nc$sd <- abs(rnorm(nrow(nc), mean = 1, sd = 0.3))
 
@@ -18,5 +15,5 @@ test_that('geom_sf_exceed works', {
       dist_fun = stats::pnorm
     ) +
     coord_sf()
-  vdiffr::expect_doppelganger("pixel map", p)
+  vdiffr::expect_doppelganger("exceed map", p)
 })

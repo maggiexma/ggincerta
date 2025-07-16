@@ -1,45 +1,3 @@
-#' @title Geom layer function for pixel map on sf objects
-#' @description
-#' \code{geom_sf_pixel} applies \code{StatPixel} to sf data, pixelate each region and
-#' sample each pixel's value from a specified distribution.
-#'
-#' @param mapping Aesthetic mapping that must include \code{geometry}, \code{estimate}, \code{error} and \code{id}.
-#' @param data An sf object.
-#' @param pixelSize Number of grid cells along each axis.
-#' @param distribution Sampling distribution: "uniform", "normal", or "discrete".
-#' @param id_col Name of the ID column.
-#' @param show.legend Logical; show legend.
-#' @param inherit.aes Logical; inherit global aesthetics.
-#' @param ... Other parameters passed to \code{layer()}.
-#'
-#' @examples
-#' set.seed(10086)
-#' nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) %>%
-#'   mutate(value = rnorm(n()), sd = rnorm(n()))
-#'
-#' names(nc)[ names(nc) == "NAME" ] <- "id"
-#' names(nc)[ names(nc) == "value" ] <- "estimate"
-#' names(nc)[ names(nc) == "sd" ] <- "error"
-#'
-#' ggplot() +
-#'   geom_sf_pixel(
-#'     data = nc,
-#'     mapping = aes(geometry = geometry),
-#'     id_col = "id",
-#'     pixelSize = 40,
-#'     distribution = "uniform"
-#'   ) +
-#'   scale_fill_distiller(palette = "Blues", direction = 1) +
-#'   geom_sf(data = nc, fill = NA, color = 'black', size = 0.2)
-#'
-#' @return A polygon layer showing pixel values.
-#'
-#' @import sf
-#' @import ggplot2
-#' @importFrom FRK SpatialPolygonsDataFrame_to_df
-#' @importFrom reshape2 melt
-#' @export
-
 StatPixel <- ggproto("StatPixel",
                      Stat,
                      required_aes = c("estimate", "error", "geometry", "id"),
@@ -110,6 +68,47 @@ StatPixel <- ggproto("StatPixel",
                      }
 )
 
+#' @title Geom layer function for pixel map on sf objects
+#' @description
+#' \code{geom_sf_pixel} applies \code{StatPixel} to sf data, pixelate each region and
+#' sample each pixel's value from a specified distribution.
+#'
+#' @param mapping Aesthetic mapping that must include \code{geometry}, \code{estimate}, \code{error} and \code{id}.
+#' @param data An sf object.
+#' @param pixelSize Number of grid cells along each axis.
+#' @param distribution Sampling distribution: "uniform", "normal", or "discrete".
+#' @param id_col Name of the ID column.
+#' @param show.legend Logical; show legend.
+#' @param inherit.aes Logical; inherit global aesthetics.
+#' @param ... Other parameters passed to \code{layer()}.
+#'
+#' @examples
+#' set.seed(10086)
+#' nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) %>%
+#'   mutate(value = rnorm(n()), sd = rnorm(n()))
+#'
+#' names(nc)[ names(nc) == "NAME" ] <- "id"
+#' names(nc)[ names(nc) == "value" ] <- "estimate"
+#' names(nc)[ names(nc) == "sd" ] <- "error"
+#'
+#' ggplot() +
+#'   geom_sf_pixel(
+#'     data = nc,
+#'     mapping = aes(geometry = geometry),
+#'     id_col = "id",
+#'     pixelSize = 40,
+#'     distribution = "uniform"
+#'   ) +
+#'   scale_fill_distiller(palette = "Blues", direction = 1) +
+#'   geom_sf(data = nc, fill = NA, color = 'black', size = 0.2)
+#'
+#' @return A polygon layer showing pixel values.
+#'
+#' @import sf
+#' @import ggplot2
+#' @importFrom FRK SpatialPolygonsDataFrame_to_df
+#' @importFrom reshape2 melt
+#' @export
 geom_sf_pixel <- function(mapping = aes(geometry),
                           data = NULL,
                           pixelSize = 40,

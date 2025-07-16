@@ -1,8 +1,5 @@
 test_that('geom_sf_pixel works', {
-  set.seed(10086)
-
-  nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) %>%
-    dplyr::mutate(value = rnorm(dplyr::n()), sd = rnorm(dplyr::n()))
+  data(nc)
 
   names(nc)[ names(nc) == "NAME" ] <- "id"
   names(nc)[ names(nc) == "value" ] <- "estimate"

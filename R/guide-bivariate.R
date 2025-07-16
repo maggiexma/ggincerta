@@ -1,0 +1,124 @@
+draw_bivariate_key <- function(key,
+                               size,
+                               est_label = NULL,
+                               err_label = NULL) {
+  layout <- expand.grid(row = 1:3, col = 1:3)
+
+  tiles <- lapply(seq_len(9), function(i) {
+    grid::rectGrob(
+      x = unit((layout$col[i] - 0.5) / 3, "npc"),
+      y = unit((layout$row[i] - 0.5) / 3, "npc"),
+      width  = unit(1 / 3, "npc"),
+      height = unit(1 / 3, "npc"),
+      gp = grid::gpar(fill = key$fill[i], col = "black")
+    )
+  })
+
+  grobs <- tiles
+
+  offset_x <- 0.07
+  offset_y <- -0.02
+
+  if (!is.null(est_label)) {
+    for (i in 1:4) {
+      grobs[[length(grobs) + 1]] <- grid::textGrob(
+        label = est_label[i],
+        x = unit(c(0, 1 / 3, 2 / 3, 1)[i], "npc") + unit(offset_x, "npc"),
+        y = unit(-0.18, "npc") + unit(offset_y, "npc"),
+        just = "top",
+        rot = -90,
+        gp = grid::gpar(fontsize = 8)
+      )
+    }
+  }
+
+  if (!is.null(err_label)) {
+    for (i in 1:4) {
+      grobs[[length(grobs) + 1]] <- grid::textGrob(
+        label = err_label[i],
+        x = unit(-0.05, "npc"),
+        y = unit(c(0, 1 / 3, 2 / 3, 1)[i], "npc"),
+        just = "right",
+        gp = grid::gpar(fontsize = 8)
+      )
+    }
+  }
+
+  grob <- grid::grobTree(
+    children = do.call(grid::gList, grobs),
+    vp = grid::viewport(
+      x = unit(0.5, "npc"),
+      y = unit(0.5, "npc"),
+      width = unit(1, "npc"),
+      height = unit(1, "npc"),
+      angle = 45
+    )
+  )
+
+  width <- grid::unit(size, "cm")
+  height <- grid::unit(size, "cm")
+
+  # width <- grid::unit(size, "npc")
+  # height <- grid::unit(size, "npc")
+
+  gt <- gtable::gtable(widths = width, heights = height)
+  gt <- gtable::gtable_add_grob(
+    gt,
+    grob,
+    t = 1,
+    l = 1,
+    clip = "off",
+    name = "bivar_key"
+  )
+
+  return(gt)
+}
+
+GuideBivariate <- ggproto(
+  "GuideBivariate",
+  GuideLegend,
+  params = c(
+    GuideLegend$params,
+    list(
+      key = NULL,
+      est_label = NULL,
+      err_label = NULL,
+      size = NULL
+    )
+  ),
+  draw = function(self, theme, params = self$params, ...) {
+    draw_bivariate_key(
+      key = params$key,
+      size = params$size,
+      est_label = params$est_label,
+      err_label = params$err_label
+    )
+  }
+)
+
+guide_bivariate <- function(aesthetic,
+                            value,
+                            label,
+                            est_label = NULL,
+                            err_label = NULL,
+                            size = NULL,
+                            ...,
+                            theme = NULL,
+                            title = waiver(),
+                            order = 0,
+                            position = NULL) {
+  key <- data.frame(aesthetic, .value = value, .label = label)
+
+  new_guide(
+    key = key,
+    est_label = est_label,
+    err_label = err_label,
+    size = size,
+    theme = theme,
+    title = title,
+    order = order,
+    position = position,
+    available_aes = 'fill',
+    super = GuideBivariate
+  )
+}
