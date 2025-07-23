@@ -7,6 +7,8 @@ scale_fill_bivariate <- function(data,
                                  ...) {
   est <- data[[estimate]]
   err <- data[[error]]
+  est_text <- estimate
+  err_text <- error
 
   est_breaks <- round(quantile(est, probs = c(0, 1 / 3, 2 / 3, 1), na.rm = TRUE), 2)
   err_breaks <- round(quantile(err, probs = c(0, 1 / 3, 2 / 3, 1), na.rm = TRUE), 2)
@@ -55,7 +57,9 @@ scale_fill_bivariate <- function(data,
       label = as.character(1:9),
       est_label = est_breaks,
       err_label = err_breaks,
-      size = 2
+      est_text = est_text,
+      err_text = err_text,
+      size = 1.5
     ),
     ...
   )

@@ -1,7 +1,9 @@
 draw_bivariate_key <- function(key,
                                size,
                                est_label = NULL,
-                               err_label = NULL) {
+                               err_label = NULL,
+                               est_text = NULL,
+                               err_text = NULL) {
   layout <- expand.grid(row = 1:3, col = 1:3)
 
   tiles <- lapply(seq_len(9), function(i) {
@@ -36,12 +38,33 @@ draw_bivariate_key <- function(key,
     for (i in 1:4) {
       grobs[[length(grobs) + 1]] <- grid::textGrob(
         label = err_label[i],
-        x = unit(-0.05, "npc"),
+        x = unit(-0.06, "npc"),
         y = unit(c(0, 1 / 3, 2 / 3, 1)[i], "npc"),
         just = "right",
         gp = grid::gpar(fontsize = 8)
       )
     }
+  }
+
+  if (!is.null(est_text)) {
+    grobs[[length(grobs) + 1]] <- grid::textGrob(
+      label = est_text,
+      x = unit(-0.5, "npc"),
+      y = unit(0.5, "npc"),
+      just = c("center", "center"),
+      gp = grid::gpar(fontsize = 9, fontface = "bold"),
+      rot = -90
+    )
+  }
+
+  if (!is.null(err_text)) {
+    grobs[[length(grobs) + 1]] <- grid::textGrob(
+      label = err_text,
+      x = unit(0.5, "npc"),
+      y = unit(-0.5, "npc"),
+      just = c("center", "center"),
+      gp = grid::gpar(fontsize = 9, fontface = "bold")
+    )
   }
 
   grob <- grid::grobTree(
@@ -83,6 +106,8 @@ GuideBivariate <- ggproto(
       key = NULL,
       est_label = NULL,
       err_label = NULL,
+      est_text = NULL,
+      err_text = NULL,
       size = NULL
     )
   ),
@@ -91,7 +116,9 @@ GuideBivariate <- ggproto(
       key = params$key,
       size = params$size,
       est_label = params$est_label,
-      err_label = params$err_label
+      err_label = params$err_label,
+      est_text = params$est_text,
+      err_text = params$err_text
     )
   }
 )
@@ -101,6 +128,8 @@ guide_bivariate <- function(aesthetic,
                             label,
                             est_label = NULL,
                             err_label = NULL,
+                            est_text = NULL,
+                            err_text = NULL,
                             size = NULL,
                             ...,
                             theme = NULL,
@@ -113,6 +142,8 @@ guide_bivariate <- function(aesthetic,
     key = key,
     est_label = est_label,
     err_label = err_label,
+    est_text = est_text,
+    err_text = err_text,
     size = size,
     theme = theme,
     title = title,

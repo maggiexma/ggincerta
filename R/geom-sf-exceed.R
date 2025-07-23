@@ -1,5 +1,3 @@
-
-
 StatExceed <- ggproto("StatExceed",
                       Stat,
                       required_aes = c("estimate", "error"),
