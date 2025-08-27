@@ -47,8 +47,6 @@ into joint estimate/error bins and returning a map with bivariate colour scheme.
 set.seed(10086)
 
 data(nc)
-nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) \%>\%
-  mutate(value = rnorm(n()), sd = rnorm(n()))
 
 ggplot(nc) +
   geom_sf_bivariate(aes(estimate = value, error = sd)) +

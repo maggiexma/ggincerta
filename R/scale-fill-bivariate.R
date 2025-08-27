@@ -1,66 +1,79 @@
-scale_fill_bivariate <- function(data,
-                                 estimate = "estimate",
-                                 error = "error",
-                                 colrange = list(colour = c("gold", "red4"), difC = c(4, 4)),
-                                 subtractive = FALSE,
-                                 flip = "none",
+ScaleFillBivar <- ggproto(
+  "ScaleFillBivar",
+  ScaleDiscrete,
+  aesthetics = "fill",
+  drop = FALSE,
+  na.value = NA,
+
+  train_df = function(self, df, ...) {
+    if ("fill" %in% names(df)) {
+      info <- attr(df$fill, "bivar_breaks", exact = TRUE)
+      if (!is.null(info)) {
+        self$est_breaks <- info$est_breaks
+        self$err_breaks <- info$err_breaks
+        self$n_est <- info$n_est %||% 3L
+        self$n_err <- info$n_err %||% 3L
+      }
+    }
+
+    ggproto_parent(ScaleDiscrete, self)$train_df(df, ...)
+
+    n <- as.integer((self$n_est %||% 3L) * (self$n_err %||% 3L))
+    cols <- self$palette(n)
+    if (length(cols) < n)
+      cols <- rep_len(cols, n)
+    self$legend_cols <- unname(as.character(cols))
+
+    self$guide <- guide_bivariate(
+      aesthetic = setNames(list(self$legend_cols), "fill"),
+      value = as.character(seq_len(n)),
+      label = as.character(seq_len(n)),
+      est_label = format(self$est_breaks, digits = 2),
+      err_label = format(self$err_breaks, digits = 2),
+      est_text = self$est_text %||% "estimate",
+      err_text = self$err_text %||% "error",
+      size = self$guide_size
+    )
+
+    invisible()
+  }
+)
+
+scale_fill_bivariate <- function(colors = c("gold", "red4"),
+                                 difC = c(4, 4),
+                                 blend = c("additive", "subtractive"),
+                                 flip = c("none", "vertical", "horizontal", "both"),
+                                 name = waiver(),
+                                 est_text = NULL,
+                                 err_text = NULL,
+                                 guide_size = 1.5,
+                                 na.value = NA,
+                                 na.translate = TRUE,
                                  ...) {
-  est <- data[[estimate]]
-  err <- data[[error]]
-  est_text <- estimate
-  err_text <- error
+  flip <- match.arg(flip)
+  blend <- match.arg(blend)
 
-  est_breaks <- round(quantile(est, probs = c(0, 1 / 3, 2 / 3, 1), na.rm = TRUE), 2)
-  err_breaks <- round(quantile(err, probs = c(0, 1 / 3, 2 / 3, 1), na.rm = TRUE), 2)
+  pal_fun <- bivar_palette(colors[1],
+                            colors[2],
+                            difC = difC,
+                            blend = blend,
+                            flip = flip)
+  pal_safe <- function(n)
+    pal_fun(as.integer(n)[1])
 
-  grad1 <- grDevices::colorRampPalette(c("white", colrange$colour[1]))
-  grad2 <- grDevices::colorRampPalette(c("white", colrange$colour[2]))
-
-  dif1 <- rev(grad1(10)[1:4])
-  dif2 <- rev(grad2(10)[1:4])
-  ramp1 <- grDevices::colorRamp(c(dif1[colrange$difC[1]], colrange$colour[1]))
-  ramp2 <- grDevices::colorRamp(c(dif2[colrange$difC[2]], colrange$colour[2]))
-
-  lam1 <- c(0, .5, 1, 0, .5, 1, 0, .5, 1)
-  lam2 <- c(0, 0, 0, .5, .5, .5, 1, 1, 1)
-
-  m1 <- ramp1(lam1)
-  m2 <- ramp2(lam2)
-
-  if (subtractive) {
-    m1 <- PBSmapping::RGB2RYB(m1)
-    m2 <- PBSmapping::RGB2RYB(m2)
-    m1[is.na(m1)] <- 0
-    m2[is.na(m2)] <- 0
-    mix <- round(PBSmapping::RYB2RGB((m1 + m2) / 2) * 255)
-  } else {
-    mix <- round((m1 + m2) / 2)
-  }
-
-  cols <- apply(mix, 1, function(v)
-    grDevices::rgb(v[1], v[2], v[3], maxColorValue = 255))
-
-  if (flip == "vertical") {
-    cols <- cols[c(9, 4, 5, 2, 3, 6, 1, 8, 7)]
-  } else if (flip == "horizontal") {
-    cols <- cols[c(7, 8, 9, 4, 5, 6, 1, 2, 3)]
-  } else if (flip == "both") {
-    cols <- cols[c(3, 2, 1, 6, 5, 4, 9, 8, 7)]
-  }
-
-  scale_fill_manual(
-    values = cols,
+  sc <- discrete_scale(
+    aesthetics = "fill",
+    palette = pal_safe,
+    name = name,
+    guide = "legend",
     drop = FALSE,
-    guide = guide_bivariate(
-      aesthetic = cols,
-      value = as.character(1:9),
-      label = as.character(1:9),
-      est_label = est_breaks,
-      err_label = err_breaks,
-      est_text = est_text,
-      err_text = err_text,
-      size = 1.5
-    ),
+    na.value = na.value,
+    na.translate = na.translate,
+    super = ScaleFillBivar,
     ...
   )
+  sc$est_text <- est_text
+  sc$err_text <- err_text
+  sc$guide_size <- guide_size
+  sc
 }
