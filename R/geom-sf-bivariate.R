@@ -126,6 +126,7 @@ geom_sf_bivariate <- function(mapping = NULL,
         ...
       )
     ),
-    coord_sf()
+    coord_sf(),
+    scale_fill_bivariate()
   )
 }

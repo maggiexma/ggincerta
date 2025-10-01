@@ -2,7 +2,7 @@ StatGlyph <- ggproto(
   "StatGlyph",
   Stat,
   required_aes = c("geometry", "estimate", "error"),
-  default_aes = aes(glyph = NA_real_),
+  default_aes  = aes(glyph = NA_real_),
   compute_panel = function(data,
                            scales,
                            size = 70,
@@ -66,29 +66,6 @@ GeomPolygonGlyph <- ggproto(
   default_aes = utils::modifyList(GeomPolygon$default_aes, aes(glyph = NA_real_))
 )
 
-#' @title Geom layer function for glyph map on sf objects
-#' @description
-#' \code{geom_sf_glyph} applies \code{StatGlyph} to sf data and returns a centroid map
-#'  with color and rotation based on estimate and error values.
-#'
-#' @inheritParams ggplot2::geom_sf
-#' @param size Glyph scale factor.
-#' @param glyph Glyph type: "icone" or "semi".
-#' @param max_error Maximum error scale.
-#' @param ... Other parameters passed to \code{layer()}.
-#'
-#' @examples
-#' data(nc)
-#'
-#' ggplot(nc) +
-#' geom_sf_glyph(aes(geometry = geometry, estimate = value, error = sd), size = 50, glyph = "icone") +
-#'   scale_fill_viridis_c(name = "value", guide = guide_colorbar(order = 1)) +
-#'   scale_glyph_continuous(name = "sd", order = 2) +
-#'   theme(legend.position = "right", legend.box = "horizontal")
-#'
-#' @import sf
-#' @import ggplot2
-#' @export
 geom_sf_glyph <- function(mapping = NULL,
                           data = NULL,
                           size = 70,
@@ -126,3 +103,9 @@ geom_sf_glyph <- function(mapping = NULL,
     coord_sf()
   )
 }
+
+ggplot(nc) +
+  geom_sf_glyph(aes(geometry = geometry, estimate = value, error = sd), size = 50, glyph = "icone") +
+  scale_fill_viridis_c(name = "value", guide = guide_colorbar(order = 1)) +
+  scale_glyph_continuous(name = "sd", order = 2) +
+  theme(legend.position = "right", legend.box = "horizontal")
