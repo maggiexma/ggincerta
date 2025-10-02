@@ -1,3 +1,4 @@
+#' @export
 ScaleFillBivar <- ggproto(
   "ScaleFillBivar",
   ScaleDiscrete,
@@ -40,7 +41,7 @@ ScaleFillBivar <- ggproto(
 )
 
 scale_fill_bivariate <- function(colors = c("gold", "red4"),
-                                 difC = c(4, 4),
+                                 n_breaks = c(4, 4),
                                  blend = c("additive", "subtractive"),
                                  flip = c("none", "vertical", "horizontal", "both"),
                                  name = waiver(),
@@ -54,10 +55,10 @@ scale_fill_bivariate <- function(colors = c("gold", "red4"),
   blend <- match.arg(blend)
 
   pal_fun <- bivar_palette(colors[1],
-                            colors[2],
-                            difC = difC,
-                            blend = blend,
-                            flip = flip)
+                           colors[2],
+                           n_breaks_primary = n_breaks[1],
+                           n_breaks_secondary = n_breaks[2],
+                           blend = blend)
   pal_safe <- function(n)
     pal_fun(as.integer(n)[1])
 

@@ -17,7 +17,6 @@ Imports:
     grDevices,
     reshape2,
     sf,
-    PBSmapping,
     FRK
 License: MIT + file LICENSE
 Encoding: UTF-8
