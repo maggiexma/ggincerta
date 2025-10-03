@@ -1,6 +1,6 @@
 #' @export
-ScaleFillBivar <- ggproto(
-  "ScaleFillBivar",
+ScaleFillBivariate <- ggproto(
+  "ScaleFillBivariate",
   ScaleDiscrete,
   aesthetics = "fill",
   drop = FALSE,
@@ -55,13 +55,6 @@ scale_fill_bivariate <- function(name = waiver(),
   flip <- match.arg(flip)
   blend <- match.arg(blend)
 
-  #browser()
-
-  # pal_fun <- bivar_palette(colors[1],
-  #                          colors[2],
-  #                          n_breaks = n_breaks,
-  #                          blend = blend,
-  #                          flip = flip)
   pal_safe <- function(n) {
     bivar_palette(colors[1],
                   colors[2],
@@ -78,7 +71,7 @@ scale_fill_bivariate <- function(name = waiver(),
     drop = FALSE,
     na.value = na.value,
     na.translate = na.translate,
-    super = ScaleFillBivar,
+    super = ScaleFillBivariate,
     ...
   )
   sc$prm_text <- name_primary
