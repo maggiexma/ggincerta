@@ -1,3 +1,4 @@
+#' @export
 GuideBivariate <- ggproto(
   "GuideBivariate",
   GuideLegend,
