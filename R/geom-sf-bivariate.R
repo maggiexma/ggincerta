@@ -1,27 +1,29 @@
+#' @export
 StatBivariate <- ggproto(
   "StatBivariate",
   Stat,
-  required_aes = c("estimate", "error"),
+  required_aes = c("primary", "secondary"),
   compute_panel = function(data,
                            scales,
                            coord,
-                           terciles = TRUE,
-                           flipAxis = FALSE,
-                           bound = NULL) {
+                           terciles,
+                           flipAxis,
+                           bound,
+                           n_breaks) {
     if ("geometry" %in% names(data)) {
       data <- StatSf$compute_panel(data, scales, coord)
     }
 
-    x <- data$estimate
-    y <- data$error
-    qx <- quantile(x, c(0, 1 / 3, 2 / 3, 1), na.rm = TRUE)
-    qy <- quantile(y, c(0, 1 / 3, 2 / 3, 1), na.rm = TRUE)
+    x <- data$primary
+    y <- data$secondary
+    qx <- quantile(x, seq(0, 1, length.out = n_breaks[1]), na.rm = TRUE)
+    qy <- quantile(y, seq(0, 1, length.out = n_breaks[2]), na.rm = TRUE)
     if (!terciles ||
-        length(unique(qx)) < 4)
-      qx <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = 4)
+        length(unique(qx)) < n_breaks[1])
+      qx <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n_breaks[1])
     if (!terciles ||
-        length(unique(qy)) < 4)
-      qy <- seq(min(y, na.rm = TRUE), max(y, na.rm = TRUE), length.out = 4)
+        length(unique(qy)) < n_breaks[2])
+      qy <- seq(min(y, na.rm = TRUE), max(y, na.rm = TRUE), length.out = n_breaks[2])
     xb <- unique(as.numeric(qx))
     yb <- unique(as.numeric(qy))
 
@@ -45,16 +47,14 @@ StatBivariate <- ggproto(
                      labels = FALSE)
     }
 
-    n_est <- 3L
-    n_err <- 3L
-    combo <- (est_bin - 1L) * n_err + err_bin
-    data$fill <- factor(combo, levels = 1:(n_est * n_err))
+    combo <- (est_bin - 1L) * n_breaks[2] + err_bin
+    data$fill <- factor(combo, levels = 1:(prod(n_breaks)))
 
     attr(data$fill, "bivar_breaks") <- list(
       est_breaks = xb,
       err_breaks = yb,
-      n_est = n_est,
-      n_err = n_err
+      n_est = n_breaks[1],
+      n_err = n_breaks[2]
     )
     data
   }
@@ -102,6 +102,7 @@ geom_sf_bivariate <- function(mapping = NULL,
                               na.rm = FALSE,
                               terciles = TRUE,
                               flipAxis = FALSE,
+                              n_breaks = c(4, 4),
                               ...) {
   if (is.null(mapping))
     mapping <- aes()
@@ -122,6 +123,7 @@ geom_sf_bivariate <- function(mapping = NULL,
         na.rm = na.rm,
         terciles = terciles,
         flipAxis = flipAxis,
+        n_breaks = n_breaks,
         coord = coord_sf(),
         ...
       )
