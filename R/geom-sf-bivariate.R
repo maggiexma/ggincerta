@@ -7,7 +7,7 @@ StatBivariate <- ggproto(
                            scales,
                            coord,
                            flip_axis,
-                           break_method,
+                           breaks,
                            bound,
                            n_breaks) {
     if ("geometry" %in% names(data)) {
@@ -18,9 +18,9 @@ StatBivariate <- ggproto(
     y <- data$secondary
     qx <- quantile(x, seq(0, 1, length.out = n_breaks[1]), na.rm = TRUE)
     qy <- quantile(y, seq(0, 1, length.out = n_breaks[2]), na.rm = TRUE)
-    if (break_method == "equal" || length(unique(qx)) < n_breaks[1])
+    if (breaks == "equal" || length(unique(qx)) < n_breaks[1])
       qx <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n_breaks[1])
-    if (break_method == "equal" || length(unique(qy)) < n_breaks[2])
+    if (breaks == "equal" || length(unique(qy)) < n_breaks[2])
       qy <- seq(min(y, na.rm = TRUE), max(y, na.rm = TRUE), length.out = n_breaks[2])
     xb <- unique(as.numeric(qx))
     yb <- unique(as.numeric(qy))
@@ -69,7 +69,7 @@ StatBivariate <- ggproto(
 #' @param position Position adjustment.
 #' @param show.legend Logical; whether to display a legend.
 #' @param inherit.aes Logical; whether to inherit global aesthetics.
-#' @param break_method Whether to use "quantile" or "bin"
+#' @param breaks Whether to use "quantile" or "equal" bins.
 #' @param n_breaks The number of breaks
 #' @param flip_axis Logical; whether to flip estimate/error axes.
 #' @param ... Additional arguments passed to \code{layer_sf()}.
@@ -80,7 +80,7 @@ StatBivariate <- ggproto(
 #' data(nc)
 #'
 #' ggplot(nc) +
-#'   geom_sf_bivariate(aes(estimate = value, error = sd)) +
+#'   geom_sf_bivariate(aes(primary = value, secondary = sd)) +
 #'   scale_fill_bivariate(
 #'     colrange = list(colour = c("gold", "red4"), difC = c(4, 4)),
 #'     subtractive = FALSE,
@@ -100,7 +100,7 @@ geom_sf_bivariate <- function(mapping = NULL,
                               inherit.aes = TRUE,
                               na.rm = FALSE,
                               flip_axis  = FALSE,
-                              break_method = c("quantile", "equal"),
+                              breaks = c("quantile", "equal"),
                               n_breaks = 4L,
                               ...) {
   if (is.null(mapping))
@@ -108,7 +108,7 @@ geom_sf_bivariate <- function(mapping = NULL,
   if (is.null(mapping[["fill"]])) {
     mapping[["fill"]] <- rlang::expr(after_stat(fill))
   }
-  break_method <- match.arg(break_method)
+  breaks <- match.arg(breaks)
   if(length(n_breaks) == 1L && is.numeric(n_breaks)) {
     n_breaks <- c(n_breaks, n_breaks)
   }
@@ -126,9 +126,9 @@ geom_sf_bivariate <- function(mapping = NULL,
       params = list(
         na.rm = na.rm,
         flip_axis = flip_axis,
-        break_method = break_method,
+        breaks = breaks,
         n_breaks = n_breaks,
-        coord = coord_sf(),
+        coord = coord_sf(), # needed for compute_panel for sf
         ...
       )
     ),
