@@ -1,23 +1,27 @@
 bivar_palette <- function(color_primary,
                           color_secondary,
-                          n_breaks_primary = 4,
-                          n_breaks_secondary = 4,
+                          n_breaks = NULL,
                           blend = c("additive", "subtractive"),
                           flip  = c("none", "vertical", "horizontal", "both")
                           ) {
   blend <- match.arg(blend)
   flip  <- match.arg(flip)
 
+  if(any(is.null(n_breaks))) {
+    n_breaks <- c(4, 4)
+  }
+
+
   grad1 <- colorRampPalette(c("white", color_primary))
   grad2 <- colorRampPalette(c("white", color_secondary))
-  dif1  <- rev(grad1(round(n_breaks_primary * 2.5))[1:n_breaks_primary])
-  dif2  <- rev(grad2(round(n_breaks_secondary * 2.5))[1:n_breaks_secondary])
+  dif1  <- rev(grad1(round(n_breaks[1] * 2.5))[1:n_breaks[1]])
+  dif2  <- rev(grad2(round(n_breaks[2] * 2.5))[1:n_breaks[2]])
 
-  ramp1 <- colorRamp(c(dif1[n_breaks_primary], color_primary))
-  ramp2 <- colorRamp(c(dif2[n_breaks_secondary], color_secondary))
+  ramp1 <- colorRamp(c(dif1[n_breaks[1]], color_primary))
+  ramp2 <- colorRamp(c(dif2[n_breaks[2]], color_secondary))
 
-  lam1 <- rep(seq(0, 1, length.out = n_breaks_primary - 1), times = n_breaks_secondary)
-  lam2 <- rep(seq(0, 1, length.out = n_breaks_secondary - 1), each = n_breaks_primary)
+  lam1 <- rep(seq(0, 1, length.out = n_breaks[1]), times = n_breaks[2])
+  lam2 <- rep(seq(0, 1, length.out = n_breaks[2]), each = n_breaks[1])
 
   m1 <- ramp1(lam1)
   m2 <- ramp2(lam2)
@@ -45,9 +49,9 @@ bivar_palette <- function(color_primary,
   #   cols <- cols[c(7, 8, 9, 4, 5, 6, 1, 2, 3)]
   # else if (flip == "both")
   #   cols <- cols[c(3, 2, 1, 6, 5, 4, 9, 8, 7)]
-  n <- n_breaks_primary*n_breaks_secondary
-  n1 <- n_breaks_primary
-  n2 <- n_breaks_secondary
+  n <- prod(n_breaks)
+  n1 <- n_breaks[1]
+  n2 <- n_breaks[2]
   cols <- switch(flip,
                  "vertical" = cols,
                  "horizontal" = cols[as.vector(matrix(1:n, byrow = FALSE, n1, n2)[, c(n2:1), drop = FALSE])],
@@ -55,8 +59,7 @@ bivar_palette <- function(color_primary,
                  cols)
 
 
-  function(n)
-    cols[seq_len(min(n, length(cols)))]
+  cols[seq_len(min(n, length(cols)))]
 }
 
 

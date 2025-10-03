@@ -6,8 +6,8 @@ StatBivariate <- ggproto(
   compute_panel = function(data,
                            scales,
                            coord,
-                           terciles,
-                           flipAxis,
+                           flip_axis,
+                           break_method,
                            bound,
                            n_breaks) {
     if ("geometry" %in% names(data)) {
@@ -18,43 +18,41 @@ StatBivariate <- ggproto(
     y <- data$secondary
     qx <- quantile(x, seq(0, 1, length.out = n_breaks[1]), na.rm = TRUE)
     qy <- quantile(y, seq(0, 1, length.out = n_breaks[2]), na.rm = TRUE)
-    if (!terciles ||
-        length(unique(qx)) < n_breaks[1])
+    if (break_method == "equal" || length(unique(qx)) < n_breaks[1])
       qx <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n_breaks[1])
-    if (!terciles ||
-        length(unique(qy)) < n_breaks[2])
+    if (break_method == "equal" || length(unique(qy)) < n_breaks[2])
       qy <- seq(min(y, na.rm = TRUE), max(y, na.rm = TRUE), length.out = n_breaks[2])
     xb <- unique(as.numeric(qx))
     yb <- unique(as.numeric(qy))
 
-    if (!flipAxis) {
-      est_bin <- cut(x,
+    if (!flip_axis) {
+      prm_bin <- cut(x,
                      breaks = xb,
                      include.lowest = TRUE,
                      labels = FALSE)
-      err_bin <- cut(y,
+      scd_bin <- cut(y,
                      breaks = yb,
                      include.lowest = TRUE,
                      labels = FALSE)
     } else {
-      est_bin <- cut(y,
+      prm_bin <- cut(y,
                      breaks = yb,
                      include.lowest = TRUE,
                      labels = FALSE)
-      err_bin <- cut(x,
+      scd_bin <- cut(x,
                      breaks = xb,
                      include.lowest = TRUE,
                      labels = FALSE)
     }
 
-    combo <- (est_bin - 1L) * n_breaks[2] + err_bin
-    data$fill <- factor(combo, levels = 1:(prod(n_breaks)))
+    combo <- (prm_bin - 1L) * n_breaks[2] + scd_bin
+    data$fill <- factor(combo, levels = 1:prod(n_breaks))
 
     attr(data$fill, "bivar_breaks") <- list(
-      est_breaks = xb,
-      err_breaks = yb,
-      n_est = n_breaks[1],
-      n_err = n_breaks[2]
+      prm_breaks = xb,
+      scd_breaks = yb,
+      n_prm = n_breaks[1],
+      n_scd = n_breaks[2]
     )
     data
   }
@@ -71,8 +69,9 @@ StatBivariate <- ggproto(
 #' @param position Position adjustment.
 #' @param show.legend Logical; whether to display a legend.
 #' @param inherit.aes Logical; whether to inherit global aesthetics.
-#' @param terciles Logical; whether to use tercile breaks.
-#' @param flipAxis Logical; whether to flip estimate/error axes.
+#' @param break_method Whether to use "quantile" or "bin"
+#' @param n_breaks The number of breaks
+#' @param flip_axis Logical; whether to flip estimate/error axes.
 #' @param ... Additional arguments passed to \code{layer_sf()}.
 #'
 #' @examples
@@ -100,15 +99,20 @@ geom_sf_bivariate <- function(mapping = NULL,
                               show.legend = TRUE,
                               inherit.aes = TRUE,
                               na.rm = FALSE,
-                              terciles = TRUE,
-                              flipAxis = FALSE,
-                              n_breaks = c(4, 4),
+                              flip_axis  = FALSE,
+                              break_method = c("quantile", "equal"),
+                              n_breaks = 4L,
                               ...) {
   if (is.null(mapping))
     mapping <- aes()
   if (is.null(mapping[["fill"]])) {
     mapping[["fill"]] <- rlang::expr(after_stat(fill))
   }
+  break_method <- match.arg(break_method)
+  if(length(n_breaks) == 1L && is.numeric(n_breaks)) {
+    n_breaks <- c(n_breaks, n_breaks)
+  }
+  stopifnot(length(n_breaks) == 2)
 
   c(
     layer_sf(
@@ -121,14 +125,14 @@ geom_sf_bivariate <- function(mapping = NULL,
       inherit.aes = inherit.aes,
       params = list(
         na.rm = na.rm,
-        terciles = terciles,
-        flipAxis = flipAxis,
+        flip_axis = flip_axis,
+        break_method = break_method,
         n_breaks = n_breaks,
         coord = coord_sf(),
         ...
       )
     ),
     coord_sf(),
-    scale_fill_bivariate()
+    scale_fill_bivariate(n_breaks = n_breaks)
   )
 }

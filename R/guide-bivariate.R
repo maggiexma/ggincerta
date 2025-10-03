@@ -6,10 +6,11 @@ GuideBivariate <- ggproto(
     GuideLegend$params,
     list(
       key = NULL,
-      est_label = NULL,
-      err_label = NULL,
-      est_text = NULL,
-      err_text = NULL,
+      n_breaks = NULL,
+      prm_label = NULL,
+      scd_label = NULL,
+      prm_text = NULL,
+      scd_text = NULL,
       size = NULL
     )
   ),
@@ -17,10 +18,11 @@ GuideBivariate <- ggproto(
     draw_bivariate_key(
       key = params$key,
       size = params$size,
-      est_label = params$est_label,
-      err_label = params$err_label,
-      est_text = params$est_text,
-      err_text = params$err_text
+      n_breaks = params$n_breaks,
+      prm_label = params$prm_label,
+      scd_label = params$scd_label,
+      prm_text = params$prm_text,
+      scd_text = params$scd_text
     )
   }
 )
@@ -28,10 +30,11 @@ GuideBivariate <- ggproto(
 guide_bivariate <- function(aesthetic,
                             value,
                             label,
-                            est_label = NULL,
-                            err_label = NULL,
-                            est_text = NULL,
-                            err_text = NULL,
+                            n_breaks = c(4, 4),
+                            prm_label = NULL,
+                            scd_label = NULL,
+                            prm_text = NULL,
+                            scd_text = NULL,
                             size = NULL,
                             ...,
                             theme = NULL,
@@ -42,10 +45,11 @@ guide_bivariate <- function(aesthetic,
 
   new_guide(
     key = key,
-    est_label = est_label,
-    err_label = err_label,
-    est_text = est_text,
-    err_text = err_text,
+    n_breaks = n_breaks,
+    prm_label = prm_label,
+    scd_label = scd_label,
+    prm_text = prm_text,
+    scd_text = scd_text,
     size = size,
     theme = theme,
     title = title,
