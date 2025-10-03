@@ -2,12 +2,11 @@ bivar_palette <- function(color_primary,
                           color_secondary,
                           n_breaks_primary = 4,
                           n_breaks_secondary = 4,
-                          blend = c("additive", "subtractive")#,
-                          # remove flip for now
-                          #flip  = c("none", "vertical", "horizontal", "both")
+                          blend = c("additive", "subtractive"),
+                          flip  = c("none", "vertical", "horizontal", "both")
                           ) {
   blend <- match.arg(blend)
-  #flip  <- match.arg(flip)
+  flip  <- match.arg(flip)
 
   grad1 <- colorRampPalette(c("white", color_primary))
   grad2 <- colorRampPalette(c("white", color_secondary))
@@ -46,6 +45,15 @@ bivar_palette <- function(color_primary,
   #   cols <- cols[c(7, 8, 9, 4, 5, 6, 1, 2, 3)]
   # else if (flip == "both")
   #   cols <- cols[c(3, 2, 1, 6, 5, 4, 9, 8, 7)]
+  n <- n_breaks_primary*n_breaks_secondary
+  n1 <- n_breaks_primary
+  n2 <- n_breaks_secondary
+  cols <- switch(flip,
+                 "vertical" = cols,
+                 "horizontal" = cols[as.vector(matrix(1:n, byrow = FALSE, n1, n2)[, c(n2:1), drop = FALSE])],
+                 "both" = cols[rev(as.vector(matrix(1:n, byrow = FALSE, n1, n2)[, c(n2:1), drop = FALSE]))],
+                 cols)
+
 
   function(n)
     cols[seq_len(min(n, length(cols)))]

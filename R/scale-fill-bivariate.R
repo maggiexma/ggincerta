@@ -58,7 +58,8 @@ scale_fill_bivariate <- function(colors = c("gold", "red4"),
                            colors[2],
                            n_breaks_primary = n_breaks[1],
                            n_breaks_secondary = n_breaks[2],
-                           blend = blend)
+                           blend = blend,
+                           flip = flip)
   pal_safe <- function(n)
     pal_fun(as.integer(n)[1])
 
