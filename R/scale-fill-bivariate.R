@@ -31,8 +31,8 @@ ScaleFillBivar <- ggproto(
       label = as.character(seq_len(n)),
       est_label = format(self$est_breaks, digits = 2),
       err_label = format(self$err_breaks, digits = 2),
-      est_text = self$est_text %||% "estimate",
-      err_text = self$err_text %||% "error",
+      est_text = self$est_text %||% "primary",
+      err_text = self$err_text %||% "secondary",
       size = self$guide_size
     )
 
@@ -40,13 +40,13 @@ ScaleFillBivar <- ggproto(
   }
 )
 
-scale_fill_bivariate <- function(colors = c("gold", "red4"),
+scale_fill_bivariate <- function(name = waiver(),
+                                 name_primary = waiver(),
+                                 name_secondary = waiver(),
+                                 colors = c("gold", "red4"),
                                  n_breaks = c(4, 4),
                                  blend = c("additive", "subtractive"),
                                  flip = c("none", "vertical", "horizontal", "both"),
-                                 name = waiver(),
-                                 est_text = NULL,
-                                 err_text = NULL,
                                  guide_size = 1.5,
                                  na.value = NA,
                                  na.translate = TRUE,
@@ -74,8 +74,8 @@ scale_fill_bivariate <- function(colors = c("gold", "red4"),
     super = ScaleFillBivar,
     ...
   )
-  sc$est_text <- est_text
-  sc$err_text <- err_text
+  sc$est_text <- name_primary
+  sc$err_text <- name_secondary
   sc$guide_size <- guide_size
   sc
 }
