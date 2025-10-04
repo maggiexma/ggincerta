@@ -3,10 +3,9 @@ Title: Extending ggplot2 with specialized layers to simplify spatial uncertainty
 Version: 0.0.0.9000
 Authors@R: 
     c(person("Xueqi", "Ma", , 
-          "first.last@example.com", role = c("aut", "cre", "cph"),
-           comment = c(ORCID = "YOUR-ORCID-ID")),
+          "first.last@example.com", role = c("aut", "cre", "cph")),
       person("Emi", "Tanaka", , 
-          "dr.emi.tanaka@gmail.com", role = c("ths"),
+          "dr.emi.tanaka@gmail.com", role = c("aut", "ths"),
            comment = c(ORCID = "0000-0002-1455-259X")),
       person("Patrick", "Li", , role = c("ths")),
       person("Quan", "Vo", , role = c("ths")),
