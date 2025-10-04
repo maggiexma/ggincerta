@@ -5,9 +5,9 @@
 \title{Geom layer function for pixel map on sf objects}
 \usage{
 geom_sf_pixel(
-  mapping = aes(geometry),
+  mapping = NULL,
   data = NULL,
-  pixelSize = 40,
+  pixel_size = 100,
   distribution = "uniform",
   id_col = "id",
   na.rm = FALSE,
@@ -21,8 +21,6 @@ geom_sf_pixel(
 
 \item{data}{An sf object.}
 
-\item{pixelSize}{Number of grid cells along each axis.}
-
 \item{distribution}{Sampling distribution: "uniform", "normal", or "discrete".}
 
 \item{id_col}{Name of the ID column.}
@@ -32,6 +30,8 @@ geom_sf_pixel(
 \item{inherit.aes}{Logical; inherit global aesthetics.}
 
 \item{...}{Other parameters passed to \code{layer()}.}
+
+\item{pixelSize}{Number of grid cells along each axis.}
 }
 \value{
 A polygon layer showing pixel values.
@@ -41,14 +41,7 @@ A polygon layer showing pixel values.
 sample each pixel's value from a specified distribution.
 }
 \examples{
-set.seed(10086)
-nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) \%>\%
-  mutate(value = rnorm(n()), sd = rnorm(n()))
-
-names(nc)[ names(nc) == "NAME" ] <- "id"
-names(nc)[ names(nc) == "value" ] <- "estimate"
-names(nc)[ names(nc) == "sd" ] <- "error"
-
+data(nc)
 ggplot() +
   geom_sf_pixel(
     data = nc,

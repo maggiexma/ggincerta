@@ -11,8 +11,8 @@ geom_sf_exceed(
   position = "identity",
   show.legend = NA,
   inherit.aes = TRUE,
-  dist_fun = stats::pnorm,
-  threshold,
+  dist_fun = dist_norm,
+  threshold = 0,
   palette = "YlOrRd",
   direction = 1,
   ...
@@ -31,7 +31,8 @@ geom_sf_exceed(
 
 \item{inherit.aes}{Logical; whether to inherit global aesthetics.}
 
-\item{dist_fun}{Function to compute tail probabilities.}
+\item{dist_fun}{Function to compute upper tail probabilities that takes the
+argument the \code{threshold}, \code{v1} and \code{v2}.}
 
 \item{threshold}{Numeric threshold for exceedance probability.}
 
@@ -51,16 +52,13 @@ the probability of exceeding some nominated threshold of concern.
 }
 \examples{
 set.seed(10086)
-nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) \%>\%
-  dplyr::mutate(value = rnorm(n()), sd = rnorm(n()))
-nc$sd <- abs(rnorm(nrow(nc), mean = 1, sd = 0.3))
+data(nc)
 ggplot(nc) +
   geom_sf_exceed(
     mapping = aes(
-      geometry = geometry,
-      estimate = value,
-      error    = sd,
-      fill     = after_stat(pr_exc)
+      v1 = value,
+      v2 = sd,
+      fill = after_stat(pr_exc)
     ),
     threshold = 0.5,
     dist_fun  = stats::pnorm
