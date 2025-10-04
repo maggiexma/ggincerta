@@ -1,5 +1,4 @@
-bivar_palette <- function(color_primary,
-                          color_secondary,
+bivar_palette <- function(colors = NULL,
                           n_breaks = NULL,
                           blend = c("additive", "subtractive"),
                           flip  = c("none", "vertical", "horizontal", "both")
@@ -12,13 +11,13 @@ bivar_palette <- function(color_primary,
   }
 
 
-  grad1 <- colorRampPalette(c("white", color_primary))
-  grad2 <- colorRampPalette(c("white", color_secondary))
+  grad1 <- colorRampPalette(c("white", colors[1]))
+  grad2 <- colorRampPalette(c("white", colors[2]))
   dif1  <- rev(grad1(round(n_breaks[1] * 2.5))[1:n_breaks[1]])
   dif2  <- rev(grad2(round(n_breaks[2] * 2.5))[1:n_breaks[2]])
 
-  ramp1 <- colorRamp(c(dif1[n_breaks[1]], color_primary))
-  ramp2 <- colorRamp(c(dif2[n_breaks[2]], color_secondary))
+  ramp1 <- colorRamp(c(dif1[n_breaks[1]], colors[1]))
+  ramp2 <- colorRamp(c(dif2[n_breaks[2]], colors[2]))
 
   lam1 <- rep(seq(0, 1, length.out = n_breaks[1]), times = n_breaks[2])
   lam2 <- rep(seq(0, 1, length.out = n_breaks[2]), each = n_breaks[1])

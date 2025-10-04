@@ -1,8 +1,9 @@
+#' @rdname stat-bivariate
 #' @export
 StatBivariate <- ggproto(
   "StatBivariate",
   Stat,
-  required_aes = c("primary", "secondary"),
+  required_aes = c("v1", "v2"),
   compute_panel = function(data,
                            scales,
                            coord,
@@ -14,8 +15,8 @@ StatBivariate <- ggproto(
       data <- StatSf$compute_panel(data, scales, coord)
     }
 
-    x <- data$primary
-    y <- data$secondary
+    x <- data$v1
+    y <- data$v2
     qx <- quantile(x, seq(0, 1, length.out = n_breaks[1]), na.rm = TRUE)
     qy <- quantile(y, seq(0, 1, length.out = n_breaks[2]), na.rm = TRUE)
     if (breaks == "equal" || length(unique(qx)) < n_breaks[1])
@@ -76,21 +77,11 @@ StatBivariate <- ggproto(
 #'
 #' @examples
 #' set.seed(10086)
-#'
 #' data(nc)
-#'
 #' ggplot(nc) +
-#'   geom_sf_bivariate(aes(primary = value, secondary = sd)) +
-#'   scale_fill_bivariate(
-#'     colrange = list(colour = c("gold", "red4"), difC = c(4, 4)),
-#'     subtractive = FALSE,
-#'     flip_vertical = FALSE,
-#'     flip_horizontal = FALSE
-#'   )
+#'   geom_sf_bivariate(aes(v1 = value, v2 = sd))
 #'
 #' @return A ggproto object rendering the filled sf layer and a \code{coord_sf()}.
-#'
-#' @import ggplot2
 #' @export
 geom_sf_bivariate <- function(mapping = NULL,
                               data = NULL,

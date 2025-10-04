@@ -56,8 +56,7 @@ scale_fill_bivariate <- function(name = waiver(),
   blend <- match.arg(blend)
 
   pal_safe <- function(n) {
-    bivar_palette(colors[1],
-                  colors[2],
+    bivar_palette(colors,
                   n_breaks = rep(round(sqrt(n)), 2),
                   blend = blend,
                   flip = flip)
