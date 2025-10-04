@@ -2,7 +2,7 @@
 #' @export
 StatBivariate <- ggproto(
   "StatBivariate",
-  Stat,
+  StatSf,
   required_aes = c("v1", "v2"),
   compute_panel = function(data,
                            scales,
@@ -92,7 +92,7 @@ geom_sf_bivariate <- function(mapping = NULL,
                               na.rm = FALSE,
                               flip_axis  = FALSE,
                               breaks = c("quantile", "equal"),
-                              n_breaks = 4L,
+                              n_breaks = 3L,
                               ...) {
   if (is.null(mapping))
     mapping <- aes()
@@ -119,7 +119,6 @@ geom_sf_bivariate <- function(mapping = NULL,
         flip_axis = flip_axis,
         breaks = breaks,
         n_breaks = n_breaks,
-        coord = coord_sf(), # needed for compute_panel for sf
         ...
       )
     ),

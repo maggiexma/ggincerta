@@ -1,5 +1,5 @@
 StatExceed <- ggproto("StatExceed",
-                      Stat,
+                      StatSf,
                       required_aes = c("v1", "v2"),
                       compute_panel = function(data,
                                                scales,
@@ -64,7 +64,7 @@ geom_sf_exceed <- function(mapping = NULL,
                            show.legend = NA,
                            inherit.aes = TRUE,
                            dist_fun = stats::pnorm,
-                           threshold,
+                           threshold = 0,
                            palette = "YlOrRd",
                            direction = 1,
                            ...) {
@@ -83,12 +83,11 @@ geom_sf_exceed <- function(mapping = NULL,
     params = list(
       dist_fun = dist_fun,
       threshold = threshold,
-      coord = coord_sf(),
       ...
     )
   )
 
-  legend_title <- paste0("Pr[X > ", threshold, "]")
+  legend_title <- paste0("P(X > ", threshold, ")")
   scale <- scale_fill_distiller(palette = palette,
                                 direction = direction,
                                 name = legend_title)
