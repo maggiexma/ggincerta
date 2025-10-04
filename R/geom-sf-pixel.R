@@ -9,10 +9,8 @@ StatPixel <- ggproto("StatPixel",
                                               pixel_size) {
 
 
-                       if ("geometry" %in% names(data)) {
-                         data <- StatSf$compute_panel(data, scales, coord)
-                       }
 
+                       data <- StatSf$compute_panel(data, scales, coord)
                        sf_data <- sf::st_as_sf(data, sf_column_name = "geometry")
 
                        full_grid <- sf::st_make_grid(sf_data, n = pixel_size)
@@ -107,30 +105,13 @@ StatPixel <- ggproto("StatPixel",
 #' @export
 geom_sf_pixel <- function(mapping = NULL,
                           data = NULL,
-                          pixel_size = 40,
+                          pixel_size = 100,
                           distribution = "uniform",
                           id_col = "id",
                           na.rm = FALSE,
                           show.legend = NA,
                           inherit.aes = TRUE,
                           ...) {
-  # df_in <- as.data.frame(data)[, c("NAME", "value", "sd", "geometry")]
-  # names(df_in)[2:4] <- c("v1", "v2", "geometry")
-  # out_df <- StatPixel$compute_panel(
-  #   data = df_in,
-  #   scales = list(),
-  #   coord = coord_sf(),
-  #   id_col = id_col,
-  #   distribution = distribution,
-  #   pixelSize = pixelSize
-  # )
-  # mapping[["x"]] <- rlang::quo("x")
-  # mapping[["y"]] <- rlang::quo("y")
-  # mapping[["fill"]] <- rlang::quo("fill")
-  # mapping[["group"]] <- rlang::quo("group")
-  # for(a in c("x", "y", "fill", "group")) {
-  #   mapping[[a]] <- NA
-  # }
 
   mapping[["fill"]] <- NA
 
@@ -138,14 +119,6 @@ geom_sf_pixel <- function(mapping = NULL,
     data = data,
     mapping = mapping,
     stat = StatPixel,
-    # data = out_df,
-    # mapping = aes(
-    #   x = long,
-    #   y = lat,
-    #   group = group,
-    #   fill = values
-    # ),
-    # stat = "identity",
     geom = 'sf',
     position = "identity",
     show.legend = show.legend,
@@ -155,6 +128,7 @@ geom_sf_pixel <- function(mapping = NULL,
                   distribution = distribution,
                   ...)
     ),
-    scale_fill_continuous(),
+    geom_sf(fill = NA, color = 'black', linewidth = 1),
+    scale_fill_distiller(palette = "Oranges", direction = 1),
     coord_sf())
 }
