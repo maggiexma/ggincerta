@@ -4,10 +4,8 @@ test_that('geom_sf_exceed works', {
   p <- ggplot(nc) +
     geom_sf_exceed(
       mapping = aes(
-        geometry = geometry,
-        estimate = value,
-        error = sd,
-        fill = after_stat(pr_exc)
+        v1 = value,
+        v2 = sd
       ),
       threshold = 0.5,
       dist_fun = stats::pnorm

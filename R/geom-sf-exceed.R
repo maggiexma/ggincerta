@@ -1,19 +1,20 @@
 StatExceed <- ggproto("StatExceed",
                       Stat,
-                      required_aes = c("estimate", "error"),
+                      required_aes = c("v1", "v2"),
                       compute_panel = function(data,
                                                scales,
-                                               dist_fun = stats::pnorm,
+                                               dist_fun,
                                                threshold,
                                                coord) {
                         if ("geometry" %in% names(data)) {
                           data <- StatSf$compute_panel(data, scales, coord)
                         }
 
-                        data$pr_exc <- dist_fun(q = threshold,
-                                                mean = data$estimate,
-                                                sd = data$error,
-                                                lower.tail = FALSE)
+                        pr_exc <- dist_fun(q = threshold,
+                                           mean = data$v1,
+                                           sd = data$v2,
+                                           lower.tail = FALSE)
+                        data$fill <- pr_exc
                         data
                       }
 
@@ -38,16 +39,13 @@ StatExceed <- ggproto("StatExceed",
 #'
 #' @examples
 #' set.seed(10086)
-#' nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) %>%
-#'   dplyr::mutate(value = rnorm(n()), sd = rnorm(n()))
-#' nc$sd <- abs(rnorm(nrow(nc), mean = 1, sd = 0.3))
+#' data(nc)
 #' ggplot(nc) +
 #'   geom_sf_exceed(
 #'     mapping = aes(
-#'       geometry = geometry,
-#'       estimate = value,
-#'       error    = sd,
-#'       fill     = after_stat(pr_exc)
+#'       v1 = value,
+#'       v2 = sd,
+#'       fill = after_stat(pr_exc)
 #'     ),
 #'     threshold = 0.5,
 #'     dist_fun  = stats::pnorm
@@ -70,6 +68,10 @@ geom_sf_exceed <- function(mapping = NULL,
                            palette = "YlOrRd",
                            direction = 1,
                            ...) {
+  if(!"fill" %in% mapping) {
+    mapping[["fill"]] <- NA
+  }
+
   layer <- layer_sf(
     stat = StatExceed,
     geom = geom,
