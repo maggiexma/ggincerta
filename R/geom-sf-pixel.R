@@ -132,3 +132,32 @@ geom_sf_pixel <- function(mapping = NULL,
     scale_fill_distiller(palette = "Oranges", direction = 1),
     coord_sf())
 }
+
+
+# from FRK
+SpatialPolygonsDataFrame_to_df <- function (sp_polys, vars = names(sp_polys))
+{
+  if (!(is(sp_polys, "SpatialPolygonsDataFrame") | is(sp_polys,
+                                                      "SpatialPixelsDataFrame")))
+    stop("sp_polys needs to be of class SpatialPolygonsDataFrame\n                 or SpatialPixelsDataFrame")
+  if (is(sp_polys, "SpatialPixelsDataFrame"))
+    sp_polys <- as(sp_polys, "SpatialPolygonsDataFrame")
+  polynames <- as.character(row.names(sp_polys))
+  list_polys <- lapply(1:length(sp_polys), function(i) {
+    coords <- sp_polys@polygons[[i]]@Polygons[[1]]@coords
+    row.names(coords) <- NULL
+    coords <- data.frame(coords)
+    poldf <- cbind(coords, id = polynames[i], stringsAsFactors = FALSE)
+    rownames(poldf) <- NULL
+    poldf
+  })
+  df_polys <- bind_rows(list_polys)
+  df_polys$id <- as.character(df_polys$id)
+  sp_polys$id <- row.names(sp_polys)
+  cnames <- coordnames(sp_polys)
+  vars_no_coords <- vars[which(!vars %in% cnames)]
+  if (length(vars_no_coords) > 0)
+    df_polys <- left_join(df_polys, sp_polys@data[c("id",
+                                                    vars_no_coords)], by = "id")
+  df_polys
+}
