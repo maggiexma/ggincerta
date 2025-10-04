@@ -10,11 +10,11 @@ StatExceed <- ggproto("StatExceed",
                           data <- StatSf$compute_panel(data, scales, coord)
                         }
 
-                        pr_exc <- dist_fun(q = threshold,
-                                           mean = data$v1,
-                                           sd = data$v2,
-                                           lower.tail = FALSE)
-                        data$fill <- pr_exc
+                        data$prob <- dist_fun(q = threshold,
+                                              v1 = data$v1,
+                                              v2 = data$v2,
+                                              lower.tail = FALSE)
+                        data$fill <- data$prob
                         data
                       }
 
@@ -31,7 +31,8 @@ StatExceed <- ggproto("StatExceed",
 #' @param position Position adjustment.
 #' @param show.legend Logical; whether to display a legend.
 #' @param inherit.aes Logical; whether to inherit global aesthetics.
-#' @param dist_fun Function to compute tail probabilities.
+#' @param dist_fun Function to compute upper tail probabilities that takes the
+#'  argument the `threshold`, `v1` and `v2`.
 #' @param threshold Numeric threshold for exceedance probability.
 #' @param palette Palette name for \code{scale_fill_distiller}.
 #' @param direction Direction of the palette (1 or -1).
@@ -63,7 +64,7 @@ geom_sf_exceed <- function(mapping = NULL,
                            position = "identity",
                            show.legend = NA,
                            inherit.aes = TRUE,
-                           dist_fun = stats::pnorm,
+                           dist_fun = dist_norm,
                            threshold = 0,
                            palette = "YlOrRd",
                            direction = 1,
@@ -92,4 +93,10 @@ geom_sf_exceed <- function(mapping = NULL,
                                 direction = direction,
                                 name = legend_title)
   list(layer, scale, coord_sf())
+}
+
+
+#' @export
+dist_norm <- function(x, v1, v2) {
+  stats::pnorm(x, mean = v1, sd = v2, lower.tail = FALSE)
 }
