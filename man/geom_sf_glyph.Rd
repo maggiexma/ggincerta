@@ -7,25 +7,35 @@
 geom_sf_glyph(
   mapping = NULL,
   data = NULL,
-  position = "identity",
-  show.legend = NA,
-  inherit.aes = TRUE,
   size = 70,
   glyph = "icone",
   max_error = NULL,
+  position = "identity",
+  show.legend = TRUE,
+  inherit.aes = TRUE,
   ...
 )
 }
 \arguments{
-\item{mapping}{Aesthetic mapping that must include \code{geometry}, \code{estimate}, and \code{error}.}
+\item{mapping}{Set of aesthetic mappings created by \code{\link[ggplot2:aes]{aes()}}. If specified and
+\code{inherit.aes = TRUE} (the default), it is combined with the default mapping
+at the top level of the plot. You must supply \code{mapping} if there is no plot
+mapping.}
 
-\item{data}{An sf object.}
+\item{data}{The data to be displayed in this layer. There are three
+options:
 
-\item{position}{Position adjustment.}
+If \code{NULL}, the default, the data is inherited from the plot
+data as specified in the call to \code{\link[ggplot2:ggplot]{ggplot()}}.
 
-\item{show.legend}{Logical; whether to display a legend.}
+A \code{data.frame}, or other object, will override the plot
+data. All objects will be fortified to produce a data frame. See
+\code{\link[ggplot2:fortify]{fortify()}} for which variables will be created.
 
-\item{inherit.aes}{Logical; whether to inherit global aesthetics.}
+A \code{function} will be called with a single argument,
+the plot data. The return value must be a \code{data.frame}, and
+will be used as the layer data. A \code{function} can be created
+from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 
 \item{size}{Glyph scale factor.}
 
@@ -33,22 +43,44 @@ geom_sf_glyph(
 
 \item{max_error}{Maximum error scale.}
 
-\item{...}{Other params passed to layer()}
+\item{position}{A position adjustment to use on the data for this layer. This
+can be used in various ways, including to prevent overplotting and
+improving the display. The \code{position} argument accepts the following:
+\itemize{
+\item The result of calling a position function, such as \code{position_jitter()}.
+This method allows for passing extra arguments to the position.
+\item A string naming the position adjustment. To give the position as a
+string, strip the function name of the \code{position_} prefix. For example,
+to use \code{position_jitter()}, give the position as \code{"jitter"}.
+\item For more information and other ways to specify the position, see the
+\link[ggplot2:layer_positions]{layer position} documentation.
+}}
 
-\item{geom}{Geom type, default "polygon"}
+\item{show.legend}{logical. Should this layer be included in the legends?
+\code{NA}, the default, includes if any aesthetics are mapped.
+\code{FALSE} never includes, and \code{TRUE} always includes.
+
+You can also set this to one of "polygon", "line", and "point" to
+override the default legend.}
+
+\item{inherit.aes}{If \code{FALSE}, overrides the default aesthetics,
+rather than combining with them. This is most useful for helper functions
+that define both data and aesthetics and shouldn't inherit behaviour from
+the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
+
+\item{...}{Other parameters passed to \code{layer()}.}
 }
 \description{
 \code{geom_sf_glyph} applies \code{StatGlyph} to sf data and returns a centroid map
 with color and rotation based on estimate and error values.
 }
 \examples{
-set.seed(10086)
+data(nc)
 
-nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE) \%>\%
-  mutate(value = rnorm(n()), sd = rnorm(n()))
-
-ggplot(nc, aes(geometry = geometry, estimate = value, error = sd)) +
-  geom_sf_glyph(size = 50, glyph = "icone") +
-  coord_sf() + theme_void()
+ggplot(nc) +
+geom_sf_glyph(aes(geometry = geometry, estimate = value, error = sd), size = 50, glyph = "icone") +
+  scale_fill_viridis_c(name = "value", guide = guide_colorbar(order = 1)) +
+  scale_glyph_continuous(name = "sd", order = 2) +
+  theme(legend.position = "right", legend.box = "horizontal")
 
 }
