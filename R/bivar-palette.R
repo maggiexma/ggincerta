@@ -11,13 +11,13 @@ bivar_palette <- function(colors = NULL,
   }
 
 
-  grad1 <- colorRampPalette(c("white", colors[1]))
-  grad2 <- colorRampPalette(c("white", colors[2]))
+  grad1 <- grDevices::colorRampPalette(c("white", colors[1]))
+  grad2 <- grDevices::colorRampPalette(c("white", colors[2]))
   dif1  <- rev(grad1(round(n_breaks[1] * 2.5))[1:n_breaks[1]])
   dif2  <- rev(grad2(round(n_breaks[2] * 2.5))[1:n_breaks[2]])
 
-  ramp1 <- colorRamp(c(dif1[n_breaks[1]], colors[1]))
-  ramp2 <- colorRamp(c(dif2[n_breaks[2]], colors[2]))
+  ramp1 <- grDevices::colorRamp(c(dif1[n_breaks[1]], colors[1]))
+  ramp2 <- grDevices::colorRamp(c(dif2[n_breaks[2]], colors[2]))
 
   lam1 <- rep(seq(0, 1, length.out = n_breaks[1]), times = n_breaks[2])
   lam2 <- rep(seq(0, 1, length.out = n_breaks[2]), each = n_breaks[1])
@@ -39,7 +39,7 @@ bivar_palette <- function(colors = NULL,
   }
 
   cols <- apply(mix, 1, function(v)
-    rgb(v[1], v[2], v[3], maxColorValue = 255))
+    grDevices::rgb(v[1], v[2], v[3], maxColorValue = 255))
 
   ## remove flip for now
   # if (flip == "vertical")

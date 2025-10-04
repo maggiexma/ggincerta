@@ -9,10 +9,10 @@ draw_bivariate_key <- function(key,
 
   tiles <- lapply(seq_len(prod(n_breaks)), function(i) {
     grid::rectGrob(
-      x = unit((layout$col[i] - 0.5) / n_breaks[1], "npc"),
-      y = unit((layout$row[i] - 0.5) / n_breaks[2], "npc"),
-      width  = unit(1 / n_breaks[1], "npc"),
-      height = unit(1 / n_breaks[2], "npc"),
+      x = grid::unit((layout$col[i] - 0.5) / n_breaks[1], "npc"),
+      y = grid::unit((layout$row[i] - 0.5) / n_breaks[2], "npc"),
+      width  = grid::unit(1 / n_breaks[1], "npc"),
+      height = grid::unit(1 / n_breaks[2], "npc"),
       gp = grid::gpar(fill = key$fill[i], col = "black")
     )
   })
@@ -26,8 +26,8 @@ draw_bivariate_key <- function(key,
     for (i in 1:n_breaks[1]) {
       grobs[[length(grobs) + 1]] <- grid::textGrob(
         label = prm_label[i],
-        x = unit(seq(0, 1, length.out = n_breaks[1])[i], "npc") + unit(offset_x, "npc"),
-        y = unit(-0.18, "npc") + unit(offset_y, "npc"),
+        x = grid::unit(seq(0, 1, length.out = n_breaks[1])[i], "npc") + grid::unit(offset_x, "npc"),
+        y = grid::unit(-0.18, "npc") + grid::unit(offset_y, "npc"),
         just = "top",
         rot = -90,
         gp = grid::gpar(fontsize = 8)
@@ -39,8 +39,8 @@ draw_bivariate_key <- function(key,
     for (i in 1:n_breaks[2]) {
       grobs[[length(grobs) + 1]] <- grid::textGrob(
         label = scd_label[i],
-        x = unit(-0.06, "npc"),
-        y = unit(seq(0, 1, length.out = n_breaks[2])[i], "npc"),
+        x = grid::unit(-0.06, "npc"),
+        y = grid::unit(seq(0, 1, length.out = n_breaks[2])[i], "npc"),
         just = "right",
         gp = grid::gpar(fontsize = 8)
       )
@@ -50,8 +50,8 @@ draw_bivariate_key <- function(key,
   if (!is.null(prm_text)) {
     grobs[[length(grobs) + 1]] <- grid::textGrob(
       label = prm_text,
-      x = unit(-0.5, "npc"),
-      y = unit(0.5, "npc"),
+      x = grid::unit(-0.5, "npc"),
+      y = grid::unit(0.5, "npc"),
       just = c("center", "center"),
       gp = grid::gpar(fontsize = 9, fontface = "bold"),
       rot = -90
@@ -61,8 +61,8 @@ draw_bivariate_key <- function(key,
   if (!is.null(scd_text)) {
     grobs[[length(grobs) + 1]] <- grid::textGrob(
       label = scd_text,
-      x = unit(0.5, "npc"),
-      y = unit(-0.5, "npc"),
+      x = grid::unit(0.5, "npc"),
+      y = grid::unit(-0.5, "npc"),
       just = c("center", "center"),
       gp = grid::gpar(fontsize = 9, fontface = "bold")
     )
