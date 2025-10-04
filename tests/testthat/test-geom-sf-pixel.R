@@ -1,20 +1,12 @@
 test_that('geom_sf_pixel works', {
-  data(nc)
+  ggplot(nc) +
+    geom_sf_pixel(mapping = aes(v1 = value, v2 = sd))
 
-  names(nc)[ names(nc) == "NAME" ] <- "id"
-  names(nc)[ names(nc) == "value" ] <- "estimate"
-  names(nc)[ names(nc) == "sd" ] <- "error"
 
-  p <- ggplot() +
+  p <- ggplot(nc) +
     geom_sf_pixel(
-      data = nc,
-      mapping = aes(geometry = geometry),
-      id_col = "id",
-      pixelSize = 40,
-      distribution = "uniform"
-    ) +
-    scale_fill_distiller(palette = "Oranges", direction = 1) +
-    geom_sf(data = nc, fill = NA, color = 'black', size = 0.2)
+      mapping = aes(v1 = value, v2 = sd)
+    )
 
   vdiffr::expect_doppelganger("pixel map", p)
 })
