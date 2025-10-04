@@ -1,7 +1,7 @@
 StatGlyph <- ggproto(
   "StatGlyph",
   Stat,
-  required_aes = c("geometry", "estimate", "error"),
+  required_aes = c("geometry", "v1", "v2"),
   default_aes = aes(glyph = NA_real_),
   compute_panel = function(data,
                            scales,
@@ -13,7 +13,7 @@ StatGlyph <- ggproto(
     data$long <- coords[, 1]
     data$lat <- coords[, 2]
 
-    errs <- data$error
+    errs <- data$v2
     max_err <- if (is.null(max_error))
       max(errs, na.rm = TRUE)
     else
@@ -48,8 +48,8 @@ StatGlyph <- ggproto(
       N <- as.data.frame(t(Nmat))
 
       data.frame(
-        val = rep(data$estimate[i], nrow(glyphDat)),
-        err = rep(data$error[i], nrow(glyphDat)),
+        val = rep(data$v1[i], nrow(glyphDat)),
+        err = rep(data$v2[i], nrow(glyphDat)),
         id = rep(data$id[i], nrow(glyphDat)),
         long = N$V1 + data$long[i],
         lat = N$V2 + data$lat[i],
@@ -123,6 +123,8 @@ geom_sf_glyph <- function(mapping = NULL,
         ...
       )
     ),
-    coord_sf()
+    coord_sf(),
+    scale_fill_viridis_c(name = "value", guide = guide_colorbar(order = 1)),
+    scale_glyph_continuous(name = "sd", order = 2)
   )
 }
