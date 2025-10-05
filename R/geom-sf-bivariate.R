@@ -10,7 +10,8 @@ StatBivariate <- ggproto(
                            flip_axis,
                            breaks,
                            bound,
-                           n_breaks) {
+                           n_breaks,
+                           colors = c("gold", "red4")) {
     if ("geometry" %in% names(data)) {
       data <- StatSf$compute_panel(data, scales, coord)
     }
@@ -55,7 +56,11 @@ StatBivariate <- ggproto(
     for(avar in w) {
       res <- compute_bivariate(sapply(data[[avar]], function(x) x$v1),
                                sapply(data[[avar]], function(x) x$v2))
-      data[[avar]] <- res$value
+      pal <- bivar_palette(colors,
+                           n_breaks = n_breaks,
+                           blend = "additive",
+                           flip = "none")
+      data[[avar]] <- factor(pal[res$value], levels = pal)
       attr(data[[avar]], "bivar_breaks") <- list(
         prm_breaks = res$xb,
         scd_breaks = res$yb,
@@ -125,7 +130,7 @@ geom_sf_bivariate <- function(mapping = NULL,
         ...
       )
     ),
-    coord_sf(),
+    coord_sf(default = TRUE),
     scale_fill_bivariate(n_breaks = n_breaks)
   )
 }
