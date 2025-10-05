@@ -11,6 +11,7 @@ GuideBivariate <- ggproto(
       scd_label = NULL,
       prm_text = NULL,
       scd_text = NULL,
+      aesthetics = NULL,
       size = NULL
     )
   ),
@@ -22,12 +23,13 @@ GuideBivariate <- ggproto(
       prm_label = params$prm_label,
       scd_label = params$scd_label,
       prm_text = params$prm_text,
-      scd_text = params$scd_text
+      scd_text = params$scd_text,
+      aesthetics = params$aesthetics
     )
   }
 )
 
-guide_bivariate <- function(aesthetic,
+guide_bivariate <- function(key,
                             value,
                             label,
                             n_breaks = c(4, 4),
@@ -40,8 +42,9 @@ guide_bivariate <- function(aesthetic,
                             theme = NULL,
                             title = waiver(),
                             order = 0,
-                            position = NULL) {
-  key <- data.frame(aesthetic, .value = value, .label = label)
+                            position = NULL,
+                            aesthetics = NULL) {
+  key <- data.frame(key, .value = value, .label = label)
 
   new_guide(
     key = key,
@@ -50,12 +53,13 @@ guide_bivariate <- function(aesthetic,
     scd_label = scd_label,
     prm_text = prm_text,
     scd_text = scd_text,
+    aesthetics = aesthetics,
     size = size,
     theme = theme,
     title = title,
     order = order,
     position = position,
-    available_aes = 'fill',
+    available_aes = c('fill', 'colour'),
     super = GuideBivariate
   )
 }

@@ -10,7 +10,6 @@ bivar_palette <- function(colors = NULL,
     n_breaks <- c(4, 4)
   }
 
-
   grad1 <- grDevices::colorRampPalette(c("white", colors[1]))
   grad2 <- grDevices::colorRampPalette(c("white", colors[2]))
   dif1  <- rev(grad1(round(n_breaks[1] * 2.5))[1:n_breaks[1]])

@@ -4,16 +4,16 @@ draw_bivariate_key <- function(key,
                                prm_label = NULL,
                                scd_label = NULL,
                                prm_text = NULL,
-                               scd_text = NULL) {
+                               scd_text = NULL,
+                               aesthetics = "fill") {
   layout <- expand.grid(row = 1:n_breaks[1], col = 1:n_breaks[2])
-
   tiles <- lapply(seq_len(prod(n_breaks)), function(i) {
     grid::rectGrob(
       x = grid::unit((layout$col[i] - 0.5) / n_breaks[1], "npc"),
       y = grid::unit((layout$row[i] - 0.5) / n_breaks[2], "npc"),
       width  = grid::unit(1 / n_breaks[1], "npc"),
       height = grid::unit(1 / n_breaks[2], "npc"),
-      gp = grid::gpar(fill = key$fill[i], col = "black")
+      gp = grid::gpar(fill = key[[aesthetics]][i], col = "black")
     )
   })
 

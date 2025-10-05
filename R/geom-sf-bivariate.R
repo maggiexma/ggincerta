@@ -3,7 +3,7 @@
 StatBivariate <- ggproto(
   "StatBivariate",
   StatSf,
-  required_aes = c("v1", "v2"),
+  required_aes = c("fill|colour"),
   compute_panel = function(data,
                            scales,
                            coord,
@@ -14,47 +14,55 @@ StatBivariate <- ggproto(
     if ("geometry" %in% names(data)) {
       data <- StatSf$compute_panel(data, scales, coord)
     }
+    w <- which_vc(data)
 
-    x <- data$v1
-    y <- data$v2
-    qx <- quantile(x, seq(0, 1, length.out = n_breaks[1]), na.rm = TRUE)
-    qy <- quantile(y, seq(0, 1, length.out = n_breaks[2]), na.rm = TRUE)
-    if (breaks == "equal" || length(unique(qx)) < n_breaks[1])
-      qx <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n_breaks[1])
-    if (breaks == "equal" || length(unique(qy)) < n_breaks[2])
-      qy <- seq(min(y, na.rm = TRUE), max(y, na.rm = TRUE), length.out = n_breaks[2])
-    xb <- unique(as.numeric(qx))
-    yb <- unique(as.numeric(qy))
+    compute_bivariate <- function(x, y) {
+      qx <- quantile(x, seq(0, 1, length.out = n_breaks[1]), na.rm = TRUE)
+      qy <- quantile(y, seq(0, 1, length.out = n_breaks[2]), na.rm = TRUE)
+      if (breaks == "equal" || length(unique(qx)) < n_breaks[1])
+        qx <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n_breaks[1])
+      if (breaks == "equal" || length(unique(qy)) < n_breaks[2])
+        qy <- seq(min(y, na.rm = TRUE), max(y, na.rm = TRUE), length.out = n_breaks[2])
+      xb <- unique(as.numeric(qx))
+      yb <- unique(as.numeric(qy))
 
-    if (!flip_axis) {
-      prm_bin <- cut(x,
-                     breaks = xb,
-                     include.lowest = TRUE,
-                     labels = FALSE)
-      scd_bin <- cut(y,
-                     breaks = yb,
-                     include.lowest = TRUE,
-                     labels = FALSE)
-    } else {
-      prm_bin <- cut(y,
-                     breaks = yb,
-                     include.lowest = TRUE,
-                     labels = FALSE)
-      scd_bin <- cut(x,
-                     breaks = xb,
-                     include.lowest = TRUE,
-                     labels = FALSE)
+      if (!flip_axis) {
+        prm_bin <- cut(x,
+                       breaks = xb,
+                       include.lowest = TRUE,
+                       labels = FALSE)
+        scd_bin <- cut(y,
+                       breaks = yb,
+                       include.lowest = TRUE,
+                       labels = FALSE)
+      } else {
+        prm_bin <- cut(y,
+                       breaks = yb,
+                       include.lowest = TRUE,
+                       labels = FALSE)
+        scd_bin <- cut(x,
+                       breaks = xb,
+                       include.lowest = TRUE,
+                       labels = FALSE)
+      }
+
+      combo <- (prm_bin - 1L) * n_breaks[2] + scd_bin
+      list(value = factor(combo, levels = 1:prod(n_breaks)),
+           xb = xb,
+           yb = yb)
     }
 
-    combo <- (prm_bin - 1L) * n_breaks[2] + scd_bin
-    data$fill <- factor(combo, levels = 1:prod(n_breaks))
-
-    attr(data$fill, "bivar_breaks") <- list(
-      prm_breaks = xb,
-      scd_breaks = yb,
-      n_prm = n_breaks[1],
-      n_scd = n_breaks[2]
-    )
+    for(avar in w) {
+      res <- compute_bivariate(sapply(data[[avar]], function(x) x$v1),
+                               sapply(data[[avar]], function(x) x$v2))
+      data[[avar]] <- res$value
+      attr(data[[avar]], "bivar_breaks") <- list(
+        prm_breaks = res$xb,
+        scd_breaks = res$yb,
+        n_prm = n_breaks[1],
+        n_scd = n_breaks[2]
+      )
+    }
     data
   }
 )
@@ -94,11 +102,6 @@ geom_sf_bivariate <- function(mapping = NULL,
                               breaks = c("quantile", "equal"),
                               n_breaks = 3L,
                               ...) {
-  if (is.null(mapping))
-    mapping <- aes()
-  if (is.null(mapping[["fill"]])) {
-    mapping[["fill"]] <- rlang::expr(after_stat(fill))
-  }
   breaks <- match.arg(breaks)
   if(length(n_breaks) == 1L && is.numeric(n_breaks)) {
     n_breaks <- c(n_breaks, n_breaks)
@@ -125,4 +128,21 @@ geom_sf_bivariate <- function(mapping = NULL,
     coord_sf(),
     scale_fill_bivariate(n_breaks = n_breaks)
   )
+}
+
+which_vc <- function(data) {
+  w <- character()
+  if("fill" %in% names(data)) {
+    if(is.list(data$fill)) w <- c(w, "fill")
+  } else if("colour" %in% names(data)) {
+    if(is.list(data$colour)) w <- c(w, "colour")
+  }
+  stopifnot(length(w) > 0)
+  w
+}
+
+#' @export
+vc <- function(v1, v2) {
+  ind <- seq_along(v1)
+  lapply(ind, function(i) list(v1 = v1[i], v2 = v2[i]))
 }
