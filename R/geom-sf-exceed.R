@@ -12,8 +12,7 @@ StatExceed <- ggproto("StatExceed",
 
                         data$prob <- dist_fun(q = threshold,
                                               v1 = data$v1,
-                                              v2 = data$v2,
-                                              lower.tail = FALSE)
+                                              v2 = data$v2)
                         data$fill <- data$prob
                         data
                       }
