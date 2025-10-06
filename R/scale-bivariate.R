@@ -1,3 +1,5 @@
+
+
 #' @export
 ScaleBivariate <- ggproto(
   "ScaleBivariate",
@@ -93,11 +95,24 @@ scale_fill_bivariate <- function(name = waiver(),
                   flip = flip)
   }
 
+
   sc <- discrete_scale(
     aesthetics = aesthetics,
     palette = pal_safe,
     name = name,
     guide = "legend",
+    # guide = guide_bivariate(
+    #   key = colors,
+    #   value = as.character(seq_len(n_breaks * n_breaks)),
+    #   label = as.character(seq_len(n_breaks * n_breaks)),
+    #   n_breaks = n_breaks,
+    #   #prm_label = format(res$xb, digits = 2),
+    #   #scd_label = format(res$yb, digits = 2),
+    #   #prm_text = self$prm_text %||% "primary",
+    #   #scd_text = self$scd_text %||% "secondary",
+    #   #size = self$guide_size,
+    #   aesthetics = aesthetics
+    # ),
     drop = FALSE,
     na.value = na.value,
     na.translate = na.translate,
