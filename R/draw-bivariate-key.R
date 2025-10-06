@@ -1,4 +1,4 @@
-draw_bivariate_key <- function(key,
+draw_key_bivariate <- function(key,
                                size,
                                n_breaks = NULL,
                                prm_label = NULL,

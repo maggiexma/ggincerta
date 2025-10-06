@@ -16,7 +16,7 @@ GuideBivariate <- ggproto(
     )
   ),
   draw = function(self, theme, params = self$params, ...) {
-    draw_bivariate_key(
+    draw_key_bivariate(
       key = params$key,
       size = params$size,
       n_breaks = params$n_breaks,
