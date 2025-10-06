@@ -32,6 +32,5 @@ geom_point_bivariate <- function(mapping = NULL,
       ...
     )
   )
-  # need a way to switch between fill/color automatically
   layer
 }

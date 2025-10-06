@@ -4,7 +4,8 @@ StatBivariate <- ggproto(
   "StatBivariate",
   StatSf,
   required_aes = c("fill|colour"),
-  compute_panel = function(data,
+  compute_panel = function(self,
+                           data,
                            scales,
                            coord,
                            flip_axis,
@@ -15,6 +16,7 @@ StatBivariate <- ggproto(
     if ("geometry" %in% names(data)) {
       data <- StatSf$compute_panel(data, scales, coord)
     }
+    # might separate out the variables here
     w <- which_vc(data)
 
     compute_bivariate <- function(x, y) {
@@ -54,19 +56,17 @@ StatBivariate <- ggproto(
     }
 
     for(avar in w) {
-      res <- compute_bivariate(sapply(data[[avar]], function(x) x$v1),
-                               sapply(data[[avar]], function(x) x$v2))
+      v1 <- sapply(data[[avar]], function(x) x$v1)
+      v2 <- sapply(data[[avar]], function(x) x$v2)
+      res <- compute_bivariate(v1, v2)
       pal <- bivar_palette(colors,
                            n_breaks = n_breaks,
                            blend = "additive",
                            flip = "none")
-      data[[avar]] <- factor(pal[res$value], levels = pal)
-      attr(data[[avar]], "bivar_breaks") <- list(
-        prm_breaks = res$xb,
-        scd_breaks = res$yb,
-        n_prm = n_breaks[1],
-        n_scd = n_breaks[2]
-      )
+
+      data[[avar]] <- res$value # factor(pal[res$value], levels = pal)
+      data[[paste0(avar, "_v1")]] <- v1
+      data[[paste0(avar, "_v2")]] <- v2
     }
     data
   }
@@ -130,8 +130,7 @@ geom_sf_bivariate <- function(mapping = NULL,
         ...
       )
     ),
-    coord_sf(default = TRUE),
-    scale_fill_bivariate(n_breaks = n_breaks)
+    coord_sf(default = TRUE)
   )
 }
 
@@ -149,5 +148,6 @@ which_vc <- function(data) {
 #' @export
 vc <- function(v1, v2) {
   ind <- seq_along(v1)
-  lapply(ind, function(i) list(v1 = v1[i], v2 = v2[i]))
+  structure(lapply(ind, function(i) list(v1 = v1[i], v2 = v2[i])),
+            class = c("bivariate", "list"))
 }

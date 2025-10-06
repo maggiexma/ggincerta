@@ -6,16 +6,46 @@ ScaleBivariate <- ggproto(
   na.value = NA,
 
   train_df = function(self, df, ...) {
-    info <- attr(df[[self$aesthetics]], "bivar_breaks", exact = TRUE)
-    if (!is.null(info)) {
-        self$prm_breaks <- info$prm_breaks
-        self$scd_breaks <- info$scd_breaks
-        self$n_prm <- info$n_prm %||% 3L
-        self$n_scd <- info$n_scd %||% 3L
+    n_breaks <- self$n_breaks
+    colors <- self$colors
+    breaks <- self$breaks
+    compute_bivariate <- function(x, y) {
+      qx <- quantile(x, seq(0, 1, length.out = n_breaks[1]), na.rm = TRUE)
+      qy <- quantile(y, seq(0, 1, length.out = n_breaks[2]), na.rm = TRUE)
+      if (breaks == "equal" || length(unique(qx)) < n_breaks[1])
+        qx <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n_breaks[1])
+      if (breaks == "equal" || length(unique(qy)) < n_breaks[2])
+        qy <- seq(min(y, na.rm = TRUE), max(y, na.rm = TRUE), length.out = n_breaks[2])
+      xb <- unique(as.numeric(qx))
+      yb <- unique(as.numeric(qy))
+
+      bin1 <- cut(x,
+                  breaks = xb,
+                  include.lowest = TRUE,
+                  labels = FALSE)
+      bin2 <- cut(y,
+                  breaks = yb,
+                  include.lowest = TRUE,
+                  labels = FALSE)
+
+      combo <- (bin1 - 1L) * n_breaks[2] + bin2
+      list(value = factor(combo, levels = 1:prod(n_breaks)),
+           xb = xb,
+           yb = yb)
     }
+
+    res <- compute_bivariate(df[[paste0(self$aesthetics, "_v1")]],
+                             df[[paste0(self$aesthetics, "_v2")]])
+    #browser()
+    # pal <- bivar_palette(colors,
+    #                      n_breaks = n_breaks,
+    #                      blend = "additive",
+    #                      flip = "none")
+    # df[[self$aesthetics]] <- res$value # factor(pal[res$value], levels = pal)
+
     ggproto_parent(ScaleDiscrete, self)$train_df(df, ...)
 
-    n <- as.integer(self$n_prm * self$n_scd)
+    n <- prod(n_breaks)
     cols <- self$palette(n)
     if (length(cols) < n)
       cols <- rep_len(cols, n)
@@ -25,9 +55,9 @@ ScaleBivariate <- ggproto(
       key = setNames(list(self$legend_cols), self$aesthetics),
       value = as.character(seq_len(n)),
       label = as.character(seq_len(n)),
-      n_breaks = c(self$n_prm, self$n_scd),
-      prm_label = format(self$prm_breaks, digits = 2),
-      scd_label = format(self$scd_breaks, digits = 2),
+      n_breaks = n_breaks,
+      prm_label = format(res$xb, digits = 2),
+      scd_label = format(res$yb, digits = 2),
       prm_text = self$prm_text %||% "primary",
       scd_text = self$scd_text %||% "secondary",
       size = self$guide_size,
@@ -43,7 +73,8 @@ scale_fill_bivariate <- function(name = waiver(),
                                  name_primary = waiver(),
                                  name_secondary = waiver(),
                                  colors = c("gold", "red4"),
-                                 n_breaks = waiver(),
+                                 n_breaks = 4,
+                                 breaks = c("quantile", "equal"),
                                  blend = c("additive", "subtractive"),
                                  flip = c("none", "vertical", "horizontal", "both"),
                                  guide_size = 1.5,
@@ -53,6 +84,7 @@ scale_fill_bivariate <- function(name = waiver(),
                                  ...) {
   flip <- match.arg(flip)
   blend <- match.arg(blend)
+  breaks <- match.arg(breaks)
 
   pal_safe <- function(n) {
     bivar_palette(colors,
@@ -72,6 +104,13 @@ scale_fill_bivariate <- function(name = waiver(),
     super = ScaleBivariate,
     ...
   )
+  if(length(n_breaks) == 1L && is.numeric(n_breaks)) {
+    n_breaks <- c(n_breaks, n_breaks)
+  }
+  stopifnot(length(n_breaks) == 2)
+  sc$n_breaks <- n_breaks
+  sc$breaks <- breaks
+  sc$colors <- colors
   sc$prm_text <- name_primary
   sc$scd_text <- name_secondary
   sc$guide_size <- guide_size
@@ -84,7 +123,8 @@ scale_color_bivariate <- function(name = waiver(),
                                  name_primary = waiver(),
                                  name_secondary = waiver(),
                                  colors = c("gold", "red4"),
-                                 n_breaks = waiver(),
+                                 n_breaks = 4,
+                                 breaks = c("quantile", "equal"),
                                  blend = c("additive", "subtractive"),
                                  flip = c("none", "vertical", "horizontal", "both"),
                                  guide_size = 1.5,
@@ -97,6 +137,7 @@ scale_color_bivariate <- function(name = waiver(),
                        name_secondary = name_secondary,
                        colors = colors,
                        n_breaks = n_breaks,
+                       breaks = breaks,
                        blend = blend,
                        flip = flip,
                        guide_size = guide_size,
@@ -105,3 +146,9 @@ scale_color_bivariate <- function(name = waiver(),
                        aesthetics = aesthetics,
                        ...)
 }
+
+#' @export
+scale_colour_bivariate <- scale_color_bivariate
+
+#' @export
+scale_type.bivariate <- function(x) "bivariate"
