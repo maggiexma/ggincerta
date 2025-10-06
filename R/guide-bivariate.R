@@ -32,21 +32,23 @@ GuideBivariate <- ggproto(
   }
 )
 
-guide_bivariate <- function(key,
-                            value,
-                            label,
-                            n_breaks = c(4, 4),
-                            prm_label = NULL,
-                            scd_label = NULL,
-                            prm_text = NULL,
-                            scd_text = NULL,
-                            size = NULL,
-                            ...,
-                            theme = NULL,
-                            title = waiver(),
-                            order = 0,
-                            position = NULL,
-                            aesthetics = NULL) {
+guide_bivariate <- function(
+  key,
+  value,
+  label,
+  n_breaks = c(4, 4),
+  prm_label = NULL,
+  scd_label = NULL,
+  prm_text = NULL,
+  scd_text = NULL,
+  size = NULL,
+  ...,
+  theme = NULL,
+  title = waiver(),
+  order = 0,
+  position = NULL,
+  aesthetics = NULL
+) {
   key <- data.frame(key, .value = value, .label = label)
 
   new_guide(
@@ -67,20 +69,22 @@ guide_bivariate <- function(key,
   )
 }
 
-draw_key_bivariate <- function(key,
-                               size,
-                               n_breaks = NULL,
-                               prm_label = NULL,
-                               scd_label = NULL,
-                               prm_text = NULL,
-                               scd_text = NULL,
-                               aesthetics = "fill") {
+draw_key_bivariate <- function(
+  key,
+  size,
+  n_breaks = NULL,
+  prm_label = NULL,
+  scd_label = NULL,
+  prm_text = NULL,
+  scd_text = NULL,
+  aesthetics = "fill"
+) {
   layout <- expand.grid(row = 1:n_breaks[1], col = 1:n_breaks[2])
   tiles <- lapply(seq_len(prod(n_breaks)), function(i) {
     grid::rectGrob(
       x = grid::unit((layout$col[i] - 0.5) / n_breaks[1], "npc"),
       y = grid::unit((layout$row[i] - 0.5) / n_breaks[2], "npc"),
-      width  = grid::unit(1 / n_breaks[1], "npc"),
+      width = grid::unit(1 / n_breaks[1], "npc"),
       height = grid::unit(1 / n_breaks[2], "npc"),
       gp = grid::gpar(fill = key[[aesthetics]][i], col = "black")
     )
@@ -95,7 +99,8 @@ draw_key_bivariate <- function(key,
     for (i in 1:n_breaks[1]) {
       grobs[[length(grobs) + 1]] <- grid::textGrob(
         label = prm_label[i],
-        x = grid::unit(seq(0, 1, length.out = n_breaks[1])[i], "npc") + grid::unit(offset_x, "npc"),
+        x = grid::unit(seq(0, 1, length.out = n_breaks[1])[i], "npc") +
+          grid::unit(offset_x, "npc"),
         y = grid::unit(-0.18, "npc") + grid::unit(offset_y, "npc"),
         just = "top",
         rot = -90,
@@ -148,13 +153,9 @@ draw_key_bivariate <- function(key,
     )
   )
 
-  width <- grid::unit.c(unit(1, "cm"),
-                        unit(size, "cm"),
-                        unit(1, "cm"))
+  width <- grid::unit.c(unit(1, "cm"), unit(size, "cm"), unit(1, "cm"))
 
-  height <- grid::unit.c(unit(1, "cm"),
-                         unit(size, "cm"),
-                         unit(1, "cm"))
+  height <- grid::unit.c(unit(1, "cm"), unit(size, "cm"), unit(1, "cm"))
 
   gt <- gtable::gtable(widths = width, heights = height)
 
@@ -169,4 +170,3 @@ draw_key_bivariate <- function(key,
 
   return(gt)
 }
-

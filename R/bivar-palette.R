@@ -1,19 +1,20 @@
-bivar_palette <- function(colors = NULL,
-                          n_breaks = NULL,
-                          blend = c("additive", "subtractive"),
-                          flip  = c("none", "vertical", "horizontal", "both")
-                          ) {
+bivar_palette <- function(
+  colors = NULL,
+  n_breaks = NULL,
+  blend = c("additive", "subtractive"),
+  flip = c("none", "vertical", "horizontal", "both")
+) {
   blend <- match.arg(blend)
-  flip  <- match.arg(flip)
+  flip <- match.arg(flip)
 
-  if(any(is.null(n_breaks))) {
+  if (any(is.null(n_breaks))) {
     n_breaks <- c(4, 4)
   }
 
   grad1 <- grDevices::colorRampPalette(c("white", colors[1]))
   grad2 <- grDevices::colorRampPalette(c("white", colors[2]))
-  dif1  <- rev(grad1(round(n_breaks[1] * 2.5))[1:n_breaks[1]])
-  dif2  <- rev(grad2(round(n_breaks[2] * 2.5))[1:n_breaks[2]])
+  dif1 <- rev(grad1(round(n_breaks[1] * 2.5))[1:n_breaks[1]])
+  dif2 <- rev(grad2(round(n_breaks[2] * 2.5))[1:n_breaks[2]])
 
   ramp1 <- grDevices::colorRamp(c(dif1[n_breaks[1]], colors[1]))
   ramp2 <- grDevices::colorRamp(c(dif2[n_breaks[2]], colors[2]))
@@ -37,8 +38,9 @@ bivar_palette <- function(colors = NULL,
     mix <- round((m1 + m2) / 2)
   }
 
-  cols <- apply(mix, 1, function(v)
-    grDevices::rgb(v[1], v[2], v[3], maxColorValue = 255))
+  cols <- apply(mix, 1, function(v) {
+    grDevices::rgb(v[1], v[2], v[3], maxColorValue = 255)
+  })
 
   ## remove flip for now
   # if (flip == "vertical")
@@ -50,26 +52,37 @@ bivar_palette <- function(colors = NULL,
   n <- prod(n_breaks)
   n1 <- n_breaks[1]
   n2 <- n_breaks[2]
-  cols <- switch(flip,
-                 "vertical" = cols,
-                 "horizontal" = cols[as.vector(matrix(1:n, byrow = FALSE, n1, n2)[, c(n2:1), drop = FALSE])],
-                 "both" = cols[rev(as.vector(matrix(1:n, byrow = FALSE, n1, n2)[, c(n2:1), drop = FALSE]))],
-                 cols)
-
+  cols <- switch(
+    flip,
+    "vertical" = cols,
+    "horizontal" = cols[as.vector(matrix(1:n, byrow = FALSE, n1, n2)[,
+      c(n2:1),
+      drop = FALSE
+    ])],
+    "both" = cols[rev(as.vector(matrix(1:n, byrow = FALSE, n1, n2)[,
+      c(n2:1),
+      drop = FALSE
+    ]))],
+    cols
+  )
 
   cols[seq_len(min(n, length(cols)))]
 }
 
 
 # from PBSmapping
-RYB2RGB <- function (RYBmat) {
-  if (is.null(dim(RYBmat)))
-    if (length(RYBmat) > 2)
+RYB2RGB <- function(RYBmat) {
+  if (is.null(dim(RYBmat))) {
+    if (length(RYBmat) > 2) {
       RYBmat <- matrix(RYBmat, ncol = 3, byrow = TRUE)
-  if (nrow(RYBmat) == 3 && ncol(RYBmat) != 3)
+    }
+  }
+  if (nrow(RYBmat) == 3 && ncol(RYBmat) != 3) {
     RYBmat = t(RYBmat)
-  if (any(RYBmat > 1))
-    RYBmat = RYBmat/255
+  }
+  if (any(RYBmat > 1)) {
+    RYBmat = RYBmat / 255
+  }
   R.ryb = RYBmat[, 1]
   Y.ryb = RYBmat[, 2]
   B.ryb = RYBmat[, 3]
@@ -80,11 +93,11 @@ RYB2RGB <- function (RYBmat) {
   r.rgb = r.ryb + y.ryb - pmin(y.ryb, b.ryb)
   g.rgb = y.ryb + pmin(y.ryb, b.ryb)
   b.rgb = 2 * (b.ryb - pmin(y.ryb, b.ryb))
-  n = pmax(r.rgb, g.rgb, b.rgb)/pmax(r.ryb, y.ryb, b.ryb)
+  n = pmax(r.rgb, g.rgb, b.rgb) / pmax(r.ryb, y.ryb, b.ryb)
   n[n == 0] = 1
-  rp.rgb = r.rgb/n
-  gp.rgb = g.rgb/n
-  bp.rgb = b.rgb/n
+  rp.rgb = r.rgb / n
+  gp.rgb = g.rgb / n
+  bp.rgb = b.rgb / n
   I.w = pmin(1 - R.ryb, 1 - Y.ryb, 1 - B.ryb)
   R.rgb = rp.rgb + I.w
   G.rgb = gp.rgb + I.w
@@ -93,14 +106,18 @@ RYB2RGB <- function (RYBmat) {
   return(RGB)
 }
 
-RGB2RYB <- function (RGBmat) {
-  if (is.null(dim(RGBmat)))
-    if (length(RGBmat) > 2)
+RGB2RYB <- function(RGBmat) {
+  if (is.null(dim(RGBmat))) {
+    if (length(RGBmat) > 2) {
       RGBmat <- matrix(RGBmat, ncol = 3, byrow = TRUE)
-  if (nrow(RGBmat) == 3 && ncol(RGBmat) != 3)
+    }
+  }
+  if (nrow(RGBmat) == 3 && ncol(RGBmat) != 3) {
     RGBmat = t(RGBmat)
-  if (any(RGBmat > 1))
-    RGBmat = RGBmat/255
+  }
+  if (any(RGBmat > 1)) {
+    RGBmat = RGBmat / 255
+  }
   R.rgb = RGBmat[, 1]
   G.rgb = RGBmat[, 2]
   B.rgb = RGBmat[, 3]
@@ -111,15 +128,15 @@ RGB2RYB <- function (RGBmat) {
   r.ryb = r.rgb - pmin(r.rgb, g.rgb)
   y.ryb = 0.5 * (g.rgb + pmin(r.rgb, g.rgb))
   b.ryb = 0.5 * (b.rgb + g.rgb - pmin(r.rgb, g.rgb))
-  n = pmax(r.ryb, y.ryb, b.ryb)/pmax(r.rgb, g.rgb, b.rgb)
+  n = pmax(r.ryb, y.ryb, b.ryb) / pmax(r.rgb, g.rgb, b.rgb)
   n[n == 0] = 1
-  rp.ryb = r.ryb/n
-  yp.ryb = y.ryb/n
-  bp.ryb = b.ryb/n
+  rp.ryb = r.ryb / n
+  yp.ryb = y.ryb / n
+  bp.ryb = b.ryb / n
   I.b = pmin(1 - R.rgb, 1 - G.rgb, 1 - B.rgb)
   R.ryb = rp.ryb + I.b
   Y.ryb = yp.ryb + I.b
   B.ryb = bp.ryb + I.b
   RYB = cbind(red = R.ryb, yellow = Y.ryb, blue = B.ryb)
   return(RYB)
-}
+}s
