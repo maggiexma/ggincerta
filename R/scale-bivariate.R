@@ -6,8 +6,7 @@ ScaleBivariate <- ggproto(
   ScaleDiscrete,
   drop = FALSE,
   na.value = NA,
-
-  train_df = function(self, df, ...) {
+  transform = function(self, x) {
     n_breaks <- self$n_breaks
     colors <- self$colors
     breaks <- self$breaks
@@ -36,17 +35,10 @@ ScaleBivariate <- ggproto(
            yb = yb)
     }
 
-    res <- compute_bivariate(df[[paste0(self$aesthetics, "_v1")]],
-                             df[[paste0(self$aesthetics, "_v2")]])
-    #browser()
-    # pal <- bivar_palette(colors,
-    #                      n_breaks = n_breaks,
-    #                      blend = "additive",
-    #                      flip = "none")
-    # df[[self$aesthetics]] <- res$value # factor(pal[res$value], levels = pal)
-
-    ggproto_parent(ScaleDiscrete, self)$train_df(df, ...)
-
+    if(inherits(x, "bivariate")) {
+      res <- compute_bivariate(sapply(x, function(x) x$v1),
+                               sapply(x, function(x) x$v2))
+    }
     n <- prod(n_breaks)
     cols <- self$palette(n)
     if (length(cols) < n)
@@ -66,7 +58,11 @@ ScaleBivariate <- ggproto(
       aesthetics = self$aesthetics
     )
 
-    invisible()
+    res$value
+  },
+
+  train_df = function(self, df, ...) {
+    ggproto_parent(ScaleDiscrete, self)$train_df(df, ...)
   }
 )
 

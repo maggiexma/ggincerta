@@ -26,9 +26,26 @@ You can install the development version of ggfuzzy from [GitHub](https://github.
 
 ``` r
 # install.packages("pak")
-pak::pak("maggiexma/ggfuzzy")
+pak::pak("maggiexma/ggincerta")
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+
+```{r}
+library(ggincerta)
+```
+
+The package works for any geom :D
+
+```{r}
+ggplot(nc) +
+  geom_sf(aes(fill = duo(value, sd)))
+
+
+ggplot(anscombe, aes(x1, x2)) +
+  geom_point(aes(color = duo(y1, y2)), size = 10)
+
+```
+
+
