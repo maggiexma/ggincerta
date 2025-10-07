@@ -53,10 +53,10 @@ ScaleBivariate <- ggproto(
       value = as.character(seq_len(n)),
       label = as.character(seq_len(n)),
       n_breaks = n_breaks,
-      prm_label = format(res$xb, digits = 2),
-      scd_label = format(res$yb, digits = 2),
-      prm_text = self$prm_text %||% "primary",
-      scd_text = self$scd_text %||% "secondary",
+      label1 = format(res$xb, digits = 2),
+      label2 = format(res$yb, digits = 2),
+      title1 = self$name1 %||% attr(x, "vars")[1],
+      title2 = self$name2 %||% attr(x, "vars")[2],
       size = self$guide_size,
       aesthetics = self$aesthetics
     )
@@ -71,9 +71,9 @@ ScaleBivariate <- ggproto(
 
 #' @export
 scale_fill_bivariate <- function(
-  name = waiver(),
-  name_primary = waiver(),
-  name_secondary = waiver(),
+  name = NULL,
+  name1 = NULL,
+  name2 = NULL,
   colors = c("gold", "red4"),
   n_breaks = 4,
   breaks = c("quantile", "equal"),
@@ -103,18 +103,6 @@ scale_fill_bivariate <- function(
     palette = pal_safe,
     name = name,
     guide = "legend",
-    # guide = guide_bivariate(
-    #   key = colors,
-    #   value = as.character(seq_len(n_breaks * n_breaks)),
-    #   label = as.character(seq_len(n_breaks * n_breaks)),
-    #   n_breaks = n_breaks,
-    #   #prm_label = format(res$xb, digits = 2),
-    #   #scd_label = format(res$yb, digits = 2),
-    #   #prm_text = self$prm_text %||% "primary",
-    #   #scd_text = self$scd_text %||% "secondary",
-    #   #size = self$guide_size,
-    #   aesthetics = aesthetics
-    # ),
     drop = FALSE,
     na.value = na.value,
     na.translate = na.translate,
@@ -128,8 +116,8 @@ scale_fill_bivariate <- function(
   sc$n_breaks <- n_breaks
   sc$breaks <- breaks
   sc$colors <- colors
-  sc$prm_text <- name_primary
-  sc$scd_text <- name_secondary
+  sc$name1 <- name1
+  sc$name2 <- name2
   sc$guide_size <- guide_size
   sc
 }
@@ -137,9 +125,9 @@ scale_fill_bivariate <- function(
 
 #' @export
 scale_color_bivariate <- function(
-  name = waiver(),
-  name_primary = waiver(),
-  name_secondary = waiver(),
+  name = NULL,
+  name1 = NULL,
+  name2 = NULL,
   colors = c("gold", "red4"),
   n_breaks = 4,
   breaks = c("quantile", "equal"),
@@ -153,8 +141,8 @@ scale_color_bivariate <- function(
 ) {
   scale_fill_bivariate(
     name = name,
-    name_primary = name_primary,
-    name_secondary = name_secondary,
+    name1 = name1,
+    name2 = name2,
     colors = colors,
     n_breaks = n_breaks,
     breaks = breaks,

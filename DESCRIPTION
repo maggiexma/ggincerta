@@ -13,7 +13,9 @@ Authors@R:
 Description: This package designed to efficiently visualize spatial uncertainty by providing ggplot2 layer functions and corresponding scales, including bivariate maps, pixel maps, glyph maps, and exceedance probability maps.
 Imports:
     grDevices,
+    grid,
     gtable,
+    rlang,
     sf,
     stats
 License: MIT + file LICENSE

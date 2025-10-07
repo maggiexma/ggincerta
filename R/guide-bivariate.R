@@ -7,10 +7,10 @@ GuideBivariate <- ggproto(
     list(
       key = NULL,
       n_breaks = NULL,
-      prm_label = NULL,
-      scd_label = NULL,
-      prm_text = NULL,
-      scd_text = NULL,
+      label1 = NULL,
+      label2 = NULL,
+      title1 = NULL,
+      title2 = NULL,
       aesthetics = NULL,
       size = NULL
     )
@@ -23,10 +23,10 @@ GuideBivariate <- ggproto(
       key = params$key,
       size = params$size,
       n_breaks = params$n_breaks,
-      prm_label = params$prm_label,
-      scd_label = params$scd_label,
-      prm_text = params$prm_text,
-      scd_text = params$scd_text,
+      label1 = params$label1,
+      label2 = params$label2,
+      title1 = params$title1,
+      title2 = params$title2,
       aesthetics = params$aesthetics
     )
   }
@@ -37,10 +37,10 @@ guide_bivariate <- function(
   value,
   label,
   n_breaks = c(4, 4),
-  prm_label = NULL,
-  scd_label = NULL,
-  prm_text = NULL,
-  scd_text = NULL,
+  label1 = NULL,
+  label2 = NULL,
+  title1 = NULL,
+  title2 = NULL,
   size = NULL,
   ...,
   theme = NULL,
@@ -54,10 +54,10 @@ guide_bivariate <- function(
   new_guide(
     key = key,
     n_breaks = n_breaks,
-    prm_label = prm_label,
-    scd_label = scd_label,
-    prm_text = prm_text,
-    scd_text = scd_text,
+    label1 = label1,
+    label2 = label2,
+    title1 = title1,
+    title2 = title2,
     aesthetics = aesthetics,
     size = size,
     theme = theme,
@@ -72,11 +72,13 @@ guide_bivariate <- function(
 draw_key_bivariate <- function(
   key,
   size,
+  color = "transparent",
+  angle = 45,
   n_breaks = NULL,
-  prm_label = NULL,
-  scd_label = NULL,
-  prm_text = NULL,
-  scd_text = NULL,
+  label1 = NULL,
+  label2 = NULL,
+  title1 = NULL,
+  title2 = NULL,
   aesthetics = "fill"
 ) {
   layout <- expand.grid(row = 1:n_breaks[1], col = 1:n_breaks[2])
@@ -86,7 +88,7 @@ draw_key_bivariate <- function(
       y = grid::unit((layout$row[i] - 0.5) / n_breaks[2], "npc"),
       width = grid::unit(1 / n_breaks[1], "npc"),
       height = grid::unit(1 / n_breaks[2], "npc"),
-      gp = grid::gpar(fill = key[[aesthetics]][i], col = "black")
+      gp = grid::gpar(fill = key[[aesthetics]][i], col = color)
     )
   })
 
@@ -95,10 +97,10 @@ draw_key_bivariate <- function(
   offset_x <- 0.07
   offset_y <- -0.02
 
-  if (!is.null(prm_label)) {
+  if (!is.null(label1)) {
     for (i in 1:n_breaks[1]) {
       grobs[[length(grobs) + 1]] <- grid::textGrob(
-        label = prm_label[i],
+        label = label1[i],
         x = grid::unit(seq(0, 1, length.out = n_breaks[1])[i], "npc") +
           grid::unit(offset_x, "npc"),
         y = grid::unit(-0.18, "npc") + grid::unit(offset_y, "npc"),
@@ -109,10 +111,10 @@ draw_key_bivariate <- function(
     }
   }
 
-  if (!is.null(scd_label)) {
+  if (!is.null(label2)) {
     for (i in 1:n_breaks[2]) {
       grobs[[length(grobs) + 1]] <- grid::textGrob(
-        label = scd_label[i],
+        label = label2[i],
         x = grid::unit(-0.06, "npc"),
         y = grid::unit(seq(0, 1, length.out = n_breaks[2])[i], "npc"),
         just = "right",
@@ -121,9 +123,9 @@ draw_key_bivariate <- function(
     }
   }
 
-  if (!is.null(prm_text)) {
+  if (!is.null(title1)) {
     grobs[[length(grobs) + 1]] <- grid::textGrob(
-      label = prm_text,
+      label = title1,
       x = grid::unit(-0.5, "npc"),
       y = grid::unit(0.5, "npc"),
       just = c("center", "center"),
@@ -132,9 +134,9 @@ draw_key_bivariate <- function(
     )
   }
 
-  if (!is.null(scd_text)) {
+  if (!is.null(title2)) {
     grobs[[length(grobs) + 1]] <- grid::textGrob(
-      label = scd_text,
+      label = title2,
       x = grid::unit(0.5, "npc"),
       y = grid::unit(-0.5, "npc"),
       just = c("center", "center"),
@@ -149,7 +151,7 @@ draw_key_bivariate <- function(
       y = unit(0.5, "npc"),
       width = unit(1, "npc"),
       height = unit(1, "npc"),
-      angle = 45
+      angle = angle
     )
   )
 
