@@ -2,6 +2,14 @@ test_that("scale-bivariate", {
   ggplot(nc) +
     geom_sf(aes(fill = duo(value, sd)))
 
+  # note that the values don't seem to be correct!
+  # TODO: investigate
+  ggplot(nc) +
+    geom_sf(aes(fill = duo(value, sd))) +
+    geom_sf_text(aes(label = round(value, 1)))
+
+  vdiffr::expect_doppelganger("bivariate map", p)
+
 
   ggplot(anscombe, aes(x1, x2)) +
     geom_point(aes(color = duo(y1, y2)), size = 10)
