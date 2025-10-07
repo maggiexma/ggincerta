@@ -139,4 +139,4 @@ RGB2RYB <- function(RGBmat) {
   B.ryb = bp.ryb + I.b
   RYB = cbind(red = R.ryb, yellow = Y.ryb, blue = B.ryb)
   return(RYB)
-}s
+}
