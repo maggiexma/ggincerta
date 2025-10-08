@@ -1,9 +1,10 @@
 test_that("scale-bivariate", {
   ggplot(nc) +
-    geom_sf(aes(fill = duo(value, sd)))
+    geom_sf(aes(fill = duo(value, sd))) +
+    scale_fill_bivariate(n_breaks = 3)
 
-  # note that the values don't seem to be correct!
-  # TODO: investigate
+  # possibly fixed
+  # TODO: add explicit for palette
   ggplot(nc) +
     geom_sf(aes(fill = duo(value, sd))) +
     geom_sf_text(aes(label = round(value, 1)))
@@ -17,7 +18,10 @@ test_that("scale-bivariate", {
   ggplot(economics) +
     geom_line(aes(date, pce, color = duo(psavert, pop)),
               linewidth = 3) +
-    scale_color_bivariate(n_breaks = 3)
+    scale_color_bivariate(n_breaks = 3,
+                          name1 = "Blabla",
+                          name2 = "hello") +
+    labs(x = "XXXX")
 
 
   set.seed(1)
