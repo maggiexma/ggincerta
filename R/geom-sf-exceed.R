@@ -100,10 +100,3 @@ dist_norm <- function(x, v1, v2) {
   stats::pnorm(x, mean = v1, sd = v2, lower.tail = FALSE)
 }
 
-#' @export
-dist_unif <- function(x, v1, v2) {
-  stats::punif(x,
-               min = min(v1, na.rm = TRUE),
-               max = max(v1, na.rm = TRUE),
-               lower.tail = FALSE)
-}
