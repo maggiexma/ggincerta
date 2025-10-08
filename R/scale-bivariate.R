@@ -163,3 +163,6 @@ scale_colour_bivariate <- scale_color_bivariate
 
 #' @export
 scale_type.bivariate <- function(x) "bivariate"
+
+
+
