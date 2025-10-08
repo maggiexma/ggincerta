@@ -40,19 +40,53 @@ StatPixel <- ggproto("StatPixel",
                          values <- sample(vec, length(x), replace = TRUE)
                          values
                        }
-                       # TODO: implement createN and createD
 
-                       createPixrv <- function(pixelGeo, distribution) {
+                       createN <- function(x, v1, v2){
+                         mean <- unique(v1[x])
+                         sd <- unique(v2[x])
+                         values <- rnorm(length(x), mean = mean, sd = sd)
+                         values
+                       }
+
+                       createD <- function(x, q){
+                         qsub <- q[x,]
+                         qsubUQ <- unique(qsub)
+                         values <- sample(as.numeric(qsubUQ), length(x), replace=TRUE)
+                         values
+                       }
+
+                       createPixrv <- function(pixelGeo, distribution, q = NULL) {
                          pixel_distinct <- pixelGeo[!duplicated(pixelGeo$group), ]
-                         rvarray <- tapply(1:nrow(pixel_distinct),
-                                           pixel_distinct$ID,
-                                           switch(distribution,
-                                                  "uniform" = createU,
-                                                  "normal" = createN,
-                                                  "discrete" = createD
-                                                  ),
-                                           v1 = pixel_distinct$v1,
-                                           v2 = pixel_distinct$v2)
+
+                         if (distribution == "uniform") {
+                           rvarray <- tapply(
+                             1:nrow(pixel_distinct),
+                             pixel_distinct$ID,
+                             createU,
+                             v1 = pixel_distinct$v1,
+                             v2 = pixel_distinct$v2
+                           )
+
+                         } else if (distribution == "normal") {
+                           rvarray <- tapply(
+                             1:nrow(pixel_distinct),
+                             pixel_distinct$ID,
+                             createN,
+                             v1 = pixel_distinct$v1,
+                             v2 = pixel_distinct$v2
+                           )
+
+                         } else if (distribution == "discrete") {
+                           rvarray <- tapply(
+                             1:nrow(pixel_distinct),
+                             pixel_distinct$ID,
+                             createD,
+                             q = q
+                           )
+
+                         } else {
+                           stop("Unknown distribution type.")
+                         }
 
                          output_data <- data.frame(ID = as.numeric(rep(names(rvarray), lengths(rvarray))),
                                                    group = unname(unlist(tapply(pixel_distinct$group,
