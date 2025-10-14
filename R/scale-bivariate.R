@@ -5,7 +5,7 @@ ScaleBivariate <- ggproto(
   drop = FALSE,
   na.value = NA,
   transform = function(self, x) {
-
+    browser()
     n_breaks <- self$n_breaks
     colors <- self$colors
     breaks <- self$breaks

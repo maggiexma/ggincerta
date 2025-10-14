@@ -3,6 +3,11 @@ test_that("scale-bivariate", {
     geom_sf(aes(fill = duo(value, sd))) +
     scale_fill_bivariate(n_breaks = 3)
 
+  ggplot(nc) +
+    geom_sf(aes(fill = duo(value, sd))) +
+    scale_fill_bivariate(colors = c('red4', 'green4'), n_breaks = 3,
+                         blend = 'subtractive')
+
   # possibly fixed
   # TODO: add explicit for palette
   ggplot(nc) +
@@ -10,7 +15,6 @@ test_that("scale-bivariate", {
     geom_sf_text(aes(label = round(value, 1)))
 
   vdiffr::expect_doppelganger("bivariate map", p)
-
 
   ggplot(anscombe, aes(x1, x2)) +
     geom_point(aes(color = duo(y1, y2)), size = 10)
@@ -29,6 +33,5 @@ test_that("scale-bivariate", {
     transform(v = rnorm(15), u = rnorm(15)) |>
     ggplot(aes(row, col, fill = duo(v, u))) +
     geom_tile(color = "black")
-
 
 })

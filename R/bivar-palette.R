@@ -4,6 +4,7 @@ bivar_palette <- function(
   blend = c("additive", "subtractive"),
   flip = c("none", "vertical", "horizontal", "both")
 ) {
+  browser()
   blend <- match.arg(blend)
   flip <- match.arg(flip)
 
@@ -11,6 +12,9 @@ bivar_palette <- function(
     n_breaks <- c(4, 4)
   }
 
+  # difC in Vizumap controls the ramp start (choose one in 4 lightest colors in gradient length 10)
+  # Following code fixes the start to white
+  # Miic Vizumap or fix it to white?
   grad1 <- grDevices::colorRampPalette(c("white", colors[1]))
   grad2 <- grDevices::colorRampPalette(c("white", colors[2]))
   dif1 <- rev(grad1(round(n_breaks[1] * 2.5))[1:n_breaks[1]])
@@ -25,6 +29,16 @@ bivar_palette <- function(
   m1 <- ramp1(lam1)
   m2 <- ramp2(lam2)
 
+  for(i in 1:nrow(m1)){
+    m1[i,2] <- m1[i,2]+10^-10
+  }
+  for(i in 1:nrow(m2)){
+    m2[i,2] <- m2[i,2]+10^-10
+  }
+
+  m1[m1>255] <- 255
+  m2[m2>255] <- 255
+
   # more thought into blending of colors needs to be given
   # note that if n_breaks_primary != n_breaks_secondary
   # the mixing below doesn't work!!
@@ -34,6 +48,7 @@ bivar_palette <- function(
     m1r[is.na(m1r)] <- 0
     m2r[is.na(m2r)] <- 0
     mix <- round(RYB2RGB((m1r + m2r) / 2) * 255)
+    mix[is.na(mix)] <- 0
   } else {
     mix <- round((m1 + m2) / 2)
   }
@@ -42,33 +57,20 @@ bivar_palette <- function(
     grDevices::rgb(v[1], v[2], v[3], maxColorValue = 255)
   })
 
-  ## remove flip for now
-  # if (flip == "vertical")
-  #   cols <- cols[c(9, 4, 5, 2, 3, 6, 1, 8, 7)]
-  # else if (flip == "horizontal")
-  #   cols <- cols[c(7, 8, 9, 4, 5, 6, 1, 2, 3)]
-  # else if (flip == "both")
-  #   cols <- cols[c(3, 2, 1, 6, 5, 4, 9, 8, 7)]
   n <- prod(n_breaks)
   n1 <- n_breaks[1]
   n2 <- n_breaks[2]
+  mat <- matrix(1:n, nrow = n1, ncol = n2, byrow = FALSE)
   cols <- switch(
     flip,
-    "vertical" = cols,
-    "horizontal" = cols[as.vector(matrix(1:n, byrow = FALSE, n1, n2)[,
-      c(n2:1),
-      drop = FALSE
-    ])],
-    "both" = cols[rev(as.vector(matrix(1:n, byrow = FALSE, n1, n2)[,
-      c(n2:1),
-      drop = FALSE
-    ]))],
+    "vertical" = cols[as.vector(t(mat[n1:1, n2:1]))],
+    "horizontal" = cols[as.vector(t(mat))],
+    "both" = cols[mat[n1:1, n2:1]],
     cols
   )
 
   cols[seq_len(min(n, length(cols)))]
 }
-
 
 # from PBSmapping
 RYB2RGB <- function(RYBmat) {
