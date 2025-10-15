@@ -1,5 +1,6 @@
 #' @export
 duo <- function(v1, v2) {
+  browser()
   .v1 = substitute(v1)
   .v2 = substitute(v2)
   ind <- seq_along(v1)

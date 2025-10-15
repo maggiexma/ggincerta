@@ -47,7 +47,7 @@ bivar_palette <- function(
     m2r <- RGB2RYB(m2)
     m1r[is.na(m1r)] <- 0
     m2r[is.na(m2r)] <- 0
-    mix <- round(RYB2RGB((m1r + m2r) / 2) * 255)
+    mix <- round(RYB2RGB(sqrt((m1r^2 + m2r^2)/2)) * 255)
     mix[is.na(mix)] <- 0
   } else {
     mix <- round((m1 + m2) / 2)

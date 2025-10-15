@@ -19,6 +19,7 @@ GuideBivariate <- ggproto(
     key
   },
   draw = function(self, theme, params = self$params, ...) {
+    browser()
 
     draw_key_bivariate(
       key = params$key,
@@ -50,6 +51,7 @@ guide_bivariate <- function(
   position = NULL,
   aesthetics = NULL
 ) {
+  browser()
 
   key <- data.frame(key, .value = value, .label = label)
 
@@ -83,6 +85,7 @@ draw_key_bivariate <- function(
   title2 = NULL,
   aesthetics = "fill"
 ) {
+  browser()
 
   layout <- expand.grid(row = 1:n_breaks[1], col = 1:n_breaks[2])
   tiles <- lapply(seq_len(prod(n_breaks)), function(i) {
@@ -98,17 +101,15 @@ draw_key_bivariate <- function(
   grobs <- tiles
 
   offset_x <- 0.07
-  offset_y <- -0.02
+  offset_y <- -0.07
 
   if (!is.null(label1)) {
     for (i in 1:(n_breaks[1] + 1)) {
       grobs[[length(grobs) + 1]] <- grid::textGrob(
         label = label1[i],
-        x = grid::unit(seq(0, 1, length.out = n_breaks[1] + 1)[i], "npc") +
-          grid::unit(offset_x, "npc"),
-        y = grid::unit(-0.18, "npc") + grid::unit(offset_y, "npc"),
-        just = "top",
-        rot = -90,
+        x = grid::unit(-0.06, "npc"),
+        y = grid::unit(seq(0, 1, length.out = n_breaks[1] + 1)[i], "npc"),
+        just = "right",
         gp = grid::gpar(fontsize = 8)
       )
     }
@@ -118,9 +119,11 @@ draw_key_bivariate <- function(
     for (i in 1:(n_breaks[2] + 1)) {
       grobs[[length(grobs) + 1]] <- grid::textGrob(
         label = label2[i],
-        x = grid::unit(-0.06, "npc"),
-        y = grid::unit(seq(0, 1, length.out = n_breaks[2] + 1)[i], "npc"),
-        just = "right",
+        x = grid::unit(seq(0, 1, length.out = n_breaks[2] + 1)[i], "npc") +
+          grid::unit(offset_x, "npc"),
+        y = grid::unit(-0.18, "npc") + grid::unit(offset_y, "npc"),
+        just = "top",
+        rot = -90,
         gp = grid::gpar(fontsize = 8)
       )
     }
@@ -129,22 +132,22 @@ draw_key_bivariate <- function(
   if (!is.null(title1)) {
     grobs[[length(grobs) + 1]] <- grid::textGrob(
       label = title1,
-      x = grid::unit(0.5, "npc"),
-      y = grid::unit(-0.6, "npc"),
+      x = grid::unit(-0.7, "npc"),
+      y = grid::unit(0.5, "npc"),
       just = c("center", "center"),
       gp = grid::gpar(fontsize = 9, fontface = "bold"),
-      rot = 0
+      rot = -90
     )
   }
 
   if (!is.null(title2)) {
     grobs[[length(grobs) + 1]] <- grid::textGrob(
       label = title2,
-      x = grid::unit(-0.5, "npc"),
-      y = grid::unit(0.5, "npc"),
+      x = grid::unit(0.5, "npc"),
+      y = grid::unit(-0.5, "npc"),
       just = c("center", "center"),
       gp = grid::gpar(fontsize = 9, fontface = "bold"),
-      rot = -90
+      rot = 0
     )
   }
 

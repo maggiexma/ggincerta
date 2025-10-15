@@ -10,6 +10,7 @@ ScaleBivariate <- ggproto(
     colors <- self$colors
     breaks <- self$breaks
     compute_bivariate <- function(x, y) {
+      browser()
 
       qx <- quantile(x, seq(0, 1, length.out = n_breaks[1] + 1), na.rm = TRUE)
       qy <- quantile(y, seq(0, 1, length.out = n_breaks[2] + 1), na.rm = TRUE)
@@ -33,7 +34,7 @@ ScaleBivariate <- ggproto(
       bin1 <- cut(x, breaks = xb, include.lowest = TRUE, labels = FALSE)
       bin2 <- cut(y, breaks = yb, include.lowest = TRUE, labels = FALSE)
 
-      combo <- (bin1 - 1L) * n_breaks[2] + bin2
+      combo <- (bin2 - 1L) * n_breaks[1] + bin1
       list(value = factor(combo, levels = 1:prod(n_breaks)), xb = xb, yb = yb)
     }
 
@@ -87,6 +88,7 @@ scale_fill_bivariate <- function(
   aesthetics = "fill",
   ...
 ) {
+  browser()
   flip <- match.arg(flip)
   blend <- match.arg(blend)
   breaks <- match.arg(breaks)
@@ -111,6 +113,7 @@ scale_fill_bivariate <- function(
     super = ScaleBivariate,
     ...
   )
+  # whether to allow different numbers of breaks in v1 and v2
   if (length(n_breaks) == 1L && is.numeric(n_breaks)) {
     n_breaks <- c(n_breaks, n_breaks)
   }

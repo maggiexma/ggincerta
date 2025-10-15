@@ -1,12 +1,10 @@
 test_that("scale-bivariate", {
   ggplot(nc) +
-    geom_sf(aes(fill = duo(value, sd))) +
-    scale_fill_bivariate(n_breaks = 3)
+    geom_sf(aes(fill = duo(value, sd)))
 
   ggplot(nc) +
     geom_sf(aes(fill = duo(value, sd))) +
-    scale_fill_bivariate(colors = c('red4', 'green4'), n_breaks = 3,
-                         blend = 'subtractive')
+    scale_fill_bivariate(colors = c('red4', 'green4'), n_breaks = 3, blend = 'subtractive')
 
   # possibly fixed
   # TODO: add explicit for palette
@@ -17,7 +15,7 @@ test_that("scale-bivariate", {
   vdiffr::expect_doppelganger("bivariate map", p)
 
   ggplot(anscombe, aes(x1, x2)) +
-    geom_point(aes(color = duo(y1, y2)), size = 10)
+    geom_point(aes(color = duo(y1, y2)), size = 5)
 
   ggplot(economics) +
     geom_line(aes(date, pce, color = duo(psavert, pop)),
