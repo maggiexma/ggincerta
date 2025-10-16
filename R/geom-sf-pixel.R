@@ -1,14 +1,14 @@
 #' @export
 StatPixel <- ggproto("StatPixel",
                      StatSf,
-                     required_aes = c("v1", "v2", "geometry"),
+                     required_aes = c("v1", "v2", "geometry", "id"),
                      compute_panel = function(data,
                                               scales,
                                               coord,
+                                              pixel_size,
+                                              #id,
                                               distribution,
-                                              pixel_size) {
-
-
+                                              q) {
 
                        data <- StatSf$compute_panel(data, scales, coord)
                        sf_data <- sf::st_as_sf(data, sf_column_name = "geometry")
@@ -28,9 +28,19 @@ StatPixel <- ggproto("StatPixel",
                        pixel_df <- SpatialPolygonsDataFrame_to_df(all_grids)
                        pixel_df$`id.1` <- NULL
                        colnames(pixel_df) <- c("x", "y", "group", "ID")
-                       sf_data$ID <- 1:nrow(sf_data)
-                       pixel_df$v1 <- sf_data$v1[match(pixel_df$ID, sf_data$ID)]
-                       pixel_df$v2 <- sf_data$v2[match(pixel_df$ID, sf_data$ID)]
+                       ext_id <- as.character(sf_data$id)
+                       pixel_df$ID <- ext_id[pixel_df$ID]
+                       # sf_data$ID <- 1:nrow(sf_data)
+                       pixel_df$v1 <- sf_data$v1[match(pixel_df$ID, sf_data$id)]
+                       pixel_df$v2 <- sf_data$v2[match(pixel_df$ID, sf_data$id)]
+
+                       if (!is.null(q)) {
+                         id <- match(pixel_df$ID, sf_data$id)
+                         qdf <- q[id, -1]
+                         names(qdf) <- paste0("q", 1:ncol(qdf))
+                         pixel_df <- cbind(pixel_df, qdf)
+                       }
+
 
                        createU <- function(x, v1, v2) {
                          up <- unique(v1[x]) + unique(v2[x])
@@ -48,14 +58,13 @@ StatPixel <- ggproto("StatPixel",
                          values
                        }
 
-                       createD <- function(x, q){
-                         qsub <- q[x,]
-                         qsubUQ <- unique(qsub)
-                         values <- sample(as.numeric(qsubUQ), length(x), replace=TRUE)
-                         values
+                       createD <- function(idx, data) {
+                         qs <- as.numeric(data[idx[1], c("q1", "q2", "q3", "q4", "q5")])
+                         sample(qs, length(idx), replace = TRUE)
                        }
 
-                       createPixrv <- function(pixelGeo, distribution, q = NULL) {
+                       createPixrv <- function(pixelGeo, distribution, q) {
+
                          pixel_distinct <- pixelGeo[!duplicated(pixelGeo$group), ]
 
                          if (distribution == "uniform") {
@@ -81,29 +90,30 @@ StatPixel <- ggproto("StatPixel",
                              1:nrow(pixel_distinct),
                              pixel_distinct$ID,
                              createD,
-                             q = q
+                             pixel_distinct
                            )
 
                          } else {
                            stop("Unknown distribution type.")
                          }
 
-                         output_data <- data.frame(ID = as.numeric(rep(names(rvarray), lengths(rvarray))),
+                         output_data <- data.frame(ID = rep(names(rvarray), lengths(rvarray)),
                                                    group = unname(unlist(tapply(pixel_distinct$group,
                                                                                 pixel_distinct$ID,
                                                                                 list))),
-                                                   fill = unname(unlist(rvarray)))
+                                                   fill = unname(unlist(rvarray)),
+                                                   stringsAsFactors = FALSE)
                          geo <- tapply(1:nrow(pixelGeo),
                                        pixelGeo$group,
                                        function(i) list(as.matrix(cbind(pixelGeo$x[i], pixelGeo$y[i]))))
                          geo_data <- list(group = names(geo),
                                           geometry = lapply(geo, function(x) sf::st_polygon(list(unname(x)))))
                          class(geo_data) <- "data.frame"
-                         attr(geo_data, "row.names") <- 1:length(geo)
+                         attr(geo_data, "row.names") <- seq_along(geo)
 
                          merge(output_data, geo_data, by = c("group"))
                        }
-                       out <- createPixrv(pixel_df, distribution)
+                       out <- createPixrv(pixel_df, distribution, q)
                        sf::st_as_sf(out, sf_column_name = "geometry")
                      }
 )
@@ -140,12 +150,14 @@ StatPixel <- ggproto("StatPixel",
 geom_sf_pixel <- function(mapping = NULL,
                           data = NULL,
                           pixel_size = 100,
+                          # id = NULL,
                           distribution = "uniform",
-                          id_col = "id",
+                          q = NULL,
                           na.rm = FALSE,
                           show.legend = NA,
                           inherit.aes = TRUE,
                           ...) {
+
 
   mapping[["fill"]] <- NA
 
@@ -159,7 +171,9 @@ geom_sf_pixel <- function(mapping = NULL,
     inherit.aes = inherit.aes,
     params = list(na.rm = na.rm,
                   pixel_size = pixel_size,
+                  #id = id,
                   distribution = distribution,
+                  q = q,
                   ...)
     ),
     geom_sf(fill = NA, color = 'black', linewidth = 1),
@@ -185,13 +199,13 @@ SpatialPolygonsDataFrame_to_df <- function (sp_polys, vars = names(sp_polys))
     rownames(poldf) <- NULL
     poldf
   })
-  df_polys <- bind_rows(list_polys)
+  df_polys <- dplyr::bind_rows(list_polys)
   df_polys$id <- as.character(df_polys$id)
   sp_polys$id <- row.names(sp_polys)
-  cnames <- coordnames(sp_polys)
+  cnames <- sp::coordnames(sp_polys)
   vars_no_coords <- vars[which(!vars %in% cnames)]
   if (length(vars_no_coords) > 0)
-    df_polys <- left_join(df_polys, sp_polys@data[c("id",
+    df_polys <- dplyr::left_join(df_polys, sp_polys@data[c("id",
                                                     vars_no_coords)], by = "id")
   df_polys
 }
