@@ -19,7 +19,7 @@ GuideBivariate <- ggproto(
     key
   },
   draw = function(self, theme, params = self$params, ...) {
-    browser()
+
 
     draw_key_bivariate(
       key = params$key,
@@ -51,7 +51,7 @@ guide_bivariate <- function(
   position = NULL,
   aesthetics = NULL
 ) {
-  browser()
+
 
   key <- data.frame(key, .value = value, .label = label)
 
@@ -85,7 +85,7 @@ draw_key_bivariate <- function(
   title2 = NULL,
   aesthetics = "fill"
 ) {
-  browser()
+
 
   layout <- expand.grid(row = 1:n_breaks[1], col = 1:n_breaks[2])
   tiles <- lapply(seq_len(prod(n_breaks)), function(i) {
@@ -132,7 +132,7 @@ draw_key_bivariate <- function(
   if (!is.null(title1)) {
     grobs[[length(grobs) + 1]] <- grid::textGrob(
       label = title1,
-      x = grid::unit(-0.7, "npc"),
+      x = grid::unit(-0.5, "npc"),
       y = grid::unit(0.5, "npc"),
       just = c("center", "center"),
       gp = grid::gpar(fontsize = 9, fontface = "bold"),

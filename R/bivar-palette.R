@@ -4,7 +4,6 @@ bivar_palette <- function(
   blend = c("additive", "subtractive"),
   flip = c("none", "vertical", "horizontal", "both")
 ) {
-  browser()
   blend <- match.arg(blend)
   flip <- match.arg(flip)
 

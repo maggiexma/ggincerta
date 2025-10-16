@@ -4,7 +4,9 @@ test_that("scale-bivariate", {
 
   ggplot(nc) +
     geom_sf(aes(fill = duo(value, sd))) +
-    scale_fill_bivariate(colors = c('red4', 'green4'), n_breaks = 3, blend = 'subtractive')
+    scale_fill_bivariate(n_breaks = 3, blend = 'subtractive',
+                         name1 = 'var1', name2 = 'var2',
+                         flip = 'both', guide_size = 2)
 
   # possibly fixed
   # TODO: add explicit for palette

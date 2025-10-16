@@ -5,12 +5,11 @@ ScaleBivariate <- ggproto(
   drop = FALSE,
   na.value = NA,
   transform = function(self, x) {
-    browser()
+
     n_breaks <- self$n_breaks
     colors <- self$colors
     breaks <- self$breaks
     compute_bivariate <- function(x, y) {
-      browser()
 
       qx <- quantile(x, seq(0, 1, length.out = n_breaks[1] + 1), na.rm = TRUE)
       qy <- quantile(y, seq(0, 1, length.out = n_breaks[2] + 1), na.rm = TRUE)
@@ -88,7 +87,7 @@ scale_fill_bivariate <- function(
   aesthetics = "fill",
   ...
 ) {
-  browser()
+
   flip <- match.arg(flip)
   blend <- match.arg(blend)
   breaks <- match.arg(breaks)
@@ -144,6 +143,7 @@ scale_color_bivariate <- function(
   aesthetics = "colour",
   ...
 ) {
+
   scale_fill_bivariate(
     name = name,
     name1 = name1,
