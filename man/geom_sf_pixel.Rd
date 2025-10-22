@@ -9,7 +9,7 @@ geom_sf_pixel(
   data = NULL,
   pixel_size = 100,
   distribution = "uniform",
-  id_col = "id",
+  q = NULL,
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE,
@@ -23,8 +23,6 @@ geom_sf_pixel(
 
 \item{distribution}{Sampling distribution: "uniform", "normal", or "discrete".}
 
-\item{id_col}{Name of the ID column.}
-
 \item{show.legend}{Logical; show legend.}
 
 \item{inherit.aes}{Logical; inherit global aesthetics.}
@@ -32,6 +30,8 @@ geom_sf_pixel(
 \item{...}{Other parameters passed to \code{layer()}.}
 
 \item{pixelSize}{Number of grid cells along each axis.}
+
+\item{id_col}{Name of the ID column.}
 }
 \value{
 A polygon layer showing pixel values.

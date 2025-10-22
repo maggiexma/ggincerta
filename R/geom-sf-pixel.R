@@ -1,14 +1,15 @@
 #' @export
 StatPixel <- ggproto("StatPixel",
                      StatSf,
-                     required_aes = c("v1", "v2", "geometry", "id"),
+                     required_aes = c("v1", "v2", "geometry"),
                      compute_panel = function(data,
                                               scales,
                                               coord,
                                               pixel_size,
                                               #id,
-                                              distribution,
-                                              q) {
+                                              distribution
+                                              #q)
+                                              ){
 
                        data <- StatSf$compute_panel(data, scales, coord)
                        sf_data <- sf::st_as_sf(data, sf_column_name = "geometry")
@@ -58,10 +59,10 @@ StatPixel <- ggproto("StatPixel",
                          values
                        }
 
-                       createD <- function(idx, data) {
-                         qs <- as.numeric(data[idx[1], c("q1", "q2", "q3", "q4", "q5")])
-                         sample(qs, length(idx), replace = TRUE)
-                       }
+                       # createD <- function(idx, data) {
+                       #   qs <- as.numeric(data[idx[1], c("q1", "q2", "q3", "q4", "q5")])
+                       #   sample(qs, length(idx), replace = TRUE)
+                       # }
 
                        createPixrv <- function(pixelGeo, distribution, q) {
 
