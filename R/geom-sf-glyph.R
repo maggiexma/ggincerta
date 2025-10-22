@@ -5,9 +5,10 @@ StatGlyph <- ggproto(
   default_aes = aes(glyph = NA_real_),
   compute_panel = function(data,
                            scales,
-                           size = 70,
-                           glyph = "icone",
-                           max_error = NULL) {
+                           size,
+                           style,
+                           max_error) {
+    browser()
     centroids <- sf::st_centroid(data$geometry)
     coords <- sf::st_coordinates(centroids)
     data$long <- coords[, 1]
@@ -22,10 +23,10 @@ StatGlyph <- ggproto(
 
     data$id <- seq_len(nrow(data))
     data$size <- size
-    data$glyph <- glyph
+    data$style <- style
 
     polys <- lapply(seq_len(nrow(data)), function(i) {
-      shape_i <- data$glyph[i]
+      shape_i <- data$style[i]
       if (!shape_i %in% c("icone", "semi"))
         stop("Glyph name not recognised. Must be one of icone or semi.")
       if (shape_i == "icone") {
@@ -92,12 +93,13 @@ GeomPolygonGlyph <- ggproto(
 geom_sf_glyph <- function(mapping = NULL,
                           data = NULL,
                           size = 70,
-                          glyph = "icone",
+                          style = "icone",
                           max_error = NULL,
                           position = "identity",
                           show.legend = TRUE,
                           inherit.aes = TRUE,
                           ...) {
+  browser()
   extra <- aes(
     x = after_stat(long),
     y = after_stat(lat),
@@ -118,13 +120,21 @@ geom_sf_glyph <- function(mapping = NULL,
       inherit.aes = inherit.aes,
       params = list(
         size = size,
-        glyph = glyph,
+        style = style,
         max_error = max_error,
         ...
       )
     ),
     coord_sf(),
-    scale_fill_viridis_c(name = "value", guide = guide_colorbar(order = 1)),
-    scale_glyph_continuous(name = "sd", order = 2)
+    scale_fill_distiller(
+      palette = "Oranges",
+      direction = 1,
+      guide = guide_colorbar(order = 1)
+    ),
+    scale_glyph_continuous(
+      name = "sd",
+      order = 2,
+      style = style
+    )
   )
 }
