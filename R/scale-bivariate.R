@@ -77,7 +77,7 @@ scale_fill_bivariate <- function(
   name1 = NULL,
   name2 = NULL,
   colors = c("gold", "red4"),
-  n_breaks = 4,
+  n_breaks = 3,
   breaks = c("quantile", "equal"),
   blend = c("additive", "subtractive"),
   flip = c("none", "vertical", "horizontal", "both"),

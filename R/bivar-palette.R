@@ -13,7 +13,7 @@ bivar_palette <- function(
 
   # difC in Vizumap controls the ramp start (choose one in 4 lightest colors in gradient length 10)
   # Following code fixes the start to white
-  # Miic Vizumap or fix it to white?
+  # Mimic Vizumap or fix it to white?
   grad1 <- grDevices::colorRampPalette(c("white", colors[1]))
   grad2 <- grDevices::colorRampPalette(c("white", colors[2]))
   dif1 <- rev(grad1(round(n_breaks[1] * 2.5))[1:n_breaks[1]])
@@ -28,12 +28,8 @@ bivar_palette <- function(
   m1 <- ramp1(lam1)
   m2 <- ramp2(lam2)
 
-  for(i in 1:nrow(m1)){
-    m1[i,2] <- m1[i,2]+10^-10
-  }
-  for(i in 1:nrow(m2)){
-    m2[i,2] <- m2[i,2]+10^-10
-  }
+  m1[ ,2] <- m1[ ,2]+10^-10
+  m2[ ,2] <- m2[ ,2]+10^-10
 
   m1[m1>255] <- 255
   m2[m2>255] <- 255
