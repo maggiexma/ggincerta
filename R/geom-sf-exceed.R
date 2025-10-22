@@ -93,10 +93,3 @@ geom_sf_exceed <- function(mapping = NULL,
                                 name = legend_title)
   list(layer, scale, coord_sf())
 }
-
-
-#' @export
-dist_norm <- function(x, v1, v2) {
-  stats::pnorm(x, mean = v1, sd = v2, lower.tail = FALSE)
-}
-
