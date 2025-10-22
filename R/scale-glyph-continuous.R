@@ -2,9 +2,12 @@ ScaleGlyph <- ggproto(
   "ScaleGlyph",
   ScaleContinuous,
   aesthetics = "glyph",
+
   map = function(self, x, limits = self$get_limits())
     x,
+
   train_df = function(self, df, ...) {
+    browser()
     ggproto_parent(ScaleContinuous, self)$train_df(df, ...)
     vals <- if ("glyph" %in% names(df))
       df$glyph
@@ -29,9 +32,11 @@ ScaleGlyph <- ggproto(
 )
 
 scale_glyph_continuous <- function(name = waiver(),
-                                   style = "icone",
+                                   style = c("icone", "semi"),
                                    font_size = 8,
                                    order = 99) {
+  browser()
+  style <- match.arg(style)
   ggproto(
     NULL,
     ScaleGlyph,
