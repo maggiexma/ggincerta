@@ -1,18 +1,17 @@
 #' @export
 StatPixel <- ggproto("StatPixel",
                      StatSf,
-                     required_aes = c("v1", "v2", "geometry"),
+                     required_aes = c("v1", "v2"),
                      compute_panel = function(data,
                                               scales,
                                               coord,
                                               pixel_size,
-                                              #id,
                                               distribution
-                                              #q)
                                               ){
+                       browser()
 
                        data <- StatSf$compute_panel(data, scales, coord)
-                       sf_data <- sf::st_as_sf(data, sf_column_name = "geometry")
+                       sf_data <- sf::st_as_sf(data)
 
                        full_grid <- sf::st_make_grid(sf_data, n = pixel_size)
 
@@ -29,19 +28,9 @@ StatPixel <- ggproto("StatPixel",
                        pixel_df <- SpatialPolygonsDataFrame_to_df(all_grids)
                        pixel_df$`id.1` <- NULL
                        colnames(pixel_df) <- c("x", "y", "group", "ID")
-                       ext_id <- as.character(sf_data$id)
-                       pixel_df$ID <- ext_id[pixel_df$ID]
-                       # sf_data$ID <- 1:nrow(sf_data)
-                       pixel_df$v1 <- sf_data$v1[match(pixel_df$ID, sf_data$id)]
-                       pixel_df$v2 <- sf_data$v2[match(pixel_df$ID, sf_data$id)]
-
-                       if (!is.null(q)) {
-                         id <- match(pixel_df$ID, sf_data$id)
-                         qdf <- q[id, -1]
-                         names(qdf) <- paste0("q", 1:ncol(qdf))
-                         pixel_df <- cbind(pixel_df, qdf)
-                       }
-
+                       sf_data$ID <- 1:nrow(sf_data)
+                       pixel_df$v1 <- sf_data$v1[match(pixel_df$ID, sf_data$ID)]
+                       pixel_df$v2 <- sf_data$v2[match(pixel_df$ID, sf_data$ID)]
 
                        createU <- function(x, v1, v2) {
                          up <- unique(v1[x]) + unique(v2[x])
@@ -59,12 +48,8 @@ StatPixel <- ggproto("StatPixel",
                          values
                        }
 
-                       # createD <- function(idx, data) {
-                       #   qs <- as.numeric(data[idx[1], c("q1", "q2", "q3", "q4", "q5")])
-                       #   sample(qs, length(idx), replace = TRUE)
-                       # }
-
                        createPixrv <- function(pixelGeo, distribution, q) {
+                         browser()
 
                          pixel_distinct <- pixelGeo[!duplicated(pixelGeo$group), ]
 
@@ -84,14 +69,6 @@ StatPixel <- ggproto("StatPixel",
                              createN,
                              v1 = pixel_distinct$v1,
                              v2 = pixel_distinct$v2
-                           )
-
-                         } else if (distribution == "discrete") {
-                           rvarray <- tapply(
-                             1:nrow(pixel_distinct),
-                             pixel_distinct$ID,
-                             createD,
-                             pixel_distinct
                            )
 
                          } else {
@@ -151,9 +128,7 @@ StatPixel <- ggproto("StatPixel",
 geom_sf_pixel <- function(mapping = NULL,
                           data = NULL,
                           pixel_size = 100,
-                          # id = NULL,
                           distribution = "uniform",
-                          q = NULL,
                           na.rm = FALSE,
                           show.legend = NA,
                           inherit.aes = TRUE,
@@ -172,9 +147,7 @@ geom_sf_pixel <- function(mapping = NULL,
     inherit.aes = inherit.aes,
     params = list(na.rm = na.rm,
                   pixel_size = pixel_size,
-                  #id = id,
                   distribution = distribution,
-                  q = q,
                   ...)
     ),
     geom_sf(fill = NA, color = 'black', linewidth = 1),
