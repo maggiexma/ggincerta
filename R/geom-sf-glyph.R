@@ -1,26 +1,22 @@
 StatGlyph <- ggproto(
   "StatGlyph",
-  Stat,
-  required_aes = c("geometry", "v1", "v2"),
-  default_aes = aes(glyph = NA_real_),
-  compute_panel = function(data,
-                           scales,
-                           size,
-                           style,
-                           max_error) {
+  StatSf,
+  required_aes = c("v1", "v2", "geometry"),
+  compute_panel = function(data, scales, coord, size, style, max_v2) {
     browser()
+    data <- StatSf$compute_panel(data, scales, coord)
+    data <- sf::st_as_sf(data)
     centroids <- sf::st_centroid(data$geometry)
     coords <- sf::st_coordinates(centroids)
-    data$long <- coords[, 1]
-    data$lat <- coords[, 2]
+    data$long <- coords[ ,1]
+    data$lat <- coords[ ,2]
 
     errs <- data$v2
-    max_err <- if (is.null(max_error))
+    max_err <- if (is.null(max_v2))
       max(errs, na.rm = TRUE)
     else
-      max_error
+      max_v2
     data$theta <- -(errs / max_err) * pi
-
     data$id <- seq_len(nrow(data))
     data$size <- size
     data$style <- style
@@ -49,11 +45,11 @@ StatGlyph <- ggproto(
       N <- as.data.frame(t(Nmat))
 
       data.frame(
-        val = rep(data$v1[i], nrow(glyphDat)),
-        err = rep(data$v2[i], nrow(glyphDat)),
-        id = rep(data$id[i], nrow(glyphDat)),
-        long = N$V1 + data$long[i],
-        lat = N$V2 + data$lat[i],
+        fill = rep(data$v1[i], nrow(glyphDat)),
+        glyph = rep(data$v2[i], nrow(glyphDat)),
+        group = rep(data$id[i], nrow(glyphDat)),
+        x = N$V1 + data$long[i],
+        y = N$V2 + data$lat[i],
         stringsAsFactors = FALSE
       )
     })
@@ -64,50 +60,58 @@ StatGlyph <- ggproto(
 GeomPolygonGlyph <- ggproto(
   "GeomPolygonGlyph",
   GeomPolygon,
-  default_aes = utils::modifyList(GeomPolygon$default_aes, aes(glyph = NA_real_))
+  default_aes = utils::modifyList(GeomPolygon$default_aes, aes(glyph = NA))
 )
 
-#' @title Geom layer function for glyph map on sf objects
-#' @description
-#' \code{geom_sf_glyph} applies \code{StatGlyph} to sf data and returns a centroid map
-#'  with color and rotation based on estimate and error values.
+#' Generate glyph maps on sf objects
+#'
+#' `geom_sf_glyph()` adds a glyph map layer based on simple feature (sf) objects
+#' to a ggplot. A glyph map is essentially a centroid-based map, where each
+#' region is represented by a rotated glyph, and the rotation angle indicates
+#' the value of `v2` specified in the mapping.
+#'
+#' @section Glyph map layer contents:
+#' The layer returned by `geom_sf_glyph()` actually contains two scales,
+#' corresponding to the two variables specified in the mapping.
+#' Therefore, attempting to modify the scale for `v1` will trigger a warning
+#' indicating that the scale for `fill` is being replaced.
 #'
 #' @inheritParams ggplot2::geom_sf
-#' @param size Glyph scale factor.
-#' @param glyph Glyph type: "icone" or "semi".
-#' @param max_error Maximum error scale.
-#' @param ... Other parameters passed to \code{layer()}.
+#' @param mapping Set of aesthetic mappings created by [aes()].
+#'   `v1` and `v2` are required, which are the variables used for glyph fill
+#'   and rotation, respectively.
+#' @param size An integer between 1 and 100. Controls the glyph size.
+#' @param style Either `"icone"` or `"semi"`. Controls the glyph shape.
+#' @param max_v2 Numeric value setting the upper limit for `v2`.
 #'
 #' @examples
 #' data(nc)
+#' ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd), size = 50, glyph = "icone") +
+#' theme(legend.position = "right", legend.box = "horizontal")
 #'
-#' ggplot(nc) +
-#' geom_sf_glyph(aes(geometry = geometry, estimate = value, error = sd), size = 50, glyph = "icone") +
-#'   scale_fill_viridis_c(name = "value", guide = guide_colorbar(order = 1)) +
-#'   scale_glyph_continuous(name = "sd", order = 2) +
-#'   theme(legend.position = "right", legend.box = "horizontal")
-#'
-#' @import sf
 #' @import ggplot2
+#' @import sf
 #' @export
 geom_sf_glyph <- function(mapping = NULL,
                           data = NULL,
                           size = 70,
                           style = "icone",
-                          max_error = NULL,
+                          max_v2 = NULL,
                           position = "identity",
                           show.legend = TRUE,
                           inherit.aes = TRUE,
                           ...) {
   browser()
-  extra <- aes(
-    x = after_stat(long),
-    y = after_stat(lat),
-    group = after_stat(id),
-    fill = after_stat(val),
-    glyph = after_stat(err)
-  )
-  mapping <- utils::modifyList(mapping %||% aes(), extra)
+  needs_geometry <- is.null(rlang::get_expr(mapping$geometry))
+  if (needs_geometry) {
+    geom_col <- NULL
+    if (!is.null(data) && inherits(data, "sf")) {
+      geom_col <- attr(data, "sf_column")
+    } else {
+      geom_col <- "geometry"
+    }
+    mapping <- utils::modifyList(mapping, ggplot2::aes_string(geometry = geom_col))
+  }
 
   c(
     layer(
@@ -121,7 +125,7 @@ geom_sf_glyph <- function(mapping = NULL,
       params = list(
         size = size,
         style = style,
-        max_error = max_error,
+        max_v2 = max_v2,
         ...
       )
     ),

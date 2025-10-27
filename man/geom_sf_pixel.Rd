@@ -9,7 +9,6 @@ geom_sf_pixel(
   data = NULL,
   pixel_size = 100,
   distribution = "uniform",
-  q = NULL,
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE,

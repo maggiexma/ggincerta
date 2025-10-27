@@ -2,14 +2,14 @@
 % Please edit documentation in R/geom-sf-glyph.R
 \name{geom_sf_glyph}
 \alias{geom_sf_glyph}
-\title{Geom layer function for glyph map on sf objects}
+\title{Generate glyph maps on sf objects}
 \usage{
 geom_sf_glyph(
   mapping = NULL,
   data = NULL,
   size = 70,
-  glyph = "icone",
-  max_error = NULL,
+  style = "icone",
+  max_v2 = NULL,
   position = "identity",
   show.legend = TRUE,
   inherit.aes = TRUE,
@@ -17,10 +17,9 @@ geom_sf_glyph(
 )
 }
 \arguments{
-\item{mapping}{Set of aesthetic mappings created by \code{\link[ggplot2:aes]{aes()}}. If specified and
-\code{inherit.aes = TRUE} (the default), it is combined with the default mapping
-at the top level of the plot. You must supply \code{mapping} if there is no plot
-mapping.}
+\item{mapping}{Set of aesthetic mappings created by \code{\link[=aes]{aes()}}.
+\code{v1} and \code{v2} are required, which are the variables used for glyph fill
+and rotation, respectively.}
 
 \item{data}{The data to be displayed in this layer. There are three
 options:
@@ -37,11 +36,11 @@ the plot data. The return value must be a \code{data.frame}, and
 will be used as the layer data. A \code{function} can be created
 from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 
-\item{size}{Glyph scale factor.}
+\item{size}{An integer between 1 and 100. Controls the glyph size.}
 
-\item{glyph}{Glyph type: "icone" or "semi".}
+\item{style}{Either \code{"icone"} or \code{"semi"}. Controls the glyph shape.}
 
-\item{max_error}{Maximum error scale.}
+\item{max_v2}{Numeric value setting the upper limit for \code{v2}.}
 
 \item{position}{A position adjustment to use on the data for this layer. This
 can be used in various ways, including to prevent overplotting and
@@ -68,19 +67,51 @@ rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
 
-\item{...}{Other parameters passed to \code{layer()}.}
+\item{...}{Other arguments passed on to \code{\link[ggplot2:layer]{layer()}}'s \code{params} argument. These
+arguments broadly fall into one of 4 categories below. Notably, further
+arguments to the \code{position} argument, or aesthetics that are required
+can \emph{not} be passed through \code{...}. Unknown arguments that are not part
+of the 4 categories below are ignored.
+\itemize{
+\item Static aesthetics that are not mapped to a scale, but are at a fixed
+value and apply to the layer as a whole. For example, \code{colour = "red"}
+or \code{linewidth = 3}. The geom's documentation has an \strong{Aesthetics}
+section that lists the available options. The 'required' aesthetics
+cannot be passed on to the \code{params}. Please note that while passing
+unmapped aesthetics as vectors is technically possible, the order and
+required length is not guaranteed to be parallel to the input data.
+\item When constructing a layer using
+a \verb{stat_*()} function, the \code{...} argument can be used to pass on
+parameters to the \code{geom} part of the layer. An example of this is
+\code{stat_density(geom = "area", outline.type = "both")}. The geom's
+documentation lists which parameters it can accept.
+\item Inversely, when constructing a layer using a
+\verb{geom_*()} function, the \code{...} argument can be used to pass on parameters
+to the \code{stat} part of the layer. An example of this is
+\code{geom_area(stat = "density", adjust = 0.5)}. The stat's documentation
+lists which parameters it can accept.
+\item The \code{key_glyph} argument of \code{\link[ggplot2:layer]{layer()}} may also be passed on through
+\code{...}. This can be one of the functions described as
+\link[ggplot2:draw_key]{key glyphs}, to change the display of the layer in the legend.
+}}
 }
 \description{
-\code{geom_sf_glyph} applies \code{StatGlyph} to sf data and returns a centroid map
-with color and rotation based on estimate and error values.
+\code{geom_sf_glyph()} adds a glyph map layer based on simple feature (sf) objects
+to a ggplot. A glyph map is essentially a centroid-based map, where each
+region is represented by a rotated glyph, and the rotation angle indicates
+the value of \code{v2} specified in the mapping.
 }
+\section{Glyph map layer contents}{
+
+The layer returned by \code{geom_sf_glyph()} actually contains two scales,
+corresponding to the two variables specified in the mapping.
+Therefore, attempting to modify the scale for \code{v1} will trigger a warning
+indicating that the scale for \code{fill} is being replaced.
+}
+
 \examples{
 data(nc)
-
-ggplot(nc) +
-geom_sf_glyph(aes(geometry = geometry, estimate = value, error = sd), size = 50, glyph = "icone") +
-  scale_fill_viridis_c(name = "value", guide = guide_colorbar(order = 1)) +
-  scale_glyph_continuous(name = "sd", order = 2) +
-  theme(legend.position = "right", legend.box = "horizontal")
+ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd), size = 50, glyph = "icone") +
+theme(legend.position = "right", legend.box = "horizontal")
 
 }
