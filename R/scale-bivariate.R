@@ -1,3 +1,10 @@
+#' ScaleBivariate
+#'
+#' All `scale_*_bivariate()` functions return a `ScaleBivariate` ggproto object.
+#' This object defines how bivariate scales map data values to visual aesthetics.
+#'
+#' @seealso [ggplot2::Scale] for the base `ggproto` class that all scale objects inherit from.
+#'
 #' @export
 ScaleBivariate <- ggproto(
   "ScaleBivariate",
@@ -71,6 +78,34 @@ ScaleBivariate <- ggproto(
   }
 )
 
+#' Bivariate color scales
+#'
+#' `scale_*_bivariate` creates a bivariate palette by mixing two colour ramps,
+#' then implements the mapping by binning the variables `v1`, `v2` and assigning
+#' each bin combination to a colour.
+#'
+#' @inheritParams ggplot2::discrete_scale
+#' @param name1,name2 Optional names for `v1` and `v2`. Used as axis titles in
+#'   the legend. If `NULL`, the default, the names are taken from the mapping.
+#' @param colors A character vector of length two specifying the colors for the
+#'   bivariate palette.
+#' @param n_breaks An integer guiding the number of bins for each variable.
+#' @param breaks Method used to bin the variables. Options include `"quantile"`
+#'   and `"equal"`.
+#' @param blend Method used to blend the two colors specified in `colors`.
+#'   Options include `"additive"` and `"subtractive"`.
+#' @param flip Method used to flip the legend. Options include `"none"`,
+#'   `"vertical"`, `"horizontal"`, and `"both"`.
+#' @param guide_size A numeric value controlling the size of the legend graphic,
+#'   in centimeters.
+#'
+#' @examples
+#' data(nc)
+#' p <- ggplot(nc) + geom_sf(aes(fill = duo(value, sd)))
+#' p + scale_fill_bivariate(blend = 'subtractive')
+#' p + scale_fill_bivariate(name1 = 'var1', name2 = 'var2')
+#'
+#' @rdname scale_bivariate
 #' @export
 scale_fill_bivariate <- function(
   name = NULL,
@@ -126,7 +161,7 @@ scale_fill_bivariate <- function(
   sc
 }
 
-
+#' @rdname scale_bivariate
 #' @export
 scale_color_bivariate <- function(
   name = NULL,
@@ -161,6 +196,7 @@ scale_color_bivariate <- function(
   )
 }
 
+#' @rdname scale_bivariate
 #' @export
 scale_colour_bivariate <- scale_color_bivariate
 
