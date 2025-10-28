@@ -1,3 +1,17 @@
+#' Format input and assign the "bivariate" class
+#'
+#' `duo()` returns a list of sub-lists, each containing paired values of the two
+#' variables, along with their variable names stored as the `"bivariate"` class.
+#'
+#' @param v1,v2 Two variables to be used in constructing the bivariate map.
+#'
+#' @examples
+#' data(nc)
+#' value <- nc$value; sd <- nc$sd
+#' res <- duo(value, sd)
+#' class(res)
+#' attr(res, "vars")
+#'
 #' @export
 duo <- function(v1, v2) {
   .v1 = substitute(v1)
@@ -31,7 +45,7 @@ duo_exceed <- function(estimate, error) {
   structure(
     lapply(ind, function(i) list(v1 = estimate[i], v2 = error[i])),
     class = c("exceed", "list"),
-    vars  = c(.v1, .v2)
+    vars = c(.v1, .v2)
   )
 }
 
