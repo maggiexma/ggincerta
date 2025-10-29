@@ -25,7 +25,6 @@ duo <- function(v1, v2) {
 }
 
 duo_exceed <- function(estimate, error) {
-  browser()
   .v1 <- substitute(estimate)
   .v2 <- substitute(error)
   ind <- seq_along(estimate)
@@ -34,14 +33,4 @@ duo_exceed <- function(estimate, error) {
     class = c("exceed", "list"),
     vars = c(.v1, .v2)
   )
-}
-
-exceed <- function(..., dist_fun, threshold = NA) {
-  structure(list(args = list(...)),
-            threshold = threshold,
-            dist_fun = dist_fun,
-            class = c("exceed", "list"))
-
-  dist_fun(!!args)
-
 }
