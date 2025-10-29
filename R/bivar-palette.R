@@ -1,3 +1,4 @@
+#' @export
 bivar_palette <- function(
   colors = NULL,
   n_breaks = NULL,

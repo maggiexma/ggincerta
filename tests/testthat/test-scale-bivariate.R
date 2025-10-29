@@ -1,37 +1,50 @@
-test_that("scale-bivariate", {
-  ggplot(nc) +
+test_that("bivariate scale works automatically with geom_sf", {
+  p <- ggplot(nc) +
     geom_sf(aes(fill = duo(value, sd)))
 
-  ggplot(nc) +
+  p1 <- ggplot(nc) +
     geom_sf(aes(fill = duo(value, sd))) +
-    scale_fill_bivariate(n_breaks = 3, blend = 'subtractive',
-                         name1 = 'var1', name2 = 'var2',
-                         flip = 'both', guide_size = 2)
-
-  # possibly fixed
-  # TODO: add explicit for palette
-  ggplot(nc) +
-    geom_sf(aes(fill = duo(value, sd))) +
-    geom_sf_text(aes(label = round(value, 1)))
+    scale_fill_bivariate()
 
   vdiffr::expect_doppelganger("bivariate map", p)
-
-  ggplot(anscombe, aes(x1, x2)) +
-    geom_point(aes(color = duo(y1, y2)), size = 5)
-
-  ggplot(economics) +
-    geom_line(aes(date, pce, color = duo(psavert, pop)),
-              linewidth = 3) +
-    scale_color_bivariate(n_breaks = 3,
-                          name1 = "Blabla",
-                          name2 = "hello") +
-    labs(x = "XXXX")
-
-
-  set.seed(1)
-  expand.grid(row = 1:5, col = 1:3) |>
-    transform(v = rnorm(15), u = rnorm(15)) |>
-    ggplot(aes(row, col, fill = duo(v, u))) +
-    geom_tile(color = "black")
-
+  vdiffr::expect_doppelganger("bivariate map", p1)
 })
+
+test_that("bivariate scale works with labs and theme", {
+  p <- ggplot(nc) +
+    geom_sf(aes(fill = duo(value, sd))) +
+    scale_fill_bivariate(n_breaks = 4) +
+    labs(title = "bivariate map on nc") +
+    theme(legend.position = "left")
+
+  gb <- ggplot_build(p)
+  expect_equal(gb$plot$labels$title, "bivariate map on nc")
+  vdiffr::expect_doppelganger("bivariate map with left guide", p)
+})
+
+test_that("bivariate scale works with NAs", {
+  nc$value[1:3] <- NA
+  nc$sd[c(2,4)] <- NA
+
+  p <- ggplot(nc) +
+    geom_sf(aes(fill = duo(value, sd)))
+  vdiffr::expect_doppelganger("bivariate map with NAs", p)
+})
+
+test_that("bivariate scale: external binning equals mapped fill on sf::nc", {
+  p <- ggplot(nc) +
+    geom_sf(aes(fill = duo(value, sd)))
+
+  gb <- ggplot_build(p)
+  fills_mapped <- gb$data[[1]]$fill
+
+  qx <- quantile(nc$value, seq(0, 1, length.out = 4), na.rm = TRUE)
+  qy <- quantile(nc$sd, seq(0, 1, length.out = 4), na.rm = TRUE)
+  bin1 <- cut(nc$value, breaks = qx, include.lowest = TRUE, labels = FALSE)
+  bin2 <- cut(nc$sd, breaks = qy, include.lowest = TRUE, labels = FALSE)
+  combo <- (bin2 - 1L) * 3 + bin1
+  pal <- bivar_palette(colors = c("gold", "red4"), n_breaks = c(3,3))
+  fills <- pal[combo]
+  expect_equal(fills_mapped, fills)
+})
+

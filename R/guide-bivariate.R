@@ -20,7 +20,6 @@ GuideBivariate <- ggproto(
   },
   draw = function(self, theme, params = self$params, ...) {
 
-
     draw_key_bivariate(
       key = params$key,
       size = params$size,
@@ -51,7 +50,6 @@ guide_bivariate <- function(
   position = NULL,
   aesthetics = NULL
 ) {
-
 
   key <- data.frame(key, .value = value, .label = label)
 
@@ -85,7 +83,6 @@ draw_key_bivariate <- function(
   title2 = NULL,
   aesthetics = "fill"
 ) {
-
 
   layout <- expand.grid(row = 1:n_breaks[1], col = 1:n_breaks[2])
   tiles <- lapply(seq_len(prod(n_breaks)), function(i) {
