@@ -68,14 +68,14 @@ bivariate palette.}
 
 \item{n_breaks}{An integer guiding the number of bins for each variable.}
 
-\item{breaks}{Method used to bin the variables. Options include \code{"quantile"}
-and \code{"equal"}.}
+\item{breaks}{Method used to bin the variables: \code{"quantile"} (the default)
+or \code{"equal"}.}
 
-\item{blend}{Method used to blend the two colors specified in \code{colors}.
-Options include \code{"additive"} and \code{"subtractive"}.}
+\item{blend}{Method used to blend the two colors specified in \code{colors}:
+\code{"additive"} (the default) or \code{"subtractive"}.}
 
-\item{flip}{Method used to flip the legend. Options include \code{"none"},
-\code{"vertical"}, \code{"horizontal"}, and \code{"both"}.}
+\item{flip}{Method used to flip the legend: \code{"none"} (the default),
+\code{"vertical"}, \code{"horizontal"}, or \code{"both"}.}
 
 \item{guide_size}{A numeric value controlling the size of the legend graphic,
 in centimeters.}

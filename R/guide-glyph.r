@@ -126,7 +126,7 @@ draw_glyph_key <- function(key,
     label,
     x = grid::unit(0, "native"),
     y = y_title,
-    gp = grid::gpar(fontsize = 12)
+    gp = grid::gpar(fontsize = 11)
   )
 
   pos_top <- c(0, 10.5) + lab_nudge_top

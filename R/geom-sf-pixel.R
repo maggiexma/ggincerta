@@ -1,3 +1,4 @@
+#' @rdname ggsfpi
 #' @export
 StatPixel <- ggproto("StatPixel",
                      StatSf,
@@ -5,7 +6,7 @@ StatPixel <- ggproto("StatPixel",
                      compute_panel = function(data,
                                               scales,
                                               coord,
-                                              pixel_size,
+                                              n,
                                               distribution
                                               ){
                        browser()
@@ -13,7 +14,7 @@ StatPixel <- ggproto("StatPixel",
                        data <- StatSf$compute_panel(data, scales, coord)
                        sf_data <- sf::st_as_sf(data)
 
-                       full_grid <- sf::st_make_grid(sf_data, n = pixel_size)
+                       full_grid <- sf::st_make_grid(sf_data, n = n)
 
                        pixel_fun <- function(i) {
                          grid <- sf::st_intersection(full_grid, sf_data[i, ])
@@ -96,38 +97,37 @@ StatPixel <- ggproto("StatPixel",
                      }
 )
 
-#' @title Geom layer function for pixel map on sf objects
-#' @description
-#' \code{geom_sf_pixel} applies \code{StatPixel} to sf data, pixelate each region and
-#' sample each pixel's value from a specified distribution.
+#' Generate pixel maps on sf objects
 #'
-#' @param mapping Aesthetic mapping that must include \code{geometry}, \code{estimate}, \code{error} and \code{id}.
-#' @param data An sf object.
-#' @param pixelSize Number of grid cells along each axis.
-#' @param distribution Sampling distribution: "uniform", "normal", or "discrete".
-#' @param id_col Name of the ID column.
-#' @param show.legend Logical; show legend.
-#' @param inherit.aes Logical; inherit global aesthetics.
-#' @param ... Other parameters passed to \code{layer()}.
+#' `geom_sf_pixel()` adds a pixel map layer based on simple feature (sf) objects
+#' to a ggplot. In a pixel map, each region is divided into small pixels, with
+#' colours mapped from values sampled from distribution specified.
+#'
+#' @section Pixel map layer contents:
+#' The layer returned by `geom_sf_pixel()` internally includes a scale object
+#' created by `scale_fill_distiller()`.
+#' Therefore, modifying the scale will trigger a warning indicating that
+#' the scale for `fill` is being replaced.
+#'
+#' @inheritParams ggplot2::geom_sf
+#' @inheritParams sf::st_make_grid
+#' @param mapping Set of aesthetic mappings created by [aes()].
+#'   `v1` and `v2` are required, which are the variables used as the parameters
+#'   in the sampling distribution.
+#' @param distribution Sampling distribution: `"uniform"`(the default) or, `"normal"`.
+#'   * `"uniform"` treats `v1` as the centre and uniformly samples within the range
+#'     `v1 ± v2`.
+#'   * `"normal"` treats `v1` as the mean and `v2` as the standard deviation.
 #'
 #' @examples
 #' data(nc)
-#' ggplot() +
-#'   geom_sf_pixel(
-#'     data = nc,
-#'     mapping = aes(geometry = geometry),
-#'     id_col = "id",
-#'     pixelSize = 40,
-#'     distribution = "uniform"
-#'   ) +
-#'   scale_fill_distiller(palette = "Blues", direction = 1) +
-#'   geom_sf(data = nc, fill = NA, color = 'black', size = 0.2)
+#' ggplot(nc) + geom_sf_pixel(mapping = aes(v1 = value, v2 = sd))
 #'
-#' @return A polygon layer showing pixel values.
+#' @rdname ggsfpi
 #' @export
 geom_sf_pixel <- function(mapping = NULL,
                           data = NULL,
-                          pixel_size = 100,
+                          n = 40,
                           distribution = "uniform",
                           na.rm = FALSE,
                           show.legend = NA,
@@ -146,7 +146,7 @@ geom_sf_pixel <- function(mapping = NULL,
     show.legend = show.legend,
     inherit.aes = inherit.aes,
     params = list(na.rm = na.rm,
-                  pixel_size = pixel_size,
+                  n = n,
                   distribution = distribution,
                   ...)
     ),

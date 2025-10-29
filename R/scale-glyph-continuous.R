@@ -7,7 +7,6 @@ ScaleGlyph <- ggproto(
     x,
 
   train_df = function(self, df, ...) {
-    browser()
     ggproto_parent(ScaleContinuous, self)$train_df(df, ...)
     vals <- if ("glyph" %in% names(df))
       df$glyph

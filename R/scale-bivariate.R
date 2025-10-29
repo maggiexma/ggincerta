@@ -3,7 +3,8 @@
 #' All `scale_*_bivariate()` functions return a `ScaleBivariate` ggproto object.
 #' This object defines how bivariate scales map data values to visual aesthetics.
 #'
-#' @seealso [ggplot2::Scale] for the base `ggproto` class that all scale objects inherit from.
+#' @seealso [ggplot2::Scale] for the base `ggproto` class that all scale objects
+#'   inherit from.
 #'
 #' @export
 ScaleBivariate <- ggproto(
@@ -90,12 +91,12 @@ ScaleBivariate <- ggproto(
 #' @param colors A character vector of length two specifying the colors for the
 #'   bivariate palette.
 #' @param n_breaks An integer guiding the number of bins for each variable.
-#' @param breaks Method used to bin the variables. Options include `"quantile"`
-#'   and `"equal"`.
-#' @param blend Method used to blend the two colors specified in `colors`.
-#'   Options include `"additive"` and `"subtractive"`.
-#' @param flip Method used to flip the legend. Options include `"none"`,
-#'   `"vertical"`, `"horizontal"`, and `"both"`.
+#' @param breaks Method used to bin the variables: `"quantile"` (the default)
+#'   or `"equal"`.
+#' @param blend Method used to blend the two colors specified in `colors`:
+#'   `"additive"` (the default) or `"subtractive"`.
+#' @param flip Method used to flip the legend: `"none"` (the default),
+#'   `"vertical"`, `"horizontal"`, or `"both"`.
 #' @param guide_size A numeric value controlling the size of the legend graphic,
 #'   in centimeters.
 #'

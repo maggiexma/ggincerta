@@ -15,6 +15,7 @@ All \verb{scale_*_bivariate()} functions return a \code{ScaleBivariate} ggproto 
 This object defines how bivariate scales map data values to visual aesthetics.
 }
 \seealso{
-\link[ggplot2:ggplot2-ggproto]{ggplot2::Scale} for the base \code{ggproto} class that all scale objects inherit from.
+\link[ggplot2:ggplot2-ggproto]{ggplot2::Scale} for the base \code{ggproto} class that all scale objects
+inherit from.
 }
 \keyword{datasets}

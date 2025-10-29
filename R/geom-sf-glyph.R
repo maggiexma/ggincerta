@@ -1,3 +1,5 @@
+#' @rdname ggsfgl
+#' @export
 StatGlyph <- ggproto(
   "StatGlyph",
   StatSf,
@@ -8,8 +10,8 @@ StatGlyph <- ggproto(
     data <- sf::st_as_sf(data)
     centroids <- sf::st_centroid(data$geometry)
     coords <- sf::st_coordinates(centroids)
-    data$long <- coords[ ,1]
-    data$lat <- coords[ ,2]
+    data$long <- coords[, 1]
+    data$lat <- coords[, 2]
 
     errs <- data$v2
     max_err <- if (is.null(max_v2))
@@ -73,14 +75,15 @@ GeomPolygonGlyph <- ggproto(
 #' @section Glyph map layer contents:
 #' The layer returned by `geom_sf_glyph()` actually contains two scales,
 #' corresponding to the two variables specified in the mapping.
-#' Therefore, attempting to modify the scale for `v1` will trigger a warning
+#' Therefore, modifying the scale for `v1` will trigger a warning
 #' indicating that the scale for `fill` is being replaced.
 #'
 #' @inheritParams ggplot2::geom_sf
 #' @param mapping Set of aesthetic mappings created by [aes()].
 #'   `v1` and `v2` are required, which are the variables used for glyph fill
 #'   and rotation, respectively.
-#' @param size An integer between 1 and 100. Controls the glyph size.
+#' @param size A positive numeric scaling factor controlling glyph size.
+#'   Larger values produce smaller glyphs.
 #' @param style Either `"icone"` or `"semi"`. Controls the glyph shape.
 #' @param max_v2 Numeric value setting the upper limit for `v2`.
 #'
@@ -91,6 +94,8 @@ GeomPolygonGlyph <- ggproto(
 #'
 #' @import ggplot2
 #' @import sf
+#'
+#' @rdname ggsfgl
 #' @export
 geom_sf_glyph <- function(mapping = NULL,
                           data = NULL,
@@ -102,6 +107,7 @@ geom_sf_glyph <- function(mapping = NULL,
                           inherit.aes = TRUE,
                           ...) {
   browser()
+
   needs_geometry <- is.null(rlang::get_expr(mapping$geometry))
   if (needs_geometry) {
     geom_col <- NULL
@@ -110,8 +116,11 @@ geom_sf_glyph <- function(mapping = NULL,
     } else {
       geom_col <- "geometry"
     }
-    mapping <- utils::modifyList(mapping, ggplot2::aes_string(geometry = geom_col))
+    mapping <- utils::modifyList(mapping, ggplot2::aes(geometry = !!rlang::sym(geom_col)))
   }
+
+  v1_title <- rlang::as_label(mapping$v1)
+  v2_title <- rlang::as_label(mapping$v2)
 
   c(
     layer(
@@ -131,12 +140,13 @@ geom_sf_glyph <- function(mapping = NULL,
     ),
     coord_sf(),
     scale_fill_distiller(
+      name = v1_title,
       palette = "Oranges",
       direction = 1,
       guide = guide_colorbar(order = 1)
     ),
     scale_glyph_continuous(
-      name = "sd",
+      name = v2_title,
       order = 2,
       style = style
     )
