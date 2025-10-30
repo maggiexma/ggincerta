@@ -5,7 +5,39 @@
 \alias{ScaleExceed}
 \alias{scale_fill_exceed}
 \alias{scale_colour_exceed}
-\title{Exceedance probability colour scales}
+\title{#' Construct a distribution for exceedance probability
+#'
+#' Build a function \code{dist_fun(q, estimate, error)} that returns the exceedance
+#' probability \code{P(X > q)} by combining a base R cumulative distribution
+#' function \code{pfun} with a user-defined parameter transformation based on
+#' \code{estimate} and \code{error}.
+#'
+#' @param pfun A CDF function. If \code{NULL} (the default), \code{stats::pnorm()} is used.
+#' @param params A function that takes \code{estimate} and \code{error} as inputs
+#'   and returns a list of parameters required by \code{pfun}.
+#' @param lower.tail Logical. If \code{FALSE} (the default), the constructed
+#'   function returns \code{P(X > q)}; if \code{TRUE}, it returns \code{P(X <= q)}.
+#'
+#' @examples
+#' data(nc)
+#' dist_exp <- exceed_dist(stats::pexp, function(estimate, error)
+#'   list(rate = 1 / estimate))
+#' ex_pr <- dist_exp(q = 3, estimate = nc$v1, error = nc$v2)
+#'
+#' @seealso \code{\link[=scale_fill_exceed]{scale_fill_exceed()}} for use in exceedance probability maps.
+#' @export
+exceed_dist <- function(pfun,
+params = function(estimate, error)
+list(),
+lower.tail = FALSE) {
+browser()
+stopifnot(is.function(pfun), is.function(params))
+function(q, estimate, error) {
+browser()
+args <- c(list(q = q, lower.tail = lower.tail), params(estimate, error))
+do.call(pfun, args)
+}
+}}
 \format{
 An object of class \code{ScaleExceed} (inherits from \code{ScaleContinuous}, \code{Scale}, \code{ggproto}, \code{gg}) of length 2.
 }

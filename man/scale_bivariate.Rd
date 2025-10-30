@@ -7,7 +7,6 @@
 \title{Bivariate color scales}
 \usage{
 scale_fill_bivariate(
-  name = NULL,
   name1 = NULL,
   name2 = NULL,
   colors = c("gold", "red4"),
@@ -23,7 +22,6 @@ scale_fill_bivariate(
 )
 
 scale_color_bivariate(
-  name = NULL,
   name1 = NULL,
   name2 = NULL,
   colors = c("gold", "red4"),
@@ -39,7 +37,6 @@ scale_color_bivariate(
 )
 
 scale_colour_bivariate(
-  name = NULL,
   name1 = NULL,
   name2 = NULL,
   colors = c("gold", "red4"),
@@ -55,11 +52,6 @@ scale_colour_bivariate(
 )
 }
 \arguments{
-\item{name}{The name of the scale. Used as the axis or legend title. If
-\code{waiver()}, the default, the name of the scale is taken from the first
-mapping used for that aesthetic. If \code{NULL}, the legend title will be
-omitted.}
-
 \item{name1, name2}{Optional names for \code{v1} and \code{v2}. Used as axis titles in
 the legend. If \code{NULL}, the default, the names are taken from the mapping.}
 

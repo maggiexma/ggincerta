@@ -13,12 +13,11 @@ ScaleBivariate <- ggproto(
   drop = FALSE,
   na.value = NA,
   transform = function(self, x) {
-
     n_breaks <- self$n_breaks
     colors <- self$colors
     breaks <- self$breaks
-    compute_bivariate <- function(x, y) {
 
+    compute_bivariate <- function(x, y) {
       qx <- quantile(x, seq(0, 1, length.out = n_breaks[1] + 1), na.rm = TRUE)
       qy <- quantile(y, seq(0, 1, length.out = n_breaks[2] + 1), na.rm = TRUE)
       if (breaks == "equal" || length(unique(qx)) < n_breaks[1]) {
@@ -37,10 +36,8 @@ ScaleBivariate <- ggproto(
       }
       xb <- unique(as.numeric(qx))
       yb <- unique(as.numeric(qy))
-
       bin1 <- cut(x, breaks = xb, include.lowest = TRUE, labels = FALSE)
       bin2 <- cut(y, breaks = yb, include.lowest = TRUE, labels = FALSE)
-
       combo <- (bin2 - 1L) * n_breaks[1] + bin1
       list(value = factor(combo, levels = 1:prod(n_breaks)), xb = xb, yb = yb)
     }
@@ -70,7 +67,6 @@ ScaleBivariate <- ggproto(
       size = self$guide_size,
       aesthetics = self$aesthetics
     )
-
     res$value
   },
 
@@ -109,7 +105,6 @@ ScaleBivariate <- ggproto(
 #' @rdname scale_bivariate
 #' @export
 scale_fill_bivariate <- function(
-  name = NULL,
   name1 = NULL,
   name2 = NULL,
   colors = c("gold", "red4"),
@@ -123,7 +118,6 @@ scale_fill_bivariate <- function(
   aesthetics = "fill",
   ...
 ) {
-
   flip <- match.arg(flip)
   blend <- match.arg(blend)
   breaks <- match.arg(breaks)
@@ -140,7 +134,6 @@ scale_fill_bivariate <- function(
   sc <- discrete_scale(
     aesthetics = aesthetics,
     palette = pal_safe,
-    name = name,
     guide = "legend",
     drop = FALSE,
     na.value = na.value,
@@ -165,7 +158,6 @@ scale_fill_bivariate <- function(
 #' @rdname scale_bivariate
 #' @export
 scale_color_bivariate <- function(
-  name = NULL,
   name1 = NULL,
   name2 = NULL,
   colors = c("gold", "red4"),
@@ -179,9 +171,7 @@ scale_color_bivariate <- function(
   aesthetics = "colour",
   ...
 ) {
-
   scale_fill_bivariate(
-    name = name,
     name1 = name1,
     name2 = name2,
     colors = colors,

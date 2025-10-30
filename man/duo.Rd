@@ -2,16 +2,19 @@
 % Please edit documentation in R/duo.R
 \name{duo}
 \alias{duo}
-\title{Format input and assign the "bivariate" class}
+\alias{duo_exceed}
+\title{Format input and assign the map class}
 \usage{
 duo(v1, v2)
+
+duo_exceed(estimate, error)
 }
 \arguments{
-\item{v1, v2}{Two variables to be used in constructing the bivariate map.}
+\item{v1, v2}{Two variables to be used in constructing the map.}
 }
 \description{
 \code{duo()} returns a list of sub-lists, each containing paired values of the two
-variables, along with their variable names stored as the \code{"bivariate"} class.
+variables, along with their variable names stored as the map class.
 }
 \examples{
 data(nc)
