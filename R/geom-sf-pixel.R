@@ -9,7 +9,6 @@ StatPixel <- ggproto("StatPixel",
                                               n,
                                               distribution
                                               ){
-                       browser()
 
                        data <- StatSf$compute_panel(data, scales, coord)
                        sf_data <- sf::st_as_sf(data)
@@ -50,7 +49,7 @@ StatPixel <- ggproto("StatPixel",
                        }
 
                        createPixrv <- function(pixelGeo, distribution, q) {
-                         browser()
+
 
                          pixel_distinct <- pixelGeo[!duplicated(pixelGeo$group), ]
 
@@ -150,7 +149,7 @@ geom_sf_pixel <- function(mapping = NULL,
                   distribution = distribution,
                   ...)
     ),
-    geom_sf(fill = NA, color = 'black', linewidth = 1),
+    geom_sf(fill = NA, color = 'black'),
     scale_fill_distiller(palette = "Oranges", direction = 1),
     coord_sf())
 }

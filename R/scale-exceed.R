@@ -44,7 +44,7 @@ ScaleExceed <- ggproto(
       e$v1, numeric(1))
     v2 <- vapply(x, function(e)
       e$v2, numeric(1))
-    p <- self$dist_fun(self$threshold, v1, v2)
+    p <- ScaleExceed$transform(self = sc, x = x)
     p
   }
 )
@@ -74,15 +74,13 @@ scale_fill_exceed <- function(name = NULL,
                               type = "seq",
                               direction = 1,
                               dist_fun = NULL,
-                              threshold,
+                              threshold = 1.64,
                               limits = c(0, 1),
                               na.value = NA,
                               guide = "colourbar",
                               aesthetics = "fill",
                               ...) {
   browser()
-  if (missing(threshold))
-    stop("`threshold` is required.")
   if (is.null(dist_fun))
     dist_fun <- dist_norm
 

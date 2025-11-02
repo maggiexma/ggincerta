@@ -5,7 +5,7 @@ StatGlyph <- ggproto(
   StatSf,
   required_aes = c("v1", "v2", "geometry"),
   compute_panel = function(data, scales, coord, size, style, max_v2) {
-    browser()
+
     data <- StatSf$compute_panel(data, scales, coord)
     data <- sf::st_as_sf(data)
     centroids <- sf::st_centroid(data$geometry)
@@ -106,7 +106,7 @@ geom_sf_glyph <- function(mapping = NULL,
                           show.legend = TRUE,
                           inherit.aes = TRUE,
                           ...) {
-  browser()
+
 
   needs_geometry <- is.null(rlang::get_expr(mapping$geometry))
   if (needs_geometry) {

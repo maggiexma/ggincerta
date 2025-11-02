@@ -31,7 +31,7 @@ test_that("bivariate scale works with NAs", {
   vdiffr::expect_doppelganger("bivariate map with NAs", p)
 })
 
-test_that("bivariate scale: external binning equals mapped fill on sf::nc", {
+test_that("bivariate scale correctly maps bin combinations to colors.", {
   p <- ggplot(nc) +
     geom_sf(aes(fill = duo(value, sd)))
 

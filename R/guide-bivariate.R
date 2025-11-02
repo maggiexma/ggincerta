@@ -84,7 +84,7 @@ draw_key_bivariate <- function(key,
                                label_fontsize = 8,
                                title_fontsize = 9,
                                label_margin = grid::unit(0.06, "npc"),
-                               gap = grid::unit(0.02, "npc")) {
+                               gap = grid::unit(0.3, "npc")) {
   layout <- expand.grid(row = 1:n_breaks[1], col = 1:n_breaks[2])
   tiles <- lapply(seq_len(prod(n_breaks)), function(i) {
     grid::rectGrob(
@@ -141,7 +141,7 @@ draw_key_bivariate <- function(key,
       grobs[[length(grobs) + 1]] <- grid::textGrob(
         label = label2[i],
         x = grid::unit(xs[i], "npc") + grid::unit(0.07, "npc"),
-        y = -label_margin + grid::unit(-0.1, "npc"),
+        y = -label_margin + grid::unit(-0.15, "npc"),
         just = "top",
         rot = -90,
         gp = grid::gpar(fontsize = label_fontsize)

@@ -34,7 +34,7 @@ scale_glyph_continuous <- function(name = waiver(),
                                    style = c("icone", "semi"),
                                    font_size = 8,
                                    order = 99) {
-  browser()
+
   style <- match.arg(style)
   ggproto(
     NULL,
