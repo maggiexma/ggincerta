@@ -1,11 +1,4 @@
-#' ScaleBivariate
-#'
-#' All `scale_*_bivariate()` functions return a `ScaleBivariate` ggproto object.
-#' This object defines how bivariate scales map data values to visual aesthetics.
-#'
-#' @seealso [ggplot2::Scale] for the base `ggproto` class that all scale objects
-#'   inherit from.
-#'
+#' @rdname scale_bivariate
 #' @export
 ScaleBivariate <- ggproto(
   "ScaleBivariate",
@@ -96,11 +89,27 @@ ScaleBivariate <- ggproto(
 #' @param guide_size A numeric value controlling the size of the legend graphic,
 #'   in centimeters.
 #'
+#' @returns A `ScaleBivariate` ggproto object.
+#'
 #' @examples
 #' data(nc)
+#'
+#' # Create a bivariate fill scale
+#' sc <- scale_fill_bivariate()
+#' class(sc)
+#' sc$palette(9)
+#'
+#' # Basic bivariate map
 #' p <- ggplot(nc) + geom_sf(aes(fill = duo(value, sd)))
+#'
+#' # Use subtractive color mixing scheme
 #' p + scale_fill_bivariate(blend = 'subtractive')
+#'
+#' # Customize axis labels
 #' p + scale_fill_bivariate(name1 = 'var1', name2 = 'var2')
+#'
+#' @seealso [ggplot2::Scale] for the base `ggproto` class that all scale objects
+#'   inherit from.
 #'
 #' @rdname scale_bivariate
 #' @export
@@ -141,7 +150,6 @@ scale_fill_bivariate <- function(
     super = ScaleBivariate,
     ...
   )
-  # whether to allow different numbers of breaks in v1 and v2
   if (length(n_breaks) == 1L && is.numeric(n_breaks)) {
     n_breaks <- c(n_breaks, n_breaks)
   }

@@ -1,37 +1,3 @@
-#' #' Construct a distribution for exceedance probability
-#' #'
-#' #' Build a function `dist_fun(q, estimate, error)` that returns the exceedance
-#' #' probability `P(X > q)` by combining a base R cumulative distribution
-#' #' function `pfun` with a user-defined parameter transformation based on
-#' #' `estimate` and `error`.
-#' #'
-#' #' @param pfun A CDF function. If `NULL` (the default), `stats::pnorm()` is used.
-#' #' @param params A function that takes `estimate` and `error` as inputs
-#' #'   and returns a list of parameters required by `pfun`.
-#' #' @param lower.tail Logical. If `FALSE` (the default), the constructed
-#' #'   function returns `P(X > q)`; if `TRUE`, it returns `P(X <= q)`.
-#' #'
-#' #' @examples
-#' #' data(nc)
-#' #' dist_exp <- exceed_dist(stats::pexp, function(estimate, error)
-#' #'   list(rate = 1 / estimate))
-#' #' ex_pr <- dist_exp(q = 3, estimate = nc$v1, error = nc$v2)
-#' #'
-#' #' @seealso [scale_fill_exceed()] for use in exceedance probability maps.
-#' #' @export
-#' exceed_dist <- function(pfun,
-#'                         params = function(estimate, error)
-#'                           list(),
-#'                         lower.tail = FALSE) {
-#'   browser()
-#'   stopifnot(is.function(pfun), is.function(params))
-#'   function(q, estimate, error) {
-#'     browser()
-#'     args <- c(list(q = q, lower.tail = lower.tail), params(estimate, error))
-#'     do.call(pfun, args)
-#'   }
-#' }
-
 #' @rdname scale_exceed
 #' @export
 ScaleExceed <- ggproto(
@@ -39,12 +5,11 @@ ScaleExceed <- ggproto(
   ScaleContinuous,
 
   transform = function(self, x) {
-    browser()
     v1 <- vapply(x, function(e)
       e$v1, numeric(1))
     v2 <- vapply(x, function(e)
       e$v2, numeric(1))
-    p <- ScaleExceed$transform(self = sc, x = x)
+    p <- self$dist_fun(self$threshold, v1, v2)
     p
   }
 )
@@ -57,15 +22,21 @@ ScaleExceed <- ggproto(
 #' @inheritParams ggplot2::continuous_scale
 #' @inheritParams scales::pal_brewer
 #' @param dist_fun A function used to compute the exceedance probability.
-#'   Typically, this should be the output of [exceed_dist()]. If `NULL`
-#'   (the default), a normal distribution with `stats::pnorm()` is used.
+#'   If `NULL` (the default), a normal distribution with `stats::pnorm()` is used.
 #' @param threshold A numeric value specifying the threshold `q` in the exceedance
 #'   probability expression `P(X > q)`.
 #'
+#' @returns A `ScaleExceed` ggproto object.
+#'
 #' @examples
-#' ggplot(nc) +
-#'   geom_sf(aes(fill = duo_exceed(value, sd))) +
-#'   scale_fill_exceed(threshold = 1.64)
+#' data(nc)
+#'
+#' # Create an exceedance probability scale
+#' sc <- scale_fill_exceed()
+#' class(sc)
+#'
+#' # Basic bivariate map
+#' p <- ggplot(nc) + geom_sf(aes(fill = duo_exceed(value, sd)))
 #'
 #' @rdname scale_exceed
 #' @export
@@ -80,7 +51,6 @@ scale_fill_exceed <- function(name = NULL,
                               guide = "colourbar",
                               aesthetics = "fill",
                               ...) {
-  browser()
   if (is.null(dist_fun))
     dist_fun <- dist_norm
 

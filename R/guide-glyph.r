@@ -52,10 +52,10 @@ draw_glyph_key <- function(key,
                            alpha_minor = 0.20,
                            axis_col = "black",
                            axis_alpha = 0.45,
-                           title_lift = grid::unit(4, "mm"),
-                           lab_nudge_top = c(0.0, 0.8),
-                           lab_nudge_right = c(0.9, 0.0),
-                           lab_nudge_bottom = c(0.0, 0.7)) {
+                           title_lift = grid::unit(2, "mm"),
+                           lab_nudge_top = c(-3, 0.0),
+                           lab_nudge_right = c(0.9, 2),
+                           lab_nudge_bottom = c(-3, 0.0)) {
   glyph <- match.arg(glyph)
 
   base_shape <- function(g) {
@@ -129,9 +129,9 @@ draw_glyph_key <- function(key,
     gp = grid::gpar(fontsize = 11)
   )
 
-  pos_top <- c(0, 10.5) + lab_nudge_top
+  pos_top <- c(0, 9.5) + lab_nudge_top
   pos_right <- c(10, 0.0) + lab_nudge_right
-  pos_bottom <- c(0, -10.5) + lab_nudge_bottom
+  pos_bottom <- c(0, -9.5) + lab_nudge_bottom
 
   g_lab_top <- grid::textGrob(
     labs[1],

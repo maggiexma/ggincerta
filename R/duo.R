@@ -1,16 +1,28 @@
 #' Format input and assign the map class
 #'
-#' `duo()` returns a list of sub-lists, each containing paired values of the two
-#' variables, along with their variable names stored as the map class.
+#' `duo()` and `duo_exceed()` create a paired mapping object that combines
+#' two variables, records their names, and assigns the `"map"` class as an
+#' attribute for use in aesthetic mappings.
 #'
-#' @param v1,v2 Two variables to be used in constructing the map.
+#' @param v1,v2,estimate,error Input variables for constructing paired mappings.
+#'   `duo()` uses `v1` and `v2`, whereas `duo_exceed()` uses `estimate` and
+#'   `error` to represent the point and uncertainty measures, respectively.
+#'
+#' @returns A list of sub-lists, each containing a pair of values from the two
+#' variables, with attributes storing the variable names and the `"map"` class.
 #'
 #' @examples
 #' data(nc)
-#' value <- nc$value; sd <- nc$sd
+#' value <- nc$value
+#' sd <- nc$sd
+#'
+#' # Create a paired mapping object using duo()
 #' res <- duo(value, sd)
+#' res_exceed <- duo_exceed(value, sd)
 #' class(res)
+#' class(res_exceed)
 #' attr(res, "vars")
+#' attr(res_exceed, "vars")
 #'
 #' @rdname duo
 #' @export

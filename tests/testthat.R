@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(ggfuzzy)
+library(ggincerta)
 
-test_check("ggfuzzy")
+test_check("ggincerta")

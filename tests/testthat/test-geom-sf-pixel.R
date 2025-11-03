@@ -1,6 +1,6 @@
 test_that('geom_sf_pixel draws correctly', {
   p <- ggplot(nc) +
-    geom_sf_pixel(mapping = aes(v1 = value, v2 = sd))
+    geom_sf_pixel(mapping = aes(v1 = value, v2 = sd), seed = 123)
 
   vdiffr::expect_doppelganger("pixel map", p)
 })
@@ -21,9 +21,15 @@ test_that("geom_sf_pixel works with NAs", {
   nc$sd[c(2,4)] <- NA
 
   p <- ggplot(nc) +
-    geom_sf_pixel(mapping = aes(v1 = value, v2 = sd), distribution = "normal")
+    geom_sf_pixel(
+      mapping = aes(v1 = value, v2 = sd),
+      distribution = "normal",
+      seed = 123
+    )
 
-  vdiffr::expect_doppelganger("pixel map with NAs", p)
+  suppressWarnings(
+    vdiffr::expect_doppelganger("pixel map with NAs", p)
+  )
 })
 
 test_that("geom_sf_pixel prints message when adding another fill scale", {

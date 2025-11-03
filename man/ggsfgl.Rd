@@ -103,6 +103,9 @@ lists which parameters it can accept.
 \link[ggplot2:draw_key]{key glyphs}, to change the display of the layer in the legend.
 }}
 }
+\value{
+A list of ggplot2 layer objects.
+}
 \description{
 \code{geom_sf_glyph()} adds a glyph map layer based on simple feature (sf) objects
 to a ggplot. A glyph map is essentially a centroid-based map, where each
@@ -119,8 +122,17 @@ indicating that the scale for \code{fill} is being replaced.
 
 \examples{
 data(nc)
-ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd), size = 50, glyph = "icone") +
-theme(legend.position = "right", legend.box = "horizontal")
+
+# Basic glyph map
+p <- ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd))
+p1 <- ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd), style = "semi")
+
+# Customize labels and theme
+p + labs(title = "glyph map on nc") + theme(legend.position = "left", legend.box = "horizontal")
+
+# Replacing the internal fill scale triggers a message
+# ("Scale for fill is already present. Adding another scale for fill...")
+p + scale_fill_distiller(palette = "Blues")
 
 }
 \keyword{datasets}

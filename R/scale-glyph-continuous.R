@@ -16,7 +16,7 @@ ScaleGlyph <- ggproto(
     if (!length(vals))
       vals <- 0
 
-    brks <- as.numeric(quantile(vals, probs = c(0, 0.5, 1), na.rm = TRUE))
+    brks <- as.numeric(stats::quantile(vals, probs = c(0, 0.5, 1), na.rm = TRUE))
     self$err_breaks <- brks
 
     self$guide <- guide_glyph(
@@ -32,7 +32,7 @@ ScaleGlyph <- ggproto(
 
 scale_glyph_continuous <- function(name = waiver(),
                                    style = c("icone", "semi"),
-                                   font_size = 8,
+                                   font_size = 8.8,
                                    order = 99) {
 
   style <- match.arg(style)

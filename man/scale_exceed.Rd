@@ -5,39 +5,7 @@
 \alias{ScaleExceed}
 \alias{scale_fill_exceed}
 \alias{scale_colour_exceed}
-\title{#' Construct a distribution for exceedance probability
-#'
-#' Build a function \code{dist_fun(q, estimate, error)} that returns the exceedance
-#' probability \code{P(X > q)} by combining a base R cumulative distribution
-#' function \code{pfun} with a user-defined parameter transformation based on
-#' \code{estimate} and \code{error}.
-#'
-#' @param pfun A CDF function. If \code{NULL} (the default), \code{stats::pnorm()} is used.
-#' @param params A function that takes \code{estimate} and \code{error} as inputs
-#'   and returns a list of parameters required by \code{pfun}.
-#' @param lower.tail Logical. If \code{FALSE} (the default), the constructed
-#'   function returns \code{P(X > q)}; if \code{TRUE}, it returns \code{P(X <= q)}.
-#'
-#' @examples
-#' data(nc)
-#' dist_exp <- exceed_dist(stats::pexp, function(estimate, error)
-#'   list(rate = 1 / estimate))
-#' ex_pr <- dist_exp(q = 3, estimate = nc$v1, error = nc$v2)
-#'
-#' @seealso \code{\link[=scale_fill_exceed]{scale_fill_exceed()}} for use in exceedance probability maps.
-#' @export
-exceed_dist <- function(pfun,
-params = function(estimate, error)
-list(),
-lower.tail = FALSE) {
-browser()
-stopifnot(is.function(pfun), is.function(params))
-function(q, estimate, error) {
-browser()
-args <- c(list(q = q, lower.tail = lower.tail), params(estimate, error))
-do.call(pfun, args)
-}
-}}
+\title{Exceedance probability colour scales}
 \format{
 An object of class \code{ScaleExceed} (inherits from \code{ScaleContinuous}, \code{Scale}, \code{ggproto}, \code{gg}) of length 2.
 }
@@ -50,7 +18,7 @@ scale_fill_exceed(
   type = "seq",
   direction = 1,
   dist_fun = NULL,
-  threshold,
+  threshold = 1.64,
   limits = c(0, 1),
   na.value = NA,
   guide = "colourbar",
@@ -90,8 +58,7 @@ colours are as output by \code{\link[RColorBrewer:ColorBrewer]{RColorBrewer::bre
 order of colours is reversed.}
 
 \item{dist_fun}{A function used to compute the exceedance probability.
-Typically, this should be the output of \code{\link[=exceed_dist]{exceed_dist()}}. If \code{NULL}
-(the default), a normal distribution with \code{stats::pnorm()} is used.}
+If \code{NULL} (the default), a normal distribution with \code{stats::pnorm()} is used.}
 
 \item{threshold}{A numeric value specifying the threshold \code{q} in the exceedance
 probability expression \code{P(X > q)}.}
@@ -116,14 +83,22 @@ If the purpose is to zoom, use the limit argument in the coordinate system
 
 \item{aesthetics}{The names of the aesthetics that this scale works with.}
 }
+\value{
+A \code{ScaleExceed} ggproto object.
+}
 \description{
 \verb{scale_*_exceed} computes exceedance probabilities from a specified
 distribution and maps onto a continuous gradient colour scale.
 }
 \examples{
-ggplot(nc) +
-  geom_sf(aes(fill = duo_exceed(value, sd))) +
-  scale_fill_exceed(threshold = 1.64)
+data(nc)
+
+# Create an exceedance probability scale
+sc <- scale_fill_exceed()
+class(sc)
+
+# Basic bivariate map
+p <- ggplot(nc) + geom_sf(aes(fill = duo_exceed(value, sd)))
 
 }
 \keyword{datasets}

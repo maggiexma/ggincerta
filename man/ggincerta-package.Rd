@@ -4,7 +4,7 @@
 \name{ggincerta-package}
 \alias{ggincerta}
 \alias{ggincerta-package}
-\title{ggincerta: Extending ggplot2 with specialized layers to simplify spatial uncertainty visualization.}
+\title{ggincerta: Extending ggplot2 with specialized layers to simplify spatial uncertainty visualization}
 \description{
 This package designed to efficiently visualize spatial uncertainty by providing ggplot2 layer functions and corresponding scales, including bivariate maps, pixel maps, glyph maps, and exceedance probability maps.
 }

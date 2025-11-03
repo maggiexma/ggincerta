@@ -5,7 +5,6 @@ StatGlyph <- ggproto(
   StatSf,
   required_aes = c("v1", "v2", "geometry"),
   compute_panel = function(data, scales, coord, size, style, max_v2) {
-
     data <- StatSf$compute_panel(data, scales, coord)
     data <- sf::st_as_sf(data)
     centroids <- sf::st_centroid(data$geometry)
@@ -62,7 +61,7 @@ StatGlyph <- ggproto(
 GeomPolygonGlyph <- ggproto(
   "GeomPolygonGlyph",
   GeomPolygon,
-  default_aes = utils::modifyList(GeomPolygon$default_aes, aes(glyph = NA))
+  default_aes = c(GeomPolygon$default_aes, aes(glyph = NA))
 )
 
 #' Generate glyph maps on sf objects
@@ -87,10 +86,21 @@ GeomPolygonGlyph <- ggproto(
 #' @param style Either `"icone"` or `"semi"`. Controls the glyph shape.
 #' @param max_v2 Numeric value setting the upper limit for `v2`.
 #'
+#' @returns A list of ggplot2 layer objects.
+#'
 #' @examples
 #' data(nc)
-#' ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd), size = 50, glyph = "icone") +
-#' theme(legend.position = "right", legend.box = "horizontal")
+#'
+#' # Basic glyph map
+#' p <- ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd))
+#' p1 <- ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd), style = "semi")
+#'
+#' # Customize labels and theme
+#' p + labs(title = "glyph map on nc") + theme(legend.position = "left", legend.box = "horizontal")
+#'
+#' # Replacing the internal fill scale triggers a message
+#' # ("Scale for fill is already present. Adding another scale for fill...")
+#' p + scale_fill_distiller(palette = "Blues")
 #'
 #' @import ggplot2
 #' @import sf
@@ -116,7 +126,7 @@ geom_sf_glyph <- function(mapping = NULL,
     } else {
       geom_col <- "geometry"
     }
-    mapping <- utils::modifyList(mapping, ggplot2::aes(geometry = !!rlang::sym(geom_col)))
+    mapping$geometry <- rlang::sym(geom_col)
   }
 
   v1_title <- rlang::as_label(mapping$v1)

@@ -16,6 +16,7 @@ geom_sf_pixel(
   data = NULL,
   n = 40,
   distribution = "uniform",
+  seed = NULL,
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE,
@@ -50,6 +51,8 @@ from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 \verb{v1 ± v2}.
 \item \code{"normal"} treats \code{v1} as the mean and \code{v2} as the standard deviation.
 }}
+
+\item{seed}{Random seed used to ensure reproducibility of the sampling process.}
 
 \item{na.rm}{If \code{FALSE}, the default, missing values are removed with
 a warning. If \code{TRUE}, missing values are silently removed.}
@@ -94,6 +97,9 @@ lists which parameters it can accept.
 \link[ggplot2:draw_key]{key glyphs}, to change the display of the layer in the legend.
 }}
 }
+\value{
+A list of ggplot2 layer objects.
+}
 \description{
 \code{geom_sf_pixel()} adds a pixel map layer based on simple feature (sf) objects
 to a ggplot. In a pixel map, each region is divided into small pixels, with
@@ -103,13 +109,19 @@ colours mapped from values sampled from distribution specified.
 
 The layer returned by \code{geom_sf_pixel()} internally includes a scale object
 created by \code{scale_fill_distiller()}.
-Therefore, modifying the scale will trigger a warning indicating that
+Therefore, modifying the scale will trigger a message indicating that
 the scale for \code{fill} is being replaced.
 }
 
 \examples{
 data(nc)
-ggplot(nc) + geom_sf_pixel(mapping = aes(v1 = value, v2 = sd))
+
+# Basic pixel map
+p <- ggplot(nc) + geom_sf_pixel(mapping = aes(v1 = value, v2 = sd))
+
+# Replacing the internal fill scale triggers a message
+# ("Scale for fill is already present. Adding another scale for fill...")
+p + scale_fill_distiller(palette = "Blues")
 
 }
 \keyword{datasets}

@@ -1,5 +1,5 @@
 Package: ggincerta
-Title: Extending ggplot2 with specialized layers to simplify spatial uncertainty visualization.
+Title: Extending ggplot2 with specialized layers to simplify spatial uncertainty visualization
 Version: 0.0.0.9000
 Authors@R: 
     c(person("Xueqi", "Ma", , 
@@ -19,7 +19,9 @@ Imports:
     sf,
     stats,
     dplyr,
-    sp
+    sp,
+    scales,
+    withr
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
