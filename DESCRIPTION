@@ -7,8 +7,8 @@ Authors@R:
       person("Emi", "Tanaka", , 
           "dr.emi.tanaka@gmail.com", role = c("aut", "ths"),
            comment = c(ORCID = "0000-0002-1455-259X")),
-      person("Patrick", "Li", , role = c("ths")),
-      person("Quan", "Vo", , role = c("ths")),
+        person("Weihao", "Li", , role = c("ths")),
+      person("Quan", "Vu", , role = c("ths")),
       person("Francis", "Hui", , role = c("ths")))
 Description: Provides specialized ggplot2 layers and scales for spatial
     uncertainty visualization, including bivariate choropleths, pixel maps,
