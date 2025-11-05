@@ -7,3 +7,4 @@
 ^pkgdown$
 ^data-raw$
 ^ggincerta\.Rproj$
+^cran-comments\.md$

@@ -115,7 +115,7 @@ the scale for \code{fill} is being replaced.
 
 \examples{
 # Basic pixel map
-p <- ggplot(nc) + geom_sf_pixel(mapping = aes(v1 = value, v2 = sd))
+p <- ggplot(nc) + geom_sf_pixel(mapping = aes(v1 = value, v2 = sd), n = 10)
 
 # Replacing the internal fill scale triggers a message
 # ("Scale for fill is already present. Adding another scale for fill...")

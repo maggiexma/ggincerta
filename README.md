@@ -1,13 +1,14 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ggfuzzy
+# ggincerta
 
 <!-- badges: start -->
 
 <!-- badges: end -->
 
-The goal of ggfuzzy is to …
+The goal of ggincerta is to extend ggplot2 with specialized layers to
+simplify spatial uncertainty visualization.
 
 ## Installation
 

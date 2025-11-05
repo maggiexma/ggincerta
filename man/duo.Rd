@@ -3,36 +3,33 @@
 \name{duo}
 \alias{duo}
 \alias{duo_exceed}
-\title{Format input and assign the map class}
+\title{Format input and assign the "map" class}
 \usage{
 duo(v1, v2)
 
 duo_exceed(estimate, error)
 }
 \arguments{
-\item{v1, v2, estimate, error}{Input variables for constructing paired mappings.
-\code{duo()} uses \code{v1} and \code{v2}, whereas \code{duo_exceed()} uses \code{estimate} and
-\code{error} to represent the point and uncertainty measures, respectively.}
+\item{v1, v2}{Input variables for \code{duo()}.}
+
+\item{estimate, error}{Input variables for \code{duo_exceed()} representing the
+point estimate and its uncertainty.}
 }
 \value{
-A list of sub-lists, each containing a pair of values from the two
-variables, with attributes storing the variable names and the \code{"map"} class.
+A list-like object containing pairs of values from the two variables,
+with attributes storing the variable names and the \code{"map"} class.
 }
 \description{
-\code{duo()} and \code{duo_exceed()} create a paired mapping object that combines
-two variables, records their names, and assigns the \code{"map"} class as an
-attribute for use in aesthetic mappings.
+\code{duo()} and \code{duo_exceed()} create paired mapping objects that combine two
+variables, record their names, and assign the \code{"map"} class as an attribute
+for use in aesthetic mappings.
 }
 \examples{
 value <- nc$value
 sd <- nc$sd
-
-# Create a paired mapping object using duo()
 res <- duo(value, sd)
 res_exceed <- duo_exceed(value, sd)
-class(res)
-class(res_exceed)
-attr(res, "vars")
-attr(res_exceed, "vars")
+class(res); class(res_exceed)
+attr(res, "vars"); attr(res_exceed, "vars")
 
 }

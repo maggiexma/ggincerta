@@ -1,5 +1,5 @@
 Package: ggincerta
-Title: Extending ggplot2 with specialized layers to simplify spatial uncertainty visualization
+Title: Extending ggplot2 with Specialized Layers to Simplify Spatial Uncertainty Visualization
 Version: 0.0.0.9000
 Authors@R: 
     c(person("Xueqi", "Ma", , 
@@ -10,7 +10,10 @@ Authors@R:
       person("Patrick", "Li", , role = c("ths")),
       person("Quan", "Vo", , role = c("ths")),
       person("Francis", "Hui", , role = c("ths")))
-Description: This package designed to efficiently visualize spatial uncertainty by providing ggplot2 layer functions and corresponding scales, including bivariate maps, pixel maps, glyph maps, and exceedance probability maps.
+Description: Provides specialized ggplot2 layers and scales for spatial
+    uncertainty visualization, including bivariate choropleths, pixel maps,
+    glyph maps, and exceedance probability maps. Designed to integrate with
+    the ggplot2 grammar and 'sf' objects.
 Imports:
     dplyr,
     grDevices,
@@ -19,7 +22,6 @@ Imports:
     rlang,
     scales,
     sf,
-    sp,
     stats,
     withr
 License: MIT + file LICENSE
@@ -34,5 +36,5 @@ Depends:
     ggplot2,
     R (>= 3.5)
 LazyData: true
-URL: https://github.com/maggiexma/ggfuzzy
-BugReports: https://github.com/maggiexma/ggfuzzy/issues
+URL: https://github.com/maggiexma/ggincerta
+BugReports: https://github.com/maggiexma/ggincerta/issues

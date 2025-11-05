@@ -4,12 +4,20 @@
 \name{ggincerta-package}
 \alias{ggincerta}
 \alias{ggincerta-package}
-\title{ggincerta: Extending ggplot2 with specialized layers to simplify spatial uncertainty visualization}
+\title{ggincerta: Extending ggplot2 with Specialized Layers to Simplify Spatial Uncertainty Visualization}
 \description{
-This package designed to efficiently visualize spatial uncertainty by providing ggplot2 layer functions and corresponding scales, including bivariate maps, pixel maps, glyph maps, and exceedance probability maps.
+Provides specialized ggplot2 layers and scales for spatial uncertainty visualization, including bivariate choropleths, pixel maps, glyph maps, and exceedance probability maps. Designed to integrate with the ggplot2 grammar and 'sf' objects.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/maggiexma/ggincerta}
+  \item Report bugs at \url{https://github.com/maggiexma/ggincerta/issues}
+}
+
 }
 \author{
-\strong{Maintainer}: Xueqi Ma \email{first.last@example.com} [copyright holder]
+\strong{Maintainer}: Xueqi Ma \email{maggiexma07@gmail.com} [copyright holder]
 
 Authors:
 \itemize{
