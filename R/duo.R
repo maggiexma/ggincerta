@@ -12,7 +12,6 @@
 #' variables, with attributes storing the variable names and the `"map"` class.
 #'
 #' @examples
-#' data(nc)
 #' value <- nc$value
 #' sd <- nc$sd
 #'

@@ -24,7 +24,6 @@ two variables, records their names, and assigns the \code{"map"} class as an
 attribute for use in aesthetic mappings.
 }
 \examples{
-data(nc)
 value <- nc$value
 sd <- nc$sd
 

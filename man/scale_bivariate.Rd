@@ -88,6 +88,8 @@ missing values, and do so by default. If you want to remove missing values
 from a discrete scale, specify \code{na.translate = FALSE}.}
 
 \item{aesthetics}{The names of the aesthetics that this scale works with.}
+
+\item{...}{Other arguments passed to \code{\link[ggplot2:discrete_scale]{ggplot2::discrete_scale()}}.}
 }
 \value{
 A \code{ScaleBivariate} ggproto object.
@@ -98,8 +100,6 @@ then implements the mapping by binning the variables \code{v1}, \code{v2} and as
 each bin combination to a colour.
 }
 \examples{
-data(nc)
-
 # Create a bivariate fill scale
 sc <- scale_fill_bivariate()
 class(sc)

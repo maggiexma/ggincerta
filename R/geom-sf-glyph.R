@@ -89,8 +89,6 @@ GeomPolygonGlyph <- ggproto(
 #' @returns A list of ggplot2 layer objects.
 #'
 #' @examples
-#' data(nc)
-#'
 #' # Basic glyph map
 #' p <- ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd))
 #' p1 <- ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd), style = "semi")

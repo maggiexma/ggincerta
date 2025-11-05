@@ -12,15 +12,15 @@ Authors@R:
       person("Francis", "Hui", , role = c("ths")))
 Description: This package designed to efficiently visualize spatial uncertainty by providing ggplot2 layer functions and corresponding scales, including bivariate maps, pixel maps, glyph maps, and exceedance probability maps.
 Imports:
+    dplyr,
     grDevices,
     grid,
     gtable,
     rlang,
-    sf,
-    stats,
-    dplyr,
-    sp,
     scales,
+    sf,
+    sp,
+    stats,
     withr
 License: MIT + file LICENSE
 Encoding: UTF-8

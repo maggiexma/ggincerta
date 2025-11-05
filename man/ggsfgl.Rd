@@ -121,8 +121,6 @@ indicating that the scale for \code{fill} is being replaced.
 }
 
 \examples{
-data(nc)
-
 # Basic glyph map
 p <- ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd))
 p1 <- ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd), style = "semi")

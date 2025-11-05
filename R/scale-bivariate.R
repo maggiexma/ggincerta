@@ -88,12 +88,11 @@ ScaleBivariate <- ggproto(
 #'   `"vertical"`, `"horizontal"`, or `"both"`.
 #' @param guide_size A numeric value controlling the size of the legend graphic,
 #'   in centimeters.
+#' @param ... Other arguments passed to [ggplot2::discrete_scale()].
 #'
 #' @returns A `ScaleBivariate` ggproto object.
 #'
 #' @examples
-#' data(nc)
-#'
 #' # Create a bivariate fill scale
 #' sc <- scale_fill_bivariate()
 #' class(sc)

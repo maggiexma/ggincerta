@@ -98,8 +98,6 @@ StatPixel <- ggproto(
 #' @returns A list of ggplot2 layer objects.
 #'
 #' @examples
-#' data(nc)
-#'
 #' # Basic pixel map
 #' p <- ggplot(nc) + geom_sf_pixel(mapping = aes(v1 = value, v2 = sd))
 #'

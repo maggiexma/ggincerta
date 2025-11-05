@@ -25,12 +25,11 @@ ScaleExceed <- ggproto(
 #'   If `NULL` (the default), a normal distribution with `stats::pnorm()` is used.
 #' @param threshold A numeric value specifying the threshold `q` in the exceedance
 #'   probability expression `P(X > q)`.
+#' @param ... Other arguments passed to [ggplot2::continuous_scale()].
 #'
 #' @returns A `ScaleExceed` ggproto object.
 #'
 #' @examples
-#' data(nc)
-#'
 #' # Create an exceedance probability scale
 #' sc <- scale_fill_exceed()
 #' class(sc)

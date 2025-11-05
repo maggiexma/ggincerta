@@ -82,6 +82,8 @@ If the purpose is to zoom, use the limit argument in the coordinate system
 \code{\link[ggplot2:guides]{guides()}} for more information.}
 
 \item{aesthetics}{The names of the aesthetics that this scale works with.}
+
+\item{...}{Other arguments passed to \code{\link[ggplot2:continuous_scale]{ggplot2::continuous_scale()}}.}
 }
 \value{
 A \code{ScaleExceed} ggproto object.
@@ -91,8 +93,6 @@ A \code{ScaleExceed} ggproto object.
 distribution and maps onto a continuous gradient colour scale.
 }
 \examples{
-data(nc)
-
 # Create an exceedance probability scale
 sc <- scale_fill_exceed()
 class(sc)
