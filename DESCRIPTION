@@ -3,7 +3,7 @@ Title: Extending ggplot2 with specialized layers to simplify spatial uncertainty
 Version: 0.0.0.9000
 Authors@R: 
     c(person("Xueqi", "Ma", , 
-          "first.last@example.com", role = c("aut", "cre", "cph")),
+          "maggiexma07@gmail.com", role = c("aut", "cre", "cph")),
       person("Emi", "Tanaka", , 
           "dr.emi.tanaka@gmail.com", role = c("aut", "ths"),
            comment = c(ORCID = "0000-0002-1455-259X")),
@@ -34,3 +34,5 @@ Depends:
     ggplot2,
     R (>= 3.5)
 LazyData: true
+URL: https://github.com/maggiexma/ggfuzzy
+BugReports: https://github.com/maggiexma/ggfuzzy/issues
