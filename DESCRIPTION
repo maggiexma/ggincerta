@@ -30,7 +30,7 @@ Suggests:
     vdiffr
 Config/testthat/edition: 3
 Depends: 
-    ggplot2,
+    ggplot2 (>= 3.5.0),
     R (>= 3.5)
 LazyData: true
 URL: https://github.com/maggiexma/ggincerta

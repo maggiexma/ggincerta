@@ -100,9 +100,6 @@ GeomPolygonGlyph <- ggproto(
 #' # ("Scale for fill is already present. Adding another scale for fill...")
 #' p + scale_fill_distiller(palette = "Blues")
 #'
-#' @import ggplot2
-#' @import sf
-#'
 #' @rdname ggsfgl
 #' @export
 geom_sf_glyph <- function(mapping = NULL,

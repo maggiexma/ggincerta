@@ -91,7 +91,7 @@ StatPixel <- ggproto(
 #'   in the sampling distribution.
 #' @param distribution Sampling distribution: `"uniform"`(the default) or, `"normal"`.
 #'   * `"uniform"` treats `v1` as the centre and uniformly samples within the range
-#'     `v1 ± v2`.
+#'     `(v1 - v2, v1 + v2)`.
 #'   * `"normal"` treats `v1` as the mean and `v2` as the standard deviation.
 #' @param seed Random seed used to ensure reproducibility of the sampling process.
 #'
@@ -99,7 +99,7 @@ StatPixel <- ggproto(
 #'
 #' @examples
 #' # Basic pixel map
-#' p <- ggplot(nc) + geom_sf_pixel(mapping = aes(v1 = value, v2 = sd), n = 10)
+#' p <- ggplot(nc) + geom_sf_pixel(mapping = aes(v1 = value, v2 = sd), n = 20)
 #'
 #' # Replacing the internal fill scale triggers a message
 #' # ("Scale for fill is already present. Adding another scale for fill...")
@@ -134,7 +134,7 @@ geom_sf_pixel <- function(mapping = NULL,
                   seed = seed,
                   ...)
     ),
-    geom_sf(fill = NA, color = 'black'),
+    geom_sf(fill = NA, color = 'black', linewidth = 0.7),
     scale_fill_distiller(palette = "Oranges", direction = 1),
     coord_sf())
 }

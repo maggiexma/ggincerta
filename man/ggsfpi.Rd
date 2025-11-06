@@ -48,7 +48,7 @@ from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 \item{distribution}{Sampling distribution: \code{"uniform"}(the default) or, \code{"normal"}.
 \itemize{
 \item \code{"uniform"} treats \code{v1} as the centre and uniformly samples within the range
-\verb{v1 ± v2}.
+\verb{(v1 - v2, v1 + v2)}.
 \item \code{"normal"} treats \code{v1} as the mean and \code{v2} as the standard deviation.
 }}
 
@@ -67,7 +67,7 @@ override the default legend.}
 \item{inherit.aes}{If \code{FALSE}, overrides the default aesthetics,
 rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
-the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
+the default plot specification, e.g. \code{\link[ggplot2:annotation_borders]{annotation_borders()}}.}
 
 \item{...}{Other arguments passed on to \code{\link[ggplot2:layer]{layer()}}'s \code{params} argument. These
 arguments broadly fall into one of 4 categories below. Notably, further
@@ -115,7 +115,7 @@ the scale for \code{fill} is being replaced.
 
 \examples{
 # Basic pixel map
-p <- ggplot(nc) + geom_sf_pixel(mapping = aes(v1 = value, v2 = sd), n = 10)
+p <- ggplot(nc) + geom_sf_pixel(mapping = aes(v1 = value, v2 = sd), n = 20)
 
 # Replacing the internal fill scale triggers a message
 # ("Scale for fill is already present. Adding another scale for fill...")

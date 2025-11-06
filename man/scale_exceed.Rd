@@ -32,7 +32,7 @@ scale_colour_exceed(
   type = "seq",
   direction = 1,
   dist_fun = NULL,
-  threshold,
+  threshold = 1.64,
   limits = c(0, 1),
   na.value = NA,
   guide = "colourbar",

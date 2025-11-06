@@ -38,12 +38,12 @@ test_that("bivariate scale correctly maps bin combinations to colors.", {
   gb <- ggplot_build(p)
   fills_mapped <- gb$data[[1]]$fill
 
-  qx <- quantile(nc$value, seq(0, 1, length.out = 4), na.rm = TRUE)
-  qy <- quantile(nc$sd, seq(0, 1, length.out = 4), na.rm = TRUE)
+  qx <- quantile(nc$value, seq(0, 1, length.out = 5), na.rm = TRUE)
+  qy <- quantile(nc$sd, seq(0, 1, length.out = 5), na.rm = TRUE)
   bin1 <- cut(nc$value, breaks = qx, include.lowest = TRUE, labels = FALSE)
   bin2 <- cut(nc$sd, breaks = qy, include.lowest = TRUE, labels = FALSE)
-  combo <- (bin2 - 1L) * 3 + bin1
-  pal <- bivar_palette(colors = c("gold", "red4"), n_breaks = c(3,3))
+  combo <- (bin2 - 1L) * 4 + bin1
+  pal <- bivar_palette(colors = c("gold", "red4"), n_breaks = c(4,4))
   fills <- pal[combo]
   expect_equal(fills_mapped, fills)
 })

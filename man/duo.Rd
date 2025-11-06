@@ -17,12 +17,12 @@ point estimate and its uncertainty.}
 }
 \value{
 A list-like object containing pairs of values from the two variables,
-with attributes storing the variable names and the \code{"map"} class.
+with attributes storing the variable names and the class.
 }
 \description{
 \code{duo()} and \code{duo_exceed()} create paired mapping objects that combine two
-variables, record their names, and assign the \code{"map"} class as an attribute
-for use in aesthetic mappings.
+variables, record their names, and assign the bivariate/exceed class as
+an attribute for use in aesthetic mappings.
 }
 \examples{
 value <- nc$value

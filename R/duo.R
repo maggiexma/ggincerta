@@ -1,15 +1,15 @@
 #' Format input and assign the "map" class
 #'
 #' `duo()` and `duo_exceed()` create paired mapping objects that combine two
-#' variables, record their names, and assign the `"map"` class as an attribute
-#' for use in aesthetic mappings.
+#' variables, record their names, and assign the bivariate/exceed class as
+#' an attribute for use in aesthetic mappings.
 #'
 #' @param v1,v2 Input variables for `duo()`.
 #' @param estimate,error Input variables for `duo_exceed()` representing the
 #'   point estimate and its uncertainty.
 #'
-#' @return A list-like object containing pairs of values from the two variables,
-#'   with attributes storing the variable names and the `"map"` class.
+#' @returns A list-like object containing pairs of values from the two variables,
+#'   with attributes storing the variable names and the class.
 #'
 #' @examples
 #' value <- nc$value

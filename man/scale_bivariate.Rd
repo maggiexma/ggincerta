@@ -17,9 +17,8 @@ scale_fill_bivariate(
   name1 = NULL,
   name2 = NULL,
   colors = c("gold", "red4"),
-  n_breaks = 3,
+  n_breaks = 4,
   breaks = c("quantile", "equal"),
-  blend = c("additive", "subtractive"),
   flip = c("none", "vertical", "horizontal", "both"),
   guide_size = 1.5,
   na.value = NA,
@@ -34,7 +33,6 @@ scale_color_bivariate(
   colors = c("gold", "red4"),
   n_breaks = 4,
   breaks = c("quantile", "equal"),
-  blend = c("additive", "subtractive"),
   flip = c("none", "vertical", "horizontal", "both"),
   guide_size = 1.5,
   na.value = NA,
@@ -49,7 +47,6 @@ scale_colour_bivariate(
   colors = c("gold", "red4"),
   n_breaks = 4,
   breaks = c("quantile", "equal"),
-  blend = c("additive", "subtractive"),
   flip = c("none", "vertical", "horizontal", "both"),
   guide_size = 1.5,
   na.value = NA,
@@ -69,9 +66,6 @@ bivariate palette.}
 
 \item{breaks}{Method used to bin the variables: \code{"quantile"} (the default)
 or \code{"equal"}.}
-
-\item{blend}{Method used to blend the two colors specified in \code{colors}:
-\code{"additive"} (the default) or \code{"subtractive"}.}
 
 \item{flip}{Method used to flip the legend: \code{"none"} (the default),
 \code{"vertical"}, \code{"horizontal"}, or \code{"both"}.}
@@ -108,15 +102,12 @@ sc$palette(9)
 # Basic bivariate map
 p <- ggplot(nc) + geom_sf(aes(fill = duo(value, sd)))
 
-# Use subtractive color mixing scheme
-p + scale_fill_bivariate(blend = 'subtractive')
-
 # Customize axis labels
 p + scale_fill_bivariate(name1 = 'var1', name2 = 'var2')
 
 }
 \seealso{
-\link[ggplot2:ggplot2-ggproto]{ggplot2::Scale} for the base \code{ggproto} class that all scale objects
+\link[ggplot2:Scale]{ggplot2::Scale} for the base \code{ggproto} class that all scale objects
 inherit from.
 }
 \keyword{datasets}

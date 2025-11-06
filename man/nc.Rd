@@ -3,23 +3,17 @@
 \docType{data}
 \name{nc}
 \alias{nc}
-\alias{nc_centroids}
 \title{North Carolina SIDS data}
 \format{
 A \code{sf} object.
-
-An object of class \code{sf} (inherits from \code{data.frame}) with 100 rows and 17 columns.
 }
 \usage{
 nc
-
-nc_centroids
 }
 \description{
-The datasets \code{nc} and \code{nc_centroids} are derived from the North Carolina
-shapefile (\code{nc.shp}) included in the \pkg{sf} package. Two random variables,
-\code{value} and \code{sd}, have been added for demonstration purposes, and the
-geometries in \code{nc_centroids} have been converted to centroids.
+The dataset \code{nc} is derived from the North Carolina shapefile (\code{nc.shp})
+included in the \pkg{sf} package. Two random variables, \code{value} and \code{sd},
+have been added for demonstration purposes.
 
 Further details about the original data can be found in the
 \href{https://r-spatial.github.io/spdep/articles/sids.html}{spdep package vignette}.
@@ -27,6 +21,6 @@ Further details about the original data can be found in the
 \examples{
 head(nc)
 
-plot(sf::st_geometry(nc_centroids))
+plot(sf::st_geometry(nc))
 }
 \keyword{datasets}

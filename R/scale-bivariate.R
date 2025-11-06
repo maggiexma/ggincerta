@@ -82,8 +82,6 @@ ScaleBivariate <- ggproto(
 #' @param n_breaks An integer guiding the number of bins for each variable.
 #' @param breaks Method used to bin the variables: `"quantile"` (the default)
 #'   or `"equal"`.
-#' @param blend Method used to blend the two colors specified in `colors`:
-#'   `"additive"` (the default) or `"subtractive"`.
 #' @param flip Method used to flip the legend: `"none"` (the default),
 #'   `"vertical"`, `"horizontal"`, or `"both"`.
 #' @param guide_size A numeric value controlling the size of the legend graphic,
@@ -101,9 +99,6 @@ ScaleBivariate <- ggproto(
 #' # Basic bivariate map
 #' p <- ggplot(nc) + geom_sf(aes(fill = duo(value, sd)))
 #'
-#' # Use subtractive color mixing scheme
-#' p + scale_fill_bivariate(blend = 'subtractive')
-#'
 #' # Customize axis labels
 #' p + scale_fill_bivariate(name1 = 'var1', name2 = 'var2')
 #'
@@ -116,9 +111,8 @@ scale_fill_bivariate <- function(
   name1 = NULL,
   name2 = NULL,
   colors = c("gold", "red4"),
-  n_breaks = 3,
+  n_breaks = 4,
   breaks = c("quantile", "equal"),
-  blend = c("additive", "subtractive"),
   flip = c("none", "vertical", "horizontal", "both"),
   guide_size = 1.5,
   na.value = NA,
@@ -127,14 +121,12 @@ scale_fill_bivariate <- function(
   ...
 ) {
   flip <- match.arg(flip)
-  blend <- match.arg(blend)
   breaks <- match.arg(breaks)
 
   pal_safe <- function(n) {
     bivar_palette(
       colors,
       n_breaks = rep(round(sqrt(n)), 2),
-      blend = blend,
       flip = flip
     )
   }
@@ -170,7 +162,6 @@ scale_color_bivariate <- function(
   colors = c("gold", "red4"),
   n_breaks = 4,
   breaks = c("quantile", "equal"),
-  blend = c("additive", "subtractive"),
   flip = c("none", "vertical", "horizontal", "both"),
   guide_size = 1.5,
   na.value = NA,
@@ -184,7 +175,6 @@ scale_color_bivariate <- function(
     colors = colors,
     n_breaks = n_breaks,
     breaks = breaks,
-    blend = blend,
     flip = flip,
     guide_size = guide_size,
     na.value = na.value,

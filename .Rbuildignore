@@ -8,3 +8,5 @@
 ^data-raw$
 ^ggincerta\.Rproj$
 ^cran-comments\.md$
+^codecov\.yml$
+^\.github$
