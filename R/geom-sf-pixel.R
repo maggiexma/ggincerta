@@ -119,6 +119,7 @@ geom_sf_pixel <- function(mapping = NULL,
 
 
   mapping[["fill"]] <- NA
+  v1_title <- rlang::as_label(mapping$v1)
 
   list(layer_sf(
     data = data,
@@ -135,6 +136,6 @@ geom_sf_pixel <- function(mapping = NULL,
                   ...)
     ),
     geom_sf(fill = NA, color = 'black', linewidth = 0.7),
-    scale_fill_distiller(palette = "Oranges", direction = 1),
+    scale_fill_distiller(palette = "Oranges", direction = 1, name = v1_title),
     coord_sf())
 }

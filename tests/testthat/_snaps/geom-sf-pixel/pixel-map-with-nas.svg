@@ -400,7 +400,7 @@
 <text x='607.75' y='420.08' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='3.31px' lengthAdjust='spacingAndGlyphs'>°</text>
 <text x='611.06' y='420.08' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='8.31px' lengthAdjust='spacingAndGlyphs'>W</text>
 <rect x='683.94' y='239.29' width='30.58' height='101.73' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<text x='683.94' y='248.00' style='font-size: 11.00px; font-family: sans;' textLength='10.38px' lengthAdjust='spacingAndGlyphs'>fill</text>
+<text x='683.94' y='248.00' style='font-size: 11.00px; font-family: sans;' textLength='26.30px' lengthAdjust='spacingAndGlyphs'>value</text>
 <image width='17.28' height='86.40' x='683.94' y='254.62' preserveAspectRatio='none' xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAEsCAYAAAACUNnVAAAArUlEQVQ4jaVSSRIDIQjspvKd/DR/Zg4xqCzqZG5CLzSU+LxfKiQgAuDRSwgI+4v61CAj6zl5pOhI7gAJCMhWIim/FNDIgBCsUKclBOkgU8B4lfPOysmWPENbArZXG2Q9K3c9LHk92qydZWkPHO8SQiIG8qaYXWJcZ/BnmR0nL+MeZak1erjCekZNkTsb/RQ3p+0VS7Jups0KT5bkh0XAnaQGqiOeAOWWB0CPW9hfEfYLH0TZe4YAAAAASUVORK5CYII='/>
 <polyline points='697.76,321.59 701.22,321.59 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
 <polyline points='697.76,300.94 701.22,300.94 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
