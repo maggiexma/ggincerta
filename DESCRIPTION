@@ -1,19 +1,16 @@
 Package: ggincerta
-Title: Extending ggplot2 with Specialized Layers to Simplify Spatial Uncertainty Visualization
-Version: 0.0.0.9000
+Title: Extend 'ggplot2' with Layers and Scales for Spatial Uncertainty Visualization
+Version: 0.1.0
 Authors@R: 
-    c(person("Xueqi", "Ma", , 
-          "maggiexma07@gmail.com", role = c("aut", "cre", "cph")),
-      person("Emi", "Tanaka", , 
-          "dr.emi.tanaka@gmail.com", role = c("aut", "ths"),
-           comment = c(ORCID = "0000-0002-1455-259X")),
-        person("Weihao", "Li", , role = c("ths")),
+    c(person("Xueqi", "Ma", , "maggiexma07@gmail.com", role = c("aut", "cre", "cph")),
+      person("Emi", "Tanaka", , "dr.emi.tanaka@gmail.com", role = c("aut", "ths"),
+             comment = c(ORCID = "0000-0002-1455-259X")),
+      person("Weihao", "Li", , role = c("ths")),
       person("Quan", "Vu", , role = c("ths")),
       person("Francis", "Hui", , role = c("ths")))
-Description: Provides specialized ggplot2 layers and scales for spatial
+Description: Provide specialized 'ggplot2' layers and scales for spatial
     uncertainty visualization, including bivariate choropleths, pixel maps,
-    glyph maps, and exceedance probability maps. Designed to integrate with
-    the ggplot2 grammar and 'sf' objects.
+    glyph maps, and exceedance probability maps.
 Imports:
     dplyr,
     grDevices,
