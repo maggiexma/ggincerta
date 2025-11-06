@@ -6,7 +6,7 @@
 \alias{ggincerta-package}
 \title{ggincerta: Extend 'ggplot2' with Layers and Scales for Spatial Uncertainty Visualization}
 \description{
-Provide specialized 'ggplot2' layers and scales for spatial uncertainty visualization, including bivariate choropleths, pixel maps, glyph maps, and exceedance probability maps.
+Provide specialized 'ggplot2' layers and scales for spatial uncertainty visualization, including bivariate choropleth maps, pixel maps, glyph maps, and exceedance probability maps.
 }
 \seealso{
 Useful links:

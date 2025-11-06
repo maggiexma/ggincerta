@@ -86,7 +86,7 @@ StatPixel <- ggproto(
 #'
 #' @inheritParams ggplot2::geom_sf
 #' @inheritParams sf::st_make_grid
-#' @param mapping Set of aesthetic mappings created by [aes()].
+#' @param mapping Set of aesthetic mappings created by [ggplot2::aes()].
 #'   `v1` and `v2` are required, which are the variables used as the parameters
 #'   in the sampling distribution.
 #' @param distribution Sampling distribution: `"uniform"`(the default) or, `"normal"`.

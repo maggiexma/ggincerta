@@ -24,7 +24,7 @@ geom_sf_glyph(
 )
 }
 \arguments{
-\item{mapping}{Set of aesthetic mappings created by \code{\link[=aes]{aes()}}.
+\item{mapping}{Set of aesthetic mappings created by \code{\link[ggplot2:aes]{ggplot2::aes()}}.
 \code{v1} and \code{v2} are required, which are the variables used for glyph fill
 and rotation, respectively.}
 

@@ -9,7 +9,7 @@ Authors@R:
       person("Quan", "Vu", , role = c("ths")),
       person("Francis", "Hui", , role = c("ths")))
 Description: Provide specialized 'ggplot2' layers and scales for spatial
-    uncertainty visualization, including bivariate choropleths, pixel maps,
+    uncertainty visualization, including bivariate choropleth maps, pixel maps,
     glyph maps, and exceedance probability maps.
 Imports:
     dplyr,
@@ -31,7 +31,7 @@ Suggests:
 Config/testthat/edition: 3
 Depends: 
     ggplot2 (>= 3.5.0),
-    R (>= 3.5)
+    R (>= 4.1.0)
 LazyData: true
 URL: https://github.com/maggiexma/ggincerta
 BugReports: https://github.com/maggiexma/ggincerta/issues

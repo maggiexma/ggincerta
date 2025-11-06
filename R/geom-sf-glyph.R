@@ -78,7 +78,7 @@ GeomPolygonGlyph <- ggproto(
 #' indicating that the scale for `fill` is being replaced.
 #'
 #' @inheritParams ggplot2::geom_sf
-#' @param mapping Set of aesthetic mappings created by [aes()].
+#' @param mapping Set of aesthetic mappings created by [ggplot2::aes()].
 #'   `v1` and `v2` are required, which are the variables used for glyph fill
 #'   and rotation, respectively.
 #' @param size A positive numeric scaling factor controlling glyph size.
