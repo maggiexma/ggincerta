@@ -5,7 +5,8 @@ Authors@R:
     c(person("Xueqi", "Ma", , "maggiexma07@gmail.com", role = c("aut", "cre", "cph")),
       person("Emi", "Tanaka", , "dr.emi.tanaka@gmail.com", role = c("aut", "ths"),
              comment = c(ORCID = "0000-0002-1455-259X")),
-      person("Weihao", "Li", , role = c("ths")),
+      person(given = "Weihao", family = "Li", role = c("ths"),
+             email = "llreczx@gmail.com", comment = c(ORCID = "0000-0003-4959-106X")),
       person("Quan", "Vu", , role = c("ths")),
       person("Francis", "Hui", , role = c("ths")))
 Description: Provide specialized 'ggplot2' layers and scales for spatial
