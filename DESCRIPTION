@@ -8,7 +8,8 @@ Authors@R:
       person(given = "Weihao", family = "Li", role = c("ths"),
              email = "llreczx@gmail.com", comment = c(ORCID = "0000-0003-4959-106X")),
       person("Quan", "Vu", , role = c("ths")),
-      person("Francis", "Hui", , role = c("ths")))
+      person("Francis", "Hui", , role = c("ths"), 
+             email = "fhui28@gmail.com", comment = c(ORCID = "0000-0003-0765-3533")))
 Description: Provide specialized 'ggplot2' layers and scales for spatial
     uncertainty visualization, including bivariate choropleth maps, pixel maps,
     glyph maps, and exceedance probability maps.
