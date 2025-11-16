@@ -26,9 +26,9 @@ Authors:
 
 Other contributors:
 \itemize{
-  \item Weihao Li [thesis advisor]
+  \item Weihao Li \email{llreczx@gmail.com} (\href{https://orcid.org/0000-0003-4959-106X}{ORCID}) [thesis advisor]
   \item Quan Vu [thesis advisor]
-  \item Francis Hui [thesis advisor]
+  \item Francis Hui \email{fhui28@gmail.com} (\href{https://orcid.org/0000-0003-0765-3533}{ORCID}) [thesis advisor]
 }
 
 }
