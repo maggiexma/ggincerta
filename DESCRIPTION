@@ -1,6 +1,6 @@
 Package: ggincerta
 Title: Extend 'ggplot2' with Layers and Scales for Spatial Uncertainty Visualization
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R: 
     c(person("Xueqi", "Ma", , "maggiexma07@gmail.com", role = c("aut", "cre", "cph")),
       person("Emi", "Tanaka", , "dr.emi.tanaka@gmail.com", role = c("aut", "ths"),
