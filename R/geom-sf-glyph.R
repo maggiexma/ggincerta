@@ -112,6 +112,16 @@ geom_sf_glyph <- function(mapping = NULL,
                           inherit.aes = TRUE,
                           ...) {
 
+  if (is.null(mapping)) mapping <- ggplot2::aes()
+
+  if (is.null(mapping$v1) || is.null(mapping$v2)) {
+    if (!is.null(mapping$x) && !is.null(mapping$y)) {
+      mapping$v1 <- mapping$x
+      mapping$v2 <- mapping$y
+      mapping$x <- NULL
+      mapping$y <- NULL
+    }
+  }
 
   needs_geometry <- is.null(rlang::get_expr(mapping$geometry))
   if (needs_geometry) {

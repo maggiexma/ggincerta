@@ -1,6 +1,6 @@
 test_that('geom_sf_glyph draws correctly', {
   p <- ggplot(nc) +
-    geom_sf_glyph(aes(v1 =value, v2 = sd))
+    geom_sf_glyph(aes(v1 = value, v2 = sd))
 
   vdiffr::expect_doppelganger("glyph map", p)
 })

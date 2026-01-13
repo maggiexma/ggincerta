@@ -108,18 +108,48 @@ ScaleBivariate <- ggproto(
 #' @rdname scale_bivariate
 #' @export
 scale_fill_bivariate <- function(
-  name1 = NULL,
-  name2 = NULL,
-  colors = c("gold", "red4"),
-  n_breaks = 4,
-  breaks = c("quantile", "equal"),
-  flip = c("none", "vertical", "horizontal", "both"),
-  guide_size = 1.5,
-  na.value = NA,
-  na.translate = TRUE,
-  aesthetics = "fill",
-  ...
+    type = c("bivariate", "vsup"),
+    name1 = NULL,
+    name2 = NULL,
+    colors = c("gold", "red4"),
+    n_breaks = 4,
+    breaks = c("quantile", "equal"),
+    flip = c("none", "vertical", "horizontal", "both"),
+    guide_size = 1.5,
+    values = NULL,
+    layers = 4,
+    branch = 2L,
+    title_value = "Value",
+    title_uncertainty = "Uncertainty",
+    max_light = 0.9,
+    max_desat = 0.7,
+    pow_light = 0.8,
+    pow_desat = 1,
+    na.value = NA,
+    na.translate = TRUE,
+    aesthetics = "fill",
+    ...
 ) {
+  type <- match.arg(type)
+
+  if (identical(type, "vsup")) {
+    return(scale_fill_vsup(
+      values = values,
+      layers = layers,
+      branch = branch,
+      title_value = title_value,
+      title_uncertainty = title_uncertainty,
+      na.value = na.value,
+      na.translate = na.translate,
+      aesthetics = aesthetics,
+      max_light = max_light,
+      max_desat = max_desat,
+      pow_light = pow_light,
+      pow_desat = pow_desat,
+      ...
+    ))
+  }
+
   flip <- match.arg(flip)
   breaks <- match.arg(breaks)
 
@@ -141,10 +171,12 @@ scale_fill_bivariate <- function(
     super = ScaleBivariate,
     ...
   )
+
   if (length(n_breaks) == 1L && is.numeric(n_breaks)) {
     n_breaks <- c(n_breaks, n_breaks)
   }
   stopifnot(length(n_breaks) == 2)
+
   sc$n_breaks <- n_breaks
   sc$breaks <- breaks
   sc$colors <- colors
@@ -153,6 +185,53 @@ scale_fill_bivariate <- function(
   sc$guide_size <- guide_size
   sc
 }
+
+# scale_fill_bivariate <- function(
+#   name1 = NULL,
+#   name2 = NULL,
+#   colors = c("gold", "red4"),
+#   n_breaks = 4,
+#   breaks = c("quantile", "equal"),
+#   flip = c("none", "vertical", "horizontal", "both"),
+#   guide_size = 1.5,
+#   na.value = NA,
+#   na.translate = TRUE,
+#   aesthetics = "fill",
+#   ...
+# ) {
+#   flip <- match.arg(flip)
+#   breaks <- match.arg(breaks)
+#
+#   pal_safe <- function(n) {
+#     bivar_palette(
+#       colors,
+#       n_breaks = rep(round(sqrt(n)), 2),
+#       flip = flip
+#     )
+#   }
+#
+#   sc <- discrete_scale(
+#     aesthetics = aesthetics,
+#     palette = pal_safe,
+#     guide = "legend",
+#     drop = FALSE,
+#     na.value = na.value,
+#     na.translate = na.translate,
+#     super = ScaleBivariate,
+#     ...
+#   )
+#   if (length(n_breaks) == 1L && is.numeric(n_breaks)) {
+#     n_breaks <- c(n_breaks, n_breaks)
+#   }
+#   stopifnot(length(n_breaks) == 2)
+#   sc$n_breaks <- n_breaks
+#   sc$breaks <- breaks
+#   sc$colors <- colors
+#   sc$name1 <- name1
+#   sc$name2 <- name2
+#   sc$guide_size <- guide_size
+#   sc
+# }
 
 #' @rdname scale_bivariate
 #' @export
