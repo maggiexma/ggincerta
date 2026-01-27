@@ -45,3 +45,15 @@ duo_exceed <- function(estimate, error) {
     vars = c(.v1, .v2)
   )
 }
+
+duo_pixel <- function(estimate, error) {
+  .v1 <- substitute(estimate)
+  .v2 <- substitute(error)
+  ind <- seq_along(estimate)
+  structure(
+    lapply(ind, function(i)
+      list(v1 = estimate[i], v2 = error[i])),
+    class = c("pixel", "list"),
+    vars  = c(.v1, .v2)
+  )
+}

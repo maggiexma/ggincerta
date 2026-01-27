@@ -9,13 +9,16 @@ ScaleVSUP <- ggproto(
     layers <- self$layers
     branch <- self$branch %||% 2L
 
-    v <- vapply(x, function(xx) xx$v1, numeric(1))
-    u <- vapply(x, function(xx) xx$v2, numeric(1))
+    v <- vapply(x, function(xx)
+      xx$v1, numeric(1))
+    u <- vapply(x, function(xx)
+      xx$v2, numeric(1))
 
     res <- vsup_quantize(v, u, layers = layers, branch = branch)
 
     leaf_info <- res$leaf_info
-    if (is.null(leaf_info)) return(res$value)
+    if (is.null(leaf_info))
+      return(res$value)
 
     leaf_info <- leaf_info[order(leaf_info$leaf), , drop = FALSE]
     self$leaf_info <- leaf_info
@@ -49,7 +52,8 @@ ScaleVSUP <- ggproto(
   },
 
   map = function(self, x, limits = self$get_limits()) {
-    if (is.null(x)) return(NULL)
+    if (is.null(x))
+      return(NULL)
 
     key <- suppressWarnings(as.integer(as.character(x)))
 
@@ -68,25 +72,28 @@ ScaleVSUP <- ggproto(
   }
 )
 
-scale_fill_vsup <- function(
-    values,
-    layers = 4,
-    branch = 2L,
-    title_value = "Value",
-    title_uncertainty = "Uncertainty",
-    na.value = NA,
-    na.translate = TRUE,
-    aesthetics = "fill",
-    max_light = 0.9,
-    max_desat = 0.7,
-    pow_light = 0.8,
-    pow_desat = 1,
-    ...
-) {
+scale_fill_vsup <- function(values = NULL,
+                            layers = 4,
+                            branch = 2L,
+                            title_value = "Value",
+                            title_uncertainty = "Uncertainty",
+                            na.value = NA,
+                            na.translate = TRUE,
+                            aesthetics = "fill",
+                            max_light = 0.9,
+                            max_desat = 0.7,
+                            pow_light = 0.8,
+                            pow_desat = 1,
+                            ...) {
+  if (is.null(values)) {
+    values <- bivar_palette(colors = c("gold", "red4"),
+                            n_breaks = c(3, 3))[seq_len(8)]
+  }
   sc <- discrete_scale(
     aesthetics = aesthetics,
     scale_name = "vsup",
-    palette = function(n) rep(NA_character_, n),
+    palette = function(n)
+      rep(NA_character_, n),
     guide = "legend",
     drop = FALSE,
     na.value = na.value,

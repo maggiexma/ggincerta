@@ -132,7 +132,7 @@ scale_fill_bivariate <- function(
 ) {
   type <- match.arg(type)
 
-  if (identical(type, "vsup")) {
+  if (type == "vsup") {
     return(scale_fill_vsup(
       values = values,
       layers = layers,
