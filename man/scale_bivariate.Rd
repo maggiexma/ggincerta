@@ -14,6 +14,7 @@ An object of class \code{ScaleBivariate} (inherits from \code{ScaleDiscrete}, \c
 ScaleBivariate
 
 scale_fill_bivariate(
+  type = c("bivariate", "vsup"),
   name1 = NULL,
   name2 = NULL,
   colors = c("gold", "red4"),
@@ -21,6 +22,15 @@ scale_fill_bivariate(
   breaks = c("quantile", "equal"),
   flip = c("none", "vertical", "horizontal", "both"),
   guide_size = 1.5,
+  values = NULL,
+  layers = 4,
+  branch = 2L,
+  title_value = "Value",
+  title_uncertainty = "Uncertainty",
+  max_light = 0.9,
+  max_desat = 0.7,
+  pow_light = 0.8,
+  pow_desat = 1,
   na.value = NA,
   na.translate = TRUE,
   aesthetics = "fill",

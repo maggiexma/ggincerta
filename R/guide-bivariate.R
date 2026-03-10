@@ -1,132 +1,187 @@
 GuideBivariate <- ggproto(
   "GuideBivariate",
-  GuideLegend,
+  Guide,
+
   params = c(
-    GuideLegend$params,
+    Guide$params,
     list(
-      key = NULL,
       n_breaks = NULL,
-      label1 = NULL,
-      label2 = NULL,
-      title1 = NULL,
-      title2 = NULL,
+      var1_labels = NULL,
+      var2_labels = NULL,
+      var1_title = NULL,
+      var2_title = NULL,
       aesthetics = NULL,
-      size = NULL
+      key_size = NULL
     )
   ),
-  extract_key = function(scale, aesthetic, key, ...) {
-    key
+
+  available_aes = c("fill", "colour", "color"),
+
+  hashables = rlang::exprs(title, order),
+
+  extract_key = function(self, scale, aesthetic, ...) {
+    if (!inherits(scale, "ScaleBivariate")) {
+      return(NULL)
+    }
+
+    guide_info <- scale$get_guide_info()
+    if (is.null(guide_info)) {
+      return(NULL)
+    }
+
+    data.frame(
+      .value = as.character(seq_len(prod(guide_info$n_breaks))),
+      .label = as.character(seq_len(prod(guide_info$n_breaks))),
+      stringsAsFactors = FALSE
+    )
   },
-  draw = function(self, theme, params = self$params, ...) {
+
+  extract_decor = function(self, scale, aesthetic, ...) {
+    if (!inherits(scale, "ScaleBivariate")) {
+      return(NULL)
+    }
+
+    guide_info <- scale$get_guide_info()
+    if (is.null(guide_info)) {
+      return(NULL)
+    }
+
+    data.frame(
+      colour = guide_info$key_colours,
+      stringsAsFactors = FALSE
+    )
+  },
+
+  extract_params = function(self, scale, params, ...) {
+    if (!inherits(scale, "ScaleBivariate")) {
+      return(params)
+    }
+
+    guide_info <- scale$get_guide_info()
+    if (is.null(guide_info)) {
+      return(params)
+    }
+
+    params$n_breaks <- guide_info$n_breaks
+    params$var1_labels <- format(guide_info$x_breaks, digits = 2)
+    params$var2_labels <- format(guide_info$y_breaks, digits = 2)
+    params$var1_title <- guide_info$var1_title
+    params$var2_title <- guide_info$var2_title
+    params$aesthetics <- guide_info$aesthetics
+    params$key_size <- guide_info$key_size
+    params
+  },
+
+  draw = function(self, theme, position = NULL, direction = NULL, params = self$params) {
+    if (is.null(params$decor) || is.null(params$n_breaks)) {
+      return(grid::zeroGrob())
+    }
+
+    aes_name <- params$aesthetics[1]
+
+    key <- data.frame(
+      value = params$key$.value,
+      label = params$key$.label,
+      stringsAsFactors = FALSE
+    )
+    key[[aes_name]] <- params$decor$colour
 
     draw_key_bivariate(
-      key = params$key,
-      size = params$size,
+      key = key,
+      key_size = params$key_size,
       n_breaks = params$n_breaks,
-      label1 = params$label1,
-      label2 = params$label2,
-      title1 = params$title1,
-      title2 = params$title2,
-      aesthetics = params$aesthetics
+      var1_labels = params$var1_labels,
+      var2_labels = params$var2_labels,
+      var1_title = params$var1_title,
+      var2_title = params$var2_title,
+      aesthetics = aes_name
     )
   }
 )
 
 guide_bivariate <- function(
-  key,
-  value,
-  label,
-  n_breaks = c(4, 4),
-  label1 = NULL,
-  label2 = NULL,
-  title1 = NULL,
-  title2 = NULL,
-  size = NULL,
-  ...,
-  theme = NULL,
-  title = waiver(),
-  order = 0,
-  position = NULL,
-  aesthetics = NULL
+    theme = NULL,
+    title = waiver(),
+    order = 0,
+    position = NULL
 ) {
-
-  key <- data.frame(key, .value = value, .label = label)
-
   new_guide(
-    key = key,
-    n_breaks = n_breaks,
-    label1 = label1,
-    label2 = label2,
-    title1 = title1,
-    title2 = title2,
-    aesthetics = aesthetics,
-    size = size,
     theme = theme,
     title = title,
     order = order,
     position = position,
-    available_aes = c('fill', 'colour'),
     super = GuideBivariate
   )
 }
 
 draw_key_bivariate <- function(key,
-                               size,
-                               color = "transparent",
+                               key_size,
+                               colour = "transparent",
                                angle = 45,
                                n_breaks = NULL,
-                               label1 = NULL,
-                               label2 = NULL,
-                               title1 = NULL,
-                               title2 = NULL,
+                               var1_labels = NULL,
+                               var2_labels = NULL,
+                               var1_title = NULL,
+                               var2_title = NULL,
                                aesthetics = "fill",
                                label_fontsize = 8,
                                title_fontsize = 9,
                                label_margin = grid::unit(0.06, "npc"),
-                               gap = grid::unit(0.3, "npc")) {
-  layout <- expand.grid(row = 1:n_breaks[1], col = 1:n_breaks[2])
+                               title_gap = grid::unit(0.3, "npc")) {
+  layout <- expand.grid(
+    row = seq_len(n_breaks[1]),
+    col = seq_len(n_breaks[2])
+  )
+
   tiles <- lapply(seq_len(prod(n_breaks)), function(i) {
     grid::rectGrob(
       x = grid::unit((layout$col[i] - 0.5) / n_breaks[1], "npc"),
       y = grid::unit((layout$row[i] - 0.5) / n_breaks[2], "npc"),
-      width  = grid::unit(1 / n_breaks[1], "npc"),
+      width = grid::unit(1 / n_breaks[1], "npc"),
       height = grid::unit(1 / n_breaks[2], "npc"),
-      gp = grid::gpar(fill = key[[aesthetics]][i], col = color)
+      gp = grid::gpar(fill = key[[aesthetics]][i], col = colour)
     )
   })
+
   grobs <- tiles
 
-  measure_max_label_width_mm <- function(labels,
-                                         fontsize = 8,
-                                         family = NULL) {
-    if (is.null(labels) || length(labels) == 0)
+  measure_max_label_width_mm <- function(labels, fontsize = 8, family = NULL) {
+    if (is.null(labels) || length(labels) == 0) {
       return(0)
-    grid::pushViewport(grid::viewport(gp = grid::gpar(
-      fontsize = fontsize, fontfamily = family
-    )))
+    }
+
+    grid::pushViewport(
+      grid::viewport(gp = grid::gpar(fontsize = fontsize, fontfamily = family))
+    )
     on.exit(grid::popViewport(), add = TRUE)
-    max(sapply(as.character(labels), function(s) {
-      grid::convertWidth(grid::unit(1, "strwidth", data = s), "mm", valueOnly = TRUE)
-    }))
+
+    max(vapply(as.character(labels), function(s) {
+      grid::convertWidth(
+        grid::unit(1, "strwidth", data = s),
+        "mm",
+        valueOnly = TRUE
+      )
+    }, numeric(1)))
   }
 
-  lab1_w_mm <- measure_max_label_width_mm(label1, fontsize = label_fontsize)
-  lab2_w_mm <- measure_max_label_width_mm(label2, fontsize = label_fontsize)
-  panel_mm <- size * 10
-  lab1_w_npc_num <- if (panel_mm > 0)
-    lab1_w_mm / panel_mm
-  else
-    0
-  lab2_h_npc_num <- if (panel_mm > 0)
-    lab2_w_mm / panel_mm
-  else
-    0
+  var1_label_width_mm <- measure_max_label_width_mm(
+    var1_labels,
+    fontsize = label_fontsize
+  )
+  var2_label_width_mm <- measure_max_label_width_mm(
+    var2_labels,
+    fontsize = label_fontsize
+  )
 
-  if (!is.null(label1)) {
+  panel_mm <- key_size * 10
+  var1_label_width_npc <- if (panel_mm > 0) var1_label_width_mm / panel_mm else 0
+  var2_label_height_npc <- if (panel_mm > 0) var2_label_width_mm / panel_mm else 0
+
+  if (!is.null(var1_labels)) {
     ys <- seq(0, 1, length.out = n_breaks[1] + 1)
-    for (i in seq_along(label1)) {
+    for (i in seq_along(var1_labels)) {
       grobs[[length(grobs) + 1]] <- grid::textGrob(
-        label = label1[i],
+        label = var1_labels[i],
         x = -label_margin,
         y = grid::unit(ys[i], "npc"),
         just = "right",
@@ -134,11 +189,12 @@ draw_key_bivariate <- function(key,
       )
     }
   }
-  if (!is.null(label2)) {
+
+  if (!is.null(var2_labels)) {
     xs <- seq(0, 1, length.out = n_breaks[2] + 1)
-    for (i in seq_along(label2)) {
+    for (i in seq_along(var2_labels)) {
       grobs[[length(grobs) + 1]] <- grid::textGrob(
-        label = label2[i],
+        label = var2_labels[i],
         x = grid::unit(xs[i], "npc") + grid::unit(0.07, "npc"),
         y = -label_margin + grid::unit(-0.15, "npc"),
         just = "top",
@@ -148,24 +204,25 @@ draw_key_bivariate <- function(key,
     }
   }
 
-  title1_x <- -(label_margin + grid::unit(lab1_w_npc_num, "npc") + gap)
-  title2_y <- -(label_margin + grid::unit(lab2_h_npc_num, "npc") + gap)
+  var1_title_x <- -(label_margin + grid::unit(var1_label_width_npc, "npc") + title_gap)
+  var2_title_y <- -(label_margin + grid::unit(var2_label_height_npc, "npc") + title_gap)
 
-  if (!is.null(title1)) {
+  if (!is.null(var1_title)) {
     grobs[[length(grobs) + 1]] <- grid::textGrob(
-      label = title1,
-      x = title1_x,
+      label = var1_title,
+      x = var1_title_x,
       y = grid::unit(0.5, "npc"),
       just = c("center", "center"),
       gp = grid::gpar(fontsize = title_fontsize, fontface = "bold"),
       rot = -90
     )
   }
-  if (!is.null(title2)) {
+
+  if (!is.null(var2_title)) {
     grobs[[length(grobs) + 1]] <- grid::textGrob(
-      label = title2,
+      label = var2_title,
       x = grid::unit(0.5, "npc"),
-      y = title2_y,
+      y = var2_title_y,
       just = c("center", "center"),
       gp = grid::gpar(fontsize = title_fontsize, fontface = "bold"),
       rot = 0
@@ -177,25 +234,32 @@ draw_key_bivariate <- function(key,
     vp = grid::viewport(
       x = grid::unit(0.5, "npc"),
       y = grid::unit(0.5, "npc"),
-      width  = grid::unit(1, "npc"),
+      width = grid::unit(1, "npc"),
       height = grid::unit(1, "npc"),
       angle = angle
     )
   )
 
-  width  <- grid::unit.c(grid::unit(1, "cm"),
-                         grid::unit(size, "cm"),
-                         grid::unit(1, "cm"))
-  height <- grid::unit.c(grid::unit(1, "cm"),
-                         grid::unit(size, "cm"),
-                         grid::unit(1, "cm"))
-  gt <- gtable::gtable(widths = width, heights = height)
-  gtable::gtable_add_grob(
+  widths <- grid::unit.c(
+    grid::unit(1, "cm"),
+    grid::unit(key_size, "cm"),
+    grid::unit(1, "cm")
+  )
+  heights <- grid::unit.c(
+    grid::unit(1, "cm"),
+    grid::unit(key_size, "cm"),
+    grid::unit(1, "cm")
+  )
+
+  gt <- gtable::gtable(widths = widths, heights = heights)
+  gt <- gtable::gtable_add_grob(
     gt,
     grob,
     t = 2,
     l = 2,
     clip = "off",
-    name = "bivar_key"
+    name = "bivariate_key"
   )
+
+  gt
 }
