@@ -1,10 +1,9 @@
-scale_type.pixel <- function(x) "pixel"
-
 ScalePixel <- ggproto(
   "ScalePixel",
   ScaleContinuous,
 
   train = function(self, x) {
+    browser()
     if (inherits(self$name, "waiver")) {
       lab <- attr(x, "label", exact = TRUE)
       if (!is.null(lab))
@@ -19,8 +18,9 @@ scale_fill_pixel <- function(type = "seq",
                              direction = 1,
                              name = waiver(),
                              ...) {
+  browser()
 
-  pal <- scales::gradient_n_pal(
+  pal <- scales::pal_gradient_n(
     scales::pal_brewer(
       type = type,
       palette = palette,
@@ -38,3 +38,6 @@ scale_fill_pixel <- function(type = "seq",
     ...
   )
 }
+
+#' @export
+scale_type.pixel <- function(x) "pixel"

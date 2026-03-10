@@ -147,6 +147,7 @@ geom_sf_pixel <- function(mapping = NULL,
       inherit.aes = inherit.aes,
       params = list(
         na.rm = na.rm,
+        colour = NA,
         n = n,
         distribution = distribution,
         seed = seed,
@@ -161,6 +162,3 @@ geom_sf_pixel <- function(mapping = NULL,
     coord_sf()
   )
 }
-
-ggplot(nc) +
-  geom_sf_pixel(aes(fill = duo_pixel(value, sd)), n = 30)

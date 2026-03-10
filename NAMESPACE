@@ -2,6 +2,7 @@
 
 S3method(scale_type,bivariate)
 S3method(scale_type,exceed)
+S3method(scale_type,pixel)
 export(ScaleBivariate)
 export(ScaleExceed)
 export(StatGlyph)
