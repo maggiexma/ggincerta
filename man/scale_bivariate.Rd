@@ -8,80 +8,64 @@
 \alias{scale_colour_bivariate}
 \title{Bivariate color scales}
 \format{
-An object of class \code{ScaleBivariate} (inherits from \code{ScaleDiscrete}, \code{Scale}, \code{ggproto}, \code{gg}) of length 5.
+An object of class \code{ScaleBivariate} (inherits from \code{ScaleDiscrete}, \code{Scale}, \code{ggproto}, \code{gg}) of length 6.
 }
 \usage{
 ScaleBivariate
 
 scale_fill_bivariate(
-  type = c("bivariate", "vsup"),
-  name1 = NULL,
-  name2 = NULL,
+  var1_name = NULL,
+  var2_name = NULL,
   colors = c("gold", "red4"),
-  n_breaks = 4,
-  breaks = c("quantile", "equal"),
+  n_breaks = c(4, 4),
+  bin_method = c("quantile", "equal"),
   flip = c("none", "vertical", "horizontal", "both"),
-  guide_size = 1.5,
-  values = NULL,
-  layers = 4,
-  branch = 2L,
-  title_value = "Value",
-  title_uncertainty = "Uncertainty",
-  max_light = 0.9,
-  max_desat = 0.7,
-  pow_light = 0.8,
-  pow_desat = 1,
+  key_size = 1.5,
   na.value = NA,
   na.translate = TRUE,
   aesthetics = "fill",
+  guide = guide_bivariate(),
   ...
 )
 
 scale_color_bivariate(
-  name1 = NULL,
-  name2 = NULL,
+  var1_name = NULL,
+  var2_name = NULL,
   colors = c("gold", "red4"),
-  n_breaks = 4,
-  breaks = c("quantile", "equal"),
+  n_breaks = c(4, 4),
+  bin_method = c("quantile", "equal"),
   flip = c("none", "vertical", "horizontal", "both"),
-  guide_size = 1.5,
+  key_size = 1.5,
   na.value = NA,
   na.translate = TRUE,
   aesthetics = "colour",
+  guide = guide_bivariate(),
   ...
 )
 
 scale_colour_bivariate(
-  name1 = NULL,
-  name2 = NULL,
+  var1_name = NULL,
+  var2_name = NULL,
   colors = c("gold", "red4"),
-  n_breaks = 4,
-  breaks = c("quantile", "equal"),
+  n_breaks = c(4, 4),
+  bin_method = c("quantile", "equal"),
   flip = c("none", "vertical", "horizontal", "both"),
-  guide_size = 1.5,
+  key_size = 1.5,
   na.value = NA,
   na.translate = TRUE,
   aesthetics = "colour",
+  guide = guide_bivariate(),
   ...
 )
 }
 \arguments{
-\item{name1, name2}{Optional names for \code{v1} and \code{v2}. Used as axis titles in
-the legend. If \code{NULL}, the default, the names are taken from the mapping.}
-
 \item{colors}{A character vector of length two specifying the colors for the
 bivariate palette.}
 
 \item{n_breaks}{An integer guiding the number of bins for each variable.}
 
-\item{breaks}{Method used to bin the variables: \code{"quantile"} (the default)
-or \code{"equal"}.}
-
 \item{flip}{Method used to flip the legend: \code{"none"} (the default),
 \code{"vertical"}, \code{"horizontal"}, or \code{"both"}.}
-
-\item{guide_size}{A numeric value controlling the size of the legend graphic,
-in centimeters.}
 
 \item{na.value}{If \code{na.translate = TRUE}, what aesthetic value should the
 missing values be displayed as? Does not apply to position scales
@@ -93,7 +77,19 @@ from a discrete scale, specify \code{na.translate = FALSE}.}
 
 \item{aesthetics}{The names of the aesthetics that this scale works with.}
 
+\item{guide}{A function used to create a guide or its name. See
+\code{\link[ggplot2:guides]{guides()}} for more information.}
+
 \item{...}{Other arguments passed to \code{\link[ggplot2:discrete_scale]{ggplot2::discrete_scale()}}.}
+
+\item{name1, name2}{Optional names for \code{v1} and \code{v2}. Used as axis titles in
+the legend. If \code{NULL}, the default, the names are taken from the mapping.}
+
+\item{breaks}{Method used to bin the variables: \code{"quantile"} (the default)
+or \code{"equal"}.}
+
+\item{guide_size}{A numeric value controlling the size of the legend graphic,
+in centimeters.}
 }
 \value{
 A \code{ScaleBivariate} ggproto object.

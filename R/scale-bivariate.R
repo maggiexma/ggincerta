@@ -15,43 +15,23 @@ ScaleBivariate <- ggproto(
     n_breaks <- self$n_breaks
     bin_method <- self$bin_method
 
-    compute_bins <- function(x1, x2) {
-      x_breaks <- quantile(x1,
-                           probs = seq(0, 1, length.out = n_breaks[1] + 1),
-                           na.rm = TRUE)
-      y_breaks <- quantile(x2,
-                           probs = seq(0, 1, length.out = n_breaks[2] + 1),
-                           na.rm = TRUE)
+    compute_bins <- function(x, n, method) {
+      if (identical(method, "quantile")) {
+        br <- quantile(
+          x,
+          probs = seq(0, 1, length.out = n + 1),
+          na.rm = TRUE,
+          names = FALSE
+        )
 
-      if (bin_method == "equal" ||
-          length(unique(x_breaks)) < (n_breaks[1] + 1)) {
-        x_breaks <- seq(min(x1, na.rm = TRUE), max(x1, na.rm = TRUE), length.out = n_breaks[1] + 1)
+        if (length(unique(br)) < (n + 1)) {
+          br <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n + 1)
+        }
+      } else {
+        br <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n + 1)
       }
 
-      if (bin_method == "equal" ||
-          length(unique(y_breaks)) < (n_breaks[2] + 1)) {
-        y_breaks <- seq(min(x2, na.rm = TRUE), max(x2, na.rm = TRUE), length.out = n_breaks[2] + 1)
-      }
-
-      x_breaks <- unique(as.numeric(x_breaks))
-      y_breaks <- unique(as.numeric(y_breaks))
-
-      x_bin <- cut(x1,
-                   breaks = x_breaks,
-                   include.lowest = TRUE,
-                   labels = FALSE)
-      y_bin <- cut(x2,
-                   breaks = y_breaks,
-                   include.lowest = TRUE,
-                   labels = FALSE)
-
-      bin_id <- (y_bin - 1L) * n_breaks[1] + x_bin
-
-      list(
-        values = factor(bin_id, levels = seq_len(prod(n_breaks))),
-        x_breaks = x_breaks,
-        y_breaks = y_breaks
-      )
+      unique(as.numeric(br))
     }
 
     x1 <- vapply(x, function(z)
@@ -59,20 +39,34 @@ ScaleBivariate <- ggproto(
     x2 <- vapply(x, function(z)
       z$v2, numeric(1))
 
-    binned <- compute_bins(x1, x2)
+    x_breaks <- compute_bins(x1, n_breaks[1], bin_method)
+    y_breaks <- compute_bins(x2, n_breaks[2], bin_method)
 
-    n <- prod(n_breaks)
-    key_colours <- self$palette(n)
-    if (length(key_colours) < n) {
-      key_colours <- rep_len(key_colours, n)
+    x_bin <- cut(x1,
+                 breaks = x_breaks,
+                 include.lowest = TRUE,
+                 labels = FALSE)
+
+    y_bin <- cut(x2,
+                 breaks = y_breaks,
+                 include.lowest = TRUE,
+                 labels = FALSE)
+
+    bin_id <- (y_bin - 1L) * n_breaks[1] + x_bin
+
+    values <- factor(bin_id, levels = seq_len(prod(n_breaks)))
+
+    key_colours <- self$palette(prod(n_breaks))
+    if (length(key_colours) < prod(n_breaks)) {
+      key_colours <- rep_len(key_colours, prod(n_breaks))
     }
 
     var_names <- attr(x, "vars")
 
     self$guide_info <- list(
       n_breaks = n_breaks,
-      x_breaks = binned$x_breaks,
-      y_breaks = binned$y_breaks,
+      x_breaks = x_breaks,
+      y_breaks = y_breaks,
       key_colours = unname(as.character(key_colours)),
       var1_title = self$var1_name %||% var_names[1],
       var2_title = self$var2_name %||% var_names[2],
@@ -80,7 +74,7 @@ ScaleBivariate <- ggproto(
       key_size = self$key_size
     )
 
-    binned$values
+    values
   },
 
   get_guide_info = function(self) {
@@ -91,6 +85,53 @@ ScaleBivariate <- ggproto(
     ggproto_parent(ScaleDiscrete, self)$train_df(df, ...)
   }
 )
+
+bivariate_scale <- function(aesthetics,
+                            palette,
+                            ...,
+                            name = waiver(),
+                            breaks = waiver(),
+                            labels = waiver(),
+                            limits = NULL,
+                            na.value = NA,
+                            na.translate = TRUE,
+                            drop = FALSE,
+                            guide = waiver(),
+                            n_breaks = c(4, 4),
+                            bin_method = c("quantile", "equal"),
+                            var1_name = NULL,
+                            var2_name = NULL,
+                            key_size = 1.5,
+                            super = ScaleBivariate) {
+  bin_method <- rlang::arg_match(bin_method)
+
+  if (!is.function(palette)) {
+    cli::cli_abort("{.arg palette} must be a function.")
+  }
+
+  sc <- discrete_scale(
+    aesthetics = aesthetics,
+    name = name,
+    palette = palette,
+    breaks = breaks,
+    labels = labels,
+    limits = limits,
+    na.value = na.value,
+    na.translate = na.translate,
+    drop = drop,
+    guide = guide,
+    ...,
+    super = super
+  )
+
+  sc$n_breaks <- n_breaks
+  sc$bin_method <- bin_method
+  sc$var1_name <- var1_name
+  sc$var2_name <- var2_name
+  sc$key_size <- key_size
+
+  sc
+}
 
 #' Bivariate color scales
 #'
@@ -131,104 +172,68 @@ ScaleBivariate <- ggproto(
 #'
 #' @rdname scale_bivariate
 #' @export
-scale_fill_bivariate <- function(
-    type = c("bivariate", "vsup"),
-    var1_name = NULL,
-    var2_name = NULL,
-    colors = c("gold", "red4"),
-    n_breaks = 4,
-    bin_method = c("quantile", "equal"),
-    flip = c("none", "vertical", "horizontal", "both"),
-    key_size = 1.5,
-    values = NULL,
-    layers = 4,
-    branch = 2L,
-    title_value = "Value",
-    title_uncertainty = "Uncertainty",
-    max_light = 0.5,
-    max_desat = 0.9,
-    pow_light = 1,
-    pow_desat = 1,
-    na.value = NA,
-    na.translate = TRUE,
-    aesthetics = "fill",
-    guide = guide_bivariate(),
-    ...
-) {
-  type <- match.arg(type)
-
-  if (type == "vsup") {
-    return(scale_fill_vsup(
-      values = values,
-      layers = layers,
-      branch = branch,
-      title_value = title_value,
-      title_uncertainty = title_uncertainty,
-      na.value = na.value,
-      na.translate = na.translate,
-      aesthetics = aesthetics,
-      max_light = max_light,
-      max_desat = max_desat,
-      pow_light = pow_light,
-      pow_desat = pow_desat,
-      ...
-    ))
-  }
-
-  flip <- match.arg(flip)
+scale_fill_bivariate <- function(var1_name = NULL,
+                                 var2_name = NULL,
+                                 colors = c("gold", "red4"),
+                                 n_breaks = c(4, 4),
+                                 bin_method = c("quantile", "equal"),
+                                 flip = c("none", "vertical", "horizontal", "both"),
+                                 key_size = 1.5,
+                                 na.value = NA,
+                                 na.translate = TRUE,
+                                 aesthetics = "fill",
+                                 guide = guide_bivariate(),
+                                 ...) {
   bin_method <- match.arg(bin_method)
+  flip <- match.arg(flip)
 
-  if (length(n_breaks) == 1L && is.numeric(n_breaks)) {
-    n_breaks <- c(n_breaks, n_breaks)
+  if (length(n_breaks) == 1L) {
+    n_breaks <- rep.int(as.integer(n_breaks), 2)
+  } else {
+    n_breaks <- as.integer(n_breaks)
   }
-  stopifnot(length(n_breaks) == 2)
 
   pal_safe <- function(n) {
-    bivar_palette(
-      colors,
-      n_breaks = rep(round(sqrt(n)), 2),
-      flip = flip
-    )
+    bivar_palette(colors = colors,
+                  n_breaks = n_breaks,
+                  flip = flip)
   }
 
-  sc <- discrete_scale(
+  sc <- bivariate_scale(
     aesthetics = aesthetics,
     palette = pal_safe,
     guide = guide,
-    drop = FALSE,
     na.value = na.value,
     na.translate = na.translate,
-    super = ScaleBivariate,
+    drop = FALSE,
+    n_breaks = n_breaks,
+    bin_method = bin_method,
+    var1_name = var1_name,
+    var2_name = var2_name,
+    key_size = key_size,
     ...
   )
 
-  sc$n_breaks <- n_breaks
-  sc$bin_method <- bin_method
   sc$colors <- colors
-  sc$var1_name <- var1_name
-  sc$var2_name <- var2_name
-  sc$key_size <- key_size
+  sc$flip <- flip
   sc
 }
 
 #' @rdname scale_bivariate
 #' @export
-scale_color_bivariate <- function(
-    var1_name = NULL,
-    var2_name = NULL,
-    colors = c("gold", "red4"),
-    n_breaks = 4,
-    bin_method = c("quantile", "equal"),
-    flip = c("none", "vertical", "horizontal", "both"),
-    key_size = 1.5,
-    na.value = NA,
-    na.translate = TRUE,
-    aesthetics = "colour",
-    guide = guide_bivariate(),
-    ...
-) {
+scale_color_bivariate <- function(var1_name = NULL,
+                                  var2_name = NULL,
+                                  colors = c("gold", "red4"),
+                                  n_breaks = c(4, 4),
+                                  bin_method = c("quantile", "equal"),
+                                  flip = c("none", "vertical", "horizontal", "both"),
+                                  key_size = 1.5,
+                                  na.value = NA,
+                                  na.translate = TRUE,
+                                  aesthetics = "colour",
+                                  guide = guide_bivariate(),
+                                  ...) {
   scale_fill_bivariate(
-    type = "bivariate",
     var1_name = var1_name,
     var2_name = var2_name,
     colors = colors,
@@ -249,7 +254,5 @@ scale_color_bivariate <- function(
 scale_colour_bivariate <- scale_color_bivariate
 
 #' @export
-scale_type.bivariate <- function(x) "bivariate"
-
-
-
+scale_type.bivariate <- function(x)
+  "bivariate"
