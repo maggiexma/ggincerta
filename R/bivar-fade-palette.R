@@ -11,12 +11,12 @@ bivar_fade_palette <- function(colours,
   n_col <- n_breaks[2]
 
   if (length(colours) == 1) {
-    base_cols <- grDevices::colorRampPalette(
+    base_cols <- colorRampPalette(
       c("white", colours),
       space = space
     )(n_row)
   } else {
-    base_cols <- grDevices::colorRampPalette(
+    base_cols <- colorRampPalette(
       colours,
       space = space
     )(n_row)

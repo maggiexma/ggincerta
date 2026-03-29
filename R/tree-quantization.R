@@ -1,98 +1,134 @@
-vsup_quantize <- function(v, u, layers = 4, branch = 2L, na_rm = TRUE) {
-  browser()
-  stopifnot(length(v) == length(u))
+vsup_quantize <- function(v,
+                          u,
+                          layers = 4,
+                          branch = 2L,
+                          breaks = list(NULL, NULL),
+                          limits = list(NULL, NULL),
+                          transform = list("identity", "identity")) {
+  layers <- as.integer(layers)
+  branch <- as.integer(branch)
 
-  nas <- is.na(v) | is.na(u)
-  if (na_rm) {
-    v0 <- v[!nas]
-    u0 <- u[!nas]
+  if (!is.list(breaks)) breaks <- list(breaks)
+  if (length(breaks) == 1) breaks <- rep(breaks, 2)
+
+  if (!is.list(limits)) limits <- list(limits)
+  if (length(limits) == 1) limits <- rep(limits, 2)
+
+  if (!is.list(transform)) transform <- list(transform)
+  if (length(transform) == 1) transform <- rep(transform, 2)
+
+  v_trans <- scales::as.transform(transform[[1]])
+  u_trans <- scales::as.transform(transform[[2]])
+
+  v_t <- v_trans$transform(v)
+  u_t <- u_trans$transform(u)
+
+  max_leaf <- branch^(layers - 1L)
+  layer_sizes <- branch^(0:(layers - 1L))
+
+  v_limits_t <- if (is.null(limits[[1]])) {
+    range(v_t, na.rm = TRUE, finite = TRUE)
   } else {
-    v0 <- v
-    u0 <- u
+    sort(v_trans$transform(limits[[1]]))
   }
 
-  if (!length(v0)) {
-    return(list(value = factor(integer(length(v))), leaf_info = NULL))
+  u_limits_t <- if (is.null(limits[[2]])) {
+    range(u_t, na.rm = TRUE, finite = TRUE)
+  } else {
+    sort(u_trans$transform(limits[[2]]))
   }
 
-  v_prob <- (v0 - min(v0)) / (max(v0) - min(v0) + 1e-12)
-  u_prob <- (u0 - min(u0)) / (max(u0) - min(u0) + 1e-12)
+  v_breaks_t <- if (is.null(breaks[[1]])) {
+    seq(v_limits_t[1], v_limits_t[2], length.out = max_leaf + 1L)
+  } else {
+    v_trans$transform(breaks[[1]])
+  }
 
-  tree <- list()
-  leaf_id <- 1L
+  u_breaks_t <- if (is.null(breaks[[2]])) {
+    seq(u_limits_t[1], u_limits_t[2], length.out = layers + 1L)
+  } else {
+    u_trans$transform(breaks[[2]])
+  }
 
-  tree[[1L]] <- data.frame(
-    layer = 0L,
-    u = (layers - 1) / layers,
-    v = 0.5,
-    leaf = leaf_id
+  leaf_ids_by_layer <- vector("list", length = layers)
+  leaf_start <- 1L
+  for (ly in seq_len(layers)) {
+    n_leaf <- layer_sizes[ly]
+    leaf_ids_by_layer[[ly]] <- seq.int(leaf_start, length.out = n_leaf)
+    leaf_start <- leaf_start + n_leaf
+  }
+
+  leaf_info <- do.call(
+    rbind,
+    lapply(seq_len(layers), function(ly) {
+      n_leaf <- layer_sizes[ly]
+      idx <- round(seq(1, max_leaf + 1, length.out = n_leaf + 1))
+      layer_breaks_t <- v_breaks_t[idx]
+      mids_t <- (head(layer_breaks_t, -1) + tail(layer_breaks_t, -1)) / 2
+
+      data.frame(
+        leaf = leaf_ids_by_layer[[ly]],
+        layer = ly - 1L,
+        v = if (n_leaf == 1L) 0.5 else (seq_len(n_leaf) - 0.5) / n_leaf,
+        v_mid = v_trans$inverse(mids_t),
+        stringsAsFactors = FALSE
+      )
+    })
   )
-  leaf_id <- leaf_id + 1L
 
-  for (i in 1:(layers - 1L)) {
-    n_val <- 2L * branch^i
-    v_cent <- seq(1, n_val - 1, by = 2) / n_val
-    ui <- 1 - (i + 1) / layers
+  out_leaf <- rep(NA_integer_, length(v))
 
-    df_i <- data.frame(
-      layer = i,
-      u = ui,
-      v = v_cent,
-      leaf = leaf_id:(leaf_id + length(v_cent) - 1L)
+  ok <- !(is.na(v_t) | is.na(u_t))
+  ok <- ok &
+    v_t >= v_limits_t[1] & v_t <= v_limits_t[2] &
+    u_t >= u_limits_t[1] & u_t <= u_limits_t[2]
+
+  if (!any(ok)) {
+    return(list(
+      value = factor(out_leaf, levels = leaf_info$leaf),
+      leaf_info = leaf_info,
+      value_breaks = if (is.null(breaks[[1]])) v_trans$inverse(v_breaks_t) else breaks[[1]],
+      uncertainty_breaks = if (is.null(breaks[[2]])) u_trans$inverse(u_breaks_t) else breaks[[2]]
+    ))
+  }
+
+  u_bin <- findInterval(
+    u_t[ok],
+    vec = u_breaks_t,
+    rightmost.closed = TRUE,
+    all.inside = TRUE
+  )
+
+  layer_idx0 <- layers - u_bin
+  v_t_ok <- v_t[ok]
+  out_ok <- integer(length(v_t_ok))
+
+  for (ly0 in 0:(layers - 1L)) {
+    idx_ok <- which(layer_idx0 == ly0)
+    if (length(idx_ok) == 0L) next
+
+    ly <- ly0 + 1L
+    n_leaf <- layer_sizes[ly]
+
+    idx_break <- round(seq(1, max_leaf + 1, length.out = n_leaf + 1))
+    layer_breaks_t <- v_breaks_t[idx_break]
+
+    bin <- findInterval(
+      v_t_ok[idx_ok],
+      vec = layer_breaks_t,
+      rightmost.closed = TRUE,
+      all.inside = TRUE
     )
-    leaf_id <- leaf_id + nrow(df_i)
-    tree[[i + 1L]] <- df_i
+
+    out_ok[idx_ok] <- leaf_ids_by_layer[[ly]][bin]
   }
 
-  tree_df <- do.call(rbind, tree)
-  split_layer <- split(tree_df, tree_df$layer)
-
-  eps <- 1e-7
-
-  assign_layer <- function(u_prob) {
-    out <- integer(length(u_prob))
-    for (k in seq_along(u_prob)) {
-      ui <- u_prob[k]
-      i <- 0L
-      while (i < layers - 1L && ui < 1 - (i + 1L) / layers - eps) i <- i + 1L
-      out[k] <- i
-    }
-    out
-  }
-
-  assign_leaf <- function(v_prob, layer_idx) {
-    out <- integer(length(v_prob))
-    uniq_layer <- unique(layer_idx)
-
-    for (i in uniq_layer) {
-      idx <- which(layer_idx == i)
-      v_i <- v_prob[idx]
-      df_i <- split_layer[[as.character(i)]]
-      v_cent <- df_i$v
-
-      if (length(v_cent) == 1L) {
-        out[idx] <- df_i$leaf
-      } else {
-        vgap   <- (v_cent[2L] - v_cent[1L]) / 2
-        breaks <- c(v_cent[1L] - vgap,
-                    (v_cent[-1L] + v_cent[-length(v_cent)]) / 2,
-                    v_cent[length(v_cent)] + vgap)
-        bin <- cut(v_i, breaks = breaks, include.lowest = TRUE,
-                   labels = FALSE)
-        out[idx] <- df_i$leaf[bin]
-      }
-    }
-    out
-  }
-
-  layer_idx <- assign_layer(u_prob)
-  leaf_idx <- assign_leaf(v_prob, layer_idx)
-
-  full <- rep(NA_integer_, length(v))
-  full[!nas] <- leaf_idx
+  out_leaf[ok] <- out_ok
 
   list(
-    value = factor(full, levels = tree_df$leaf),
-    leaf_info = tree_df
+    value = factor(out_leaf, levels = leaf_info$leaf),
+    leaf_info = leaf_info,
+    value_breaks = if (is.null(breaks[[1]])) v_trans$inverse(v_breaks_t) else breaks[[1]],
+    uncertainty_breaks = if (is.null(breaks[[2]])) u_trans$inverse(u_breaks_t) else breaks[[2]]
   )
 }
