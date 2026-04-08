@@ -9,7 +9,11 @@ StatPixelPj <- ggproto(
                            n,
                            distribution,
                            seed,
-                           pixel_crs = 3857) {
+                           pixel_crs = 3857,
+                           pixel_shape = c("default", "square", "hex"),
+                           flat_topped = FALSE) {
+    pixel_shape <- rlang::arg_match(pixel_shape)
+
     label <- {
       vars <- attr(data$fill, "vars", exact = TRUE)
       if (!is.null(vars) && length(vars) >= 1L) {
@@ -48,15 +52,42 @@ StatPixelPj <- ggproto(
       sf_proj <- sf::st_transform(sf_data, pixel_crs)
     }
 
-    grid_sf <- sf::st_sf(
-      geometry = sf::st_make_grid(sf_proj, n = n),
-      crs = sf::st_crs(sf_proj)
+    make_pixel_grid <- function(x, shape, n, flat_topped = FALSE) {
+      if (length(n) == 1L)
+        n <- rep(n, 2)
+
+      bb <- sf::st_bbox(x)
+      xrange <- unname(bb["xmax"] - bb["xmin"])
+      yrange <- unname(bb["ymax"] - bb["ymin"])
+
+      if (shape == "default") {
+        return(sf::st_sf(
+          geometry = sf::st_make_grid(x, n = n),
+          crs = sf::st_crs(x)
+        ))
+      }
+
+      cellsize <- min(xrange / n[1], yrange / n[2])
+
+      grid <- sf::st_make_grid(
+        x,
+        cellsize = cellsize,
+        square = (shape == "square"),
+        flat_topped = flat_topped
+      )
+
+      sf::st_sf(geometry = grid, crs = sf::st_crs(x))
+    }
+
+    grid_sf <- make_pixel_grid(
+      x = sf_proj,
+      shape = pixel_shape,
+      n = n,
+      flat_topped = flat_topped
     )
 
     pix_sf <- suppressWarnings(sf::st_intersection(sf_proj[, c("ID", "v1", "v2")], grid_sf))
-
     pix_sf <- suppressWarnings(sf::st_make_valid(pix_sf))
-
     pix_sf <- suppressWarnings(sf::st_collection_extract(pix_sf, "POLYGON", warn = FALSE))
 
     is_empty <- sf::st_is_empty(pix_sf)
@@ -114,16 +145,20 @@ StatPixelPj <- ggproto(
   }
 )
 
-geom_sf_pixe_new <- function(mapping = NULL,
-                          data = NULL,
-                          n = 60,
-                          distribution = "uniform",
-                          seed = NULL,
-                          pixel_crs = 3857,
-                          na.rm = FALSE,
-                          show.legend = NA,
-                          inherit.aes = TRUE,
-                          ...) {
+geom_sf_pixel_new <- function(mapping = NULL,
+                              data = NULL,
+                              n = 60,
+                              distribution = "uniform",
+                              seed = NULL,
+                              pixel_crs = 3857,
+                              pixel_shape = c("default", "square", "hex"),
+                              flat_topped = FALSE,
+                              na.rm = FALSE,
+                              show.legend = NA,
+                              inherit.aes = TRUE,
+                              ...) {
+  pixel_shape <- rlang::arg_match(pixel_shape)
+
   list(
     layer_sf(
       data = data,
@@ -140,6 +175,8 @@ geom_sf_pixe_new <- function(mapping = NULL,
         distribution = distribution,
         seed = seed,
         pixel_crs = pixel_crs,
+        pixel_shape = pixel_shape,
+        flat_topped = flat_topped,
         ...
       )
     ),
