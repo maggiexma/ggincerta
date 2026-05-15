@@ -1,4 +1,4 @@
-bivar_fade_palette <- function(colours,
+bivar_fade_palette <- function(colors,
                                n_breaks,
                                fade = c("lighten", "alpha", "desaturate"),
                                alpha_range = c(1, 0.3),
@@ -10,14 +10,14 @@ bivar_fade_palette <- function(colours,
   n_row <- n_breaks[1]
   n_col <- n_breaks[2]
 
-  if (length(colours) == 1) {
+  if (length(colors) == 1) {
     base_cols <- colorRampPalette(
-      c("white", colours),
+      c("white", colors),
       space = space
     )(n_row)
   } else {
     base_cols <- colorRampPalette(
-      colours,
+      colors,
       space = space
     )(n_row)
   }

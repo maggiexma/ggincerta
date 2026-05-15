@@ -1,67 +1,77 @@
-geom_sf_dualmap <- function(mapping = NULL,
-                            data = NULL,
-                            position = "identity",
-                            ...,
-                            polygon_colour = "white",
-                            polygon_linewidth = 0.2,
-                            centre_colour = NA,
-                            centre_shape = "circle",
-                            angle = 0,
-                            centre_size = 1,
-                            point_fun = sf::st_centroid,
-                            uncertainty_scale = scale_fill_gradient(low = "grey95",
-                                                                    high = "grey40",
-                                                                    name = NULL),
-                            value_scale = scale_fill_viridis_c(name = NULL),
-                            na.rm = FALSE,
-                            show.legend = NA,
-                            inherit.aes = TRUE) {
+parse_dualmap_mapping <- function(mapping) {
   mapping <- mapping %||% aes()
 
-  fill_expr <- rlang::get_expr(mapping$fill)
+  outer_mapping <- mapping
+  inner_mapping <- mapping
 
-  fill_args <- rlang::call_args(fill_expr)
-  value_expr <- fill_args[[1]]
-  uncert_expr <- fill_args[[2]]
+  outer_mapping$colour <- NULL
+  outer_mapping$angle <- NULL
+  outer_mapping$smile <- NULL
 
-  base_mapping <- mapping
-  base_mapping$fill <- NULL
+  inner_mapping$fill <- NULL
 
-  uncert_mapping <- utils::modifyList(base_mapping, aes(fill = !!uncert_expr))
+  list(outer = outer_mapping, inner = inner_mapping)
+}
 
-  value_mapping <- utils::modifyList(base_mapping, aes(fill = !!value_expr))
+geom_sf_dualmap <- function(mapping = NULL,
+                            data = NULL,
+                            ...,
+                            shape = "circle",
+                            angle = 0,
+                            max_angle = NULL,
+                            size = 1,
+                            point_fun = sf::st_point_on_surface,
+                            border_colour = NA,
+                            na.rm = FALSE,
+                            show.legend = NA,
+                            inherit.aes = TRUE,
+                            angle_guide = TRUE,
+                            angle_name = waiver(),
+                            angle_order = 2,
+                            fill_scale = NULL) {
+  parsed <- parse_dualmap_mapping(mapping)
 
-  uncertainty_scale$name <- rlang::as_label(uncert_expr)
-  value_scale$name <- rlang::as_label(value_expr)
-
-  list(
+  layers <- list(
     geom_sf(
-      mapping = uncert_mapping,
+      mapping = parsed$outer,
       data = data,
-      position = position,
       ...,
-      colour = polygon_colour,
-      linewidth = polygon_linewidth,
       na.rm = na.rm,
       show.legend = show.legend,
       inherit.aes = inherit.aes
     ),
-    uncertainty_scale,
-    ggnewscale::new_scale_fill(),
-    geom_sf_centre(
-      mapping = value_mapping,
+
+    geom_sf_glyph(
+      mapping = parsed$inner,
       data = data,
-      position = position,
       ...,
-      colour = centre_colour,
-      centre_shape = centre_shape,
+      shape = shape,
       angle = angle,
-      size = centre_size,
+      max_angle = max_angle,
+      size = size,
       point_fun = point_fun,
+      border_colour = border_colour,
       na.rm = na.rm,
       show.legend = show.legend,
-      inherit.aes = inherit.aes
-    ),
-    value_scale
+      inherit.aes = inherit.aes,
+      angle_guide = angle_guide,
+      angle_name = angle_name,
+      angle_order = angle_order
+    )
   )
+
+  if (is.null(fill_scale) &&
+      !is.null(parsed$outer$fill)) {
+    fill_expr <- rlang::get_expr(parsed$outer$fill)
+
+    is_duo <- rlang::is_call(fill_expr, "duo")
+
+    if (!is_duo) {
+      layers <- c(layers, list(scale_fill_gradient(
+        low = "grey95", high = "grey40"
+      )))
+    }
+  }
+
+  layers
 }

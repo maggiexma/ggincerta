@@ -1,12 +1,13 @@
 pal_vsup <- function(leaf_info,
                      values,
                      unc_levels = 4,
+                     branch = 2,
                      max_light = 0.7,
                      max_desat = 0.9,
                      pow_light = 1,
                      pow_desat = 1,
                      space = "Lab") {
-  n_base <- 2^(unc_levels - 1)
+  n_base <- branch^(unc_levels - 1)
 
   if (length(values) < 1) {
     stop("At least one colour must be provided.", call. = FALSE)

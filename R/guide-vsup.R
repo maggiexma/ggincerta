@@ -1,7 +1,6 @@
 GuideVSUP <- ggproto(
   "GuideVSUP",
   GuideLegend,
-
   params = c(
     GuideLegend$params,
     list(
@@ -13,17 +12,14 @@ GuideVSUP <- ggproto(
       aesthetics = NULL
     )
   ),
-
   available_aes = c("fill", "colour", "color"),
   hashables = rlang::exprs(title, order),
-
   get_vsup_info = function(self, scale) {
     if (!inherits(scale, "ScaleVSUP")) {
       return(NULL)
     }
     scale$get_guide_info()
   },
-
   resolve_title = function(self, title, scale) {
     title_chr <- if (inherits(title, "waiver")) {
       ""
@@ -35,14 +31,13 @@ GuideVSUP <- ggproto(
       is_waiver(scale$name)
 
     if (nzchar(title_chr) &&
-        scale_name_missing &&
-        grepl("^duo\\s*\\(", title_chr)) {
+      scale_name_missing &&
+      grepl("^duo\\s*\\(", title_chr)) {
       return(NULL)
     }
 
     title
   },
-
   element_gpar = function(self, element, default = grid::gpar()) {
     if (is.null(element)) {
       return(default)
@@ -55,7 +50,6 @@ GuideVSUP <- ggproto(
       lineheight = element$lineheight %||% default$lineheight
     )
   },
-
   get_layout_info = function(self, elements) {
     text_gp <- self$element_gpar(
       elements$text,
@@ -84,12 +78,12 @@ GuideVSUP <- ggproto(
     min_key_height <- grid::unit(4, "cm")
 
     if (grid::convertWidth(key_width, "cm", valueOnly = TRUE) <
-        grid::convertWidth(min_key_width, "cm", valueOnly = TRUE)) {
+      grid::convertWidth(min_key_width, "cm", valueOnly = TRUE)) {
       key_width <- min_key_width
     }
 
     if (grid::convertHeight(key_height, "cm", valueOnly = TRUE) <
-        grid::convertHeight(min_key_height, "cm", valueOnly = TRUE)) {
+      grid::convertHeight(min_key_height, "cm", valueOnly = TRUE)) {
       key_height <- min_key_height
     }
 
@@ -102,7 +96,6 @@ GuideVSUP <- ggproto(
       decor_height = key_height
     )
   },
-
   extract_key = function(self, scale, aesthetic, ...) {
     guide_info <- self$get_vsup_info(scale)
     if (is.null(guide_info)) {
@@ -120,20 +113,23 @@ GuideVSUP <- ggproto(
     key[[aesthetic]] <- guide_info$key_colours
     key
   },
-
   extract_params = function(self, scale, params, title = NULL, ...) {
-    params <- ggproto_parent(GuideLegend, self)$extract_params(scale = scale,
-                                                               params = params,
-                                                               title = title,
-                                                               ...)
+    params <- ggproto_parent(GuideLegend, self)$extract_params(
+      scale = scale,
+      params = params,
+      title = title,
+      ...
+    )
 
     guide_info <- self$get_vsup_info(scale)
     if (is.null(guide_info)) {
       return(params)
     }
 
-    params$title <- self$resolve_title(title = params$title %||% scale$name %||% waiver(),
-                                       scale = scale)
+    params$title <- self$resolve_title(
+      title = params$title %||% scale$name %||% waiver(),
+      scale = scale
+    )
 
     params$layer_sizes <- guide_info$layer_sizes
     params$value_breaks <- format(guide_info$value_breaks, digits = 2)
@@ -144,7 +140,6 @@ GuideVSUP <- ggproto(
 
     params
   },
-
   setup_params = function(self, params) {
     params <- ggproto_parent(GuideLegend, self)$setup_params(params)
 
@@ -154,11 +149,9 @@ GuideVSUP <- ggproto(
 
     params
   },
-
   build_labels = function(self, key, elements, params) {
     zeroGrob()
   },
-
   build_decor = function(self, decor, grobs, elements, params) {
     if (is.null(params$key) || is.null(params$layer_sizes)) {
       return(zeroGrob())
@@ -184,12 +177,11 @@ GuideVSUP <- ggproto(
       elements = elements
     )
   },
-
   build_title_grob = function(self, params, elements) {
     title <- params$title
 
     if (is.null(title) ||
-        identical(title, "") || inherits(title, "waiver")) {
+      identical(title, "") || inherits(title, "waiver")) {
       return(zeroGrob())
     }
 
@@ -198,7 +190,6 @@ GuideVSUP <- ggproto(
       gp = self$element_gpar(elements$title, default = grid::gpar())
     )
   },
-
   measure_grobs = function(self, grobs, params, elements) {
     layout_info <- self$get_layout_info(elements)
 
@@ -209,14 +200,12 @@ GuideVSUP <- ggproto(
       decor_height = layout_info$decor_height
     )
   },
-
   arrange_layout = function(self, key, sizes, params, elements) {
     list(
       has_title = !inherits(sizes$title_height, "zeroUnit"),
       title_position = "top"
     )
   },
-
   assemble_drawing = function(self, grobs, layout, sizes, params, elements) {
     theme_margin <- elements$margin %||% margin(0, 0, 0, 0)
     unit_name <- attr(theme_margin, "unit")
@@ -276,7 +265,6 @@ GuideVSUP <- ggproto(
 
     gt
   },
-
   draw_vsup_decor = function(self,
                              key,
                              layer_sizes,
@@ -306,12 +294,13 @@ GuideVSUP <- ggproto(
     arc_steps <- 60
 
     polar_to_npc <- function(r, theta) {
-      list(x = 0.4 + r * cos(theta), y = 0.25 + r * sin(theta))
+      list(x = 0.4 + r * cos(theta), y = r * sin(theta))
     }
 
     grobs <- list()
-    add_grob <- function(grob)
+    add_grob <- function(grob) {
       grobs[[length(grobs) + 1L]] <<- grob
+    }
 
     for (layer in seq_len(n_layers)) {
       n_cells <- layer_sizes[layer]
@@ -398,10 +387,12 @@ GuideVSUP <- ggproto(
 
         p_label <- polar_to_npc(r_tick + 0.045, theta)
         rot_deg <- theta * 180 / pi - 90
-        if (rot_deg < -90)
+        if (rot_deg < -90) {
           rot_deg <- rot_deg + 180
-        if (rot_deg > 90)
+        }
+        if (rot_deg > 90) {
           rot_deg <- rot_deg - 180
+        }
 
         add_grob(
           grid::textGrob(
@@ -479,7 +470,7 @@ GuideVSUP <- ggproto(
     }
 
     if (!is.null(title_uncertainty) &&
-        !identical(title_uncertainty, "")) {
+      !identical(title_uncertainty, "")) {
       y_title <- (p_axis_start$y + p_axis_end$y) / 2 - 0.05
 
       p_title_base <- polar_to_npc(r_levels[n_layers], theta_axis)

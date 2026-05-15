@@ -17,7 +17,7 @@ GuideBivariate <- ggproto(
   ),
 
   available_aes = c("fill", "colour", "color"),
-  hashables = rlang::exprs(title, order, rotated, angle),
+  hashables = rlang::exprs(title, order, aesthetics, rotated, angle),
 
   get_bivariate_guide_info = function(self, scale) {
     if (inherits(scale, "ScaleBivariate")) scale$get_guide_info() else NULL
@@ -381,6 +381,7 @@ guide_bivariate <- function(theme = NULL,
                             title = NULL,
                             order = 0,
                             position = NULL,
+                            aesthetics = NULL,
                             rotated = FALSE,
                             angle = 45) {
   new_guide(
@@ -388,6 +389,7 @@ guide_bivariate <- function(theme = NULL,
     title = title,
     order = order,
     position = position,
+    aesthetics = aesthetics,
     rotated = rotated,
     angle = angle,
     super = GuideBivariate

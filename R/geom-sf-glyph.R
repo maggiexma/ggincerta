@@ -1,68 +1,12 @@
-#' @rdname ggsfgl
-#' @export
-StatGlyph <- ggproto(
-  "StatGlyph",
-  StatSf,
-  required_aes = c("v1", "v2", "geometry"),
-  compute_panel = function(data, scales, coord, size, style, max_v2) {
-    data <- StatSf$compute_panel(data, scales, coord)
-    data <- sf::st_as_sf(data)
-    centroids <- sf::st_centroid(data$geometry)
-    coords <- sf::st_coordinates(centroids)
-    data$long <- coords[, 1]
-    data$lat <- coords[, 2]
+parse_glyph_mapping <- function(mapping) {
+  mapping <- mapping %||% aes()
 
-    errs <- data$v2
-    max_err <- if (is.null(max_v2))
-      max(errs, na.rm = TRUE)
-    else
-      max_v2
-    data$theta <- -(errs / max_err) * pi
-    data$id <- seq_len(nrow(data))
-    data$size <- size
-    data$style <- style
-
-    polys <- lapply(seq_len(nrow(data)), function(i) {
-      shape_i <- data$style[i]
-      if (!shape_i %in% c("icone", "semi"))
-        stop("Glyph name not recognised. Must be one of icone or semi.")
-      if (shape_i == "icone") {
-        x1 <- seq(-3, 3, .05)
-        y1 <- sqrt(9 - x1^2)
-        cir <- data.frame(x = x1, y = y1)
-        x2 <- c(-3, 0, 3)
-        y2 <- c(0, -5, 0)
-        tri <- data.frame(x = x2, y = y2)
-        glyphDat <- rbind(cir, tri)
-      } else {
-        x1 <- seq(-3, 3, .05)
-        y1 <- sqrt(9 - x1^2)
-        glyphDat <- data.frame(x = x1, y = y1)
-      }
-
-      theta <- data$theta[i]
-      R <- matrix(c(cos(theta), sin(theta), -sin(theta), cos(theta)), 2)
-      Nmat <- R %*% t(glyphDat / data$size[i])
-      N <- as.data.frame(t(Nmat))
-
-      data.frame(
-        fill = rep(data$v1[i], nrow(glyphDat)),
-        glyph = rep(data$v2[i], nrow(glyphDat)),
-        group = rep(data$id[i], nrow(glyphDat)),
-        x = N$V1 + data$long[i],
-        y = N$V2 + data$lat[i],
-        stringsAsFactors = FALSE
-      )
-    })
-    do.call(rbind, polys)
-  }
-)
-
-GeomPolygonGlyph <- ggproto(
-  "GeomPolygonGlyph",
-  GeomPolygon,
-  default_aes = c(GeomPolygon$default_aes, aes(glyph = NA))
-)
+  list(
+    mapping = mapping,
+    has_angle = !is.null(rlang::get_expr(mapping$angle)),
+    has_smile = !is.null(rlang::get_expr(mapping$smile))
+  )
+}
 
 #' Generate glyph maps on sf objects
 #'
@@ -77,8 +21,8 @@ GeomPolygonGlyph <- ggproto(
 #' Therefore, modifying the scale for `v1` will trigger a warning
 #' indicating that the scale for `fill` is being replaced.
 #'
-#' @inheritParams ggplot2::geom_sf
-#' @param mapping Set of aesthetic mappings created by [ggplot2::aes()].
+#' @inheritParams geom_sf
+#' @param mapping Set of aesthetic mappings created by [aes()].
 #'   `v1` and `v2` are required, which are the variables used for glyph fill
 #'   and rotation, respectively.
 #' @param size A positive numeric scaling factor controlling glyph size.
@@ -102,68 +46,73 @@ GeomPolygonGlyph <- ggproto(
 #'
 #' @rdname ggsfgl
 #' @export
+#'
 geom_sf_glyph <- function(mapping = NULL,
                           data = NULL,
-                          size = 70,
-                          style = "icone",
-                          max_v2 = NULL,
-                          position = "identity",
-                          show.legend = TRUE,
+                          ...,
+                          shape = "circle",
+                          max_angle = NULL,
+                          size = 1,
+                          point_fun = sf::st_point_on_surface,
+                          border_colour = NA,
+                          na.rm = FALSE,
+                          show.legend = NA,
                           inherit.aes = TRUE,
-                          ...) {
+                          angle_guide = TRUE,
+                          angle_name = waiver(),
+                          angle_order = 2) {
+  parsed <- parse_glyph_mapping(mapping)
+  mapping <- parsed$mapping
 
-  if (is.null(mapping)) mapping <- ggplot2::aes()
-
-  if (is.null(mapping$v1) || is.null(mapping$v2)) {
-    if (!is.null(mapping$x) && !is.null(mapping$y)) {
-      mapping$v1 <- mapping$x
-      mapping$v2 <- mapping$y
-      mapping$x <- NULL
-      mapping$y <- NULL
-    }
-  }
-
-  needs_geometry <- is.null(rlang::get_expr(mapping$geometry))
-  if (needs_geometry) {
-    geom_col <- NULL
-    if (!is.null(data) && inherits(data, "sf")) {
-      geom_col <- attr(data, "sf_column")
-    } else {
-      geom_col <- "geometry"
-    }
-    mapping$geometry <- rlang::sym(geom_col)
-  }
-
-  v1_title <- rlang::as_label(mapping$v1)
-  v2_title <- rlang::as_label(mapping$v2)
-
-  c(
-    layer(
-      stat = StatGlyph,
-      data = data,
-      mapping = mapping,
-      geom = GeomPolygonGlyph,
-      position = position,
-      show.legend = show.legend,
-      inherit.aes = inherit.aes,
-      params = list(
-        size = size,
-        style = style,
-        max_v2 = max_v2,
-        ...
+  if (shape == "chernoff") {
+    return(
+      geom_sf_chernoff(
+        mapping = mapping,
+        data = data,
+        ...,
+        fun.geometry = point_fun,
+        na.rm = na.rm,
+        show.legend = show.legend,
+        inherit.aes = inherit.aes
       )
-    ),
-    coord_sf(),
-    scale_fill_distiller(
-      name = v1_title,
-      palette = "Oranges",
-      direction = 1,
-      guide = guide_colorbar(order = 1)
-    ),
-    scale_glyph_continuous(
-      name = v2_title,
-      order = 2,
-      style = style
+    )
+  }
+
+  if (parsed$has_smile) {
+    cli::cli_warn(
+      "{.aes smile} is only used when {.code shape = 'chernoff'}."
+    )
+  }
+
+  layer <- geom_sf_pin(
+    mapping = mapping,
+    data = data,
+    ...,
+    shape = shape,
+    max_angle = max_angle,
+    size = size,
+    point_fun = point_fun,
+    border_colour = border_colour,
+    na.rm = na.rm,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes
+  )
+
+  if (!parsed$has_angle || !isTRUE(angle_guide)) {
+    return(layer)
+  }
+
+  angle_label <- if (is_waiver(angle_name)) {
+    rlang::as_label(mapping$angle)
+  } else {
+    angle_name
+  }
+
+  list(
+    layer,
+    scale_angle_continuous(
+      name = angle_label,
+      order = angle_order
     )
   )
 }

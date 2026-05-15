@@ -249,7 +249,7 @@ bivariate_scale <- function(
       do.call(
         palette,
         c(
-          list(colours = colors, n_breaks = n_breaks),
+          list(colors = colors, n_breaks = n_breaks),
           palette_params
         )
       )
@@ -300,19 +300,21 @@ bivariate_scale <- function(
   sc
 }
 
-#' Bivariate color scales
+#' Bivariate scale constructor
 #'
-#' `scale_*_bivariate` creates a bivariate palette by mixing two colour ramps,
-#' then implements the mapping by binning the variables `v1`, `v2` and assigning
-#' each bin combination to a colour.
+#' `bivariate_scale()` provides a mapping from bivariate data to combinations
+#' of colour dimensions in perceptual space.
+#'
+#' It can be automatically dispatched in `aes()` using `duo()` and works
+#' seamlessly with any ggplot2 geom.
 #'
 #' @inheritParams ggplot2::discrete_scale
-#' @param name1,name2 Optional names for `v1` and `v2`. Used as axis titles in
+#' @param var1_name,var2_name Optional names for `v1` and `v2`. Used as axis titles in
 #'   the legend. If `NULL`, the default, the names are taken from the mapping.
 #' @param colors A character vector of length two specifying the colors for the
 #'   bivariate palette.
 #' @param n_breaks An integer guiding the number of bins for each variable.
-#' @param breaks Method used to bin the variables: `"quantile"` (the default)
+#' @param bin_method Method used to bin the variables: `"quantile"` (the default)
 #'   or `"equal"`.
 #' @param flip Method used to flip the legend: `"none"` (the default),
 #'   `"vertical"`, `"horizontal"`, or `"both"`.
@@ -396,7 +398,7 @@ scale_color_bivariate <- function(...,
                                   bin_method = c("equal", "equal"),
                                   flip = c("none", "vertical", "horizontal", "both"),
                                   na.value = NA,
-                                  aesthetics = "fill",
+                                  aesthetics = "colour",
                                   guide = guide_bivariate()) {
   scale_fill_bivariate(
     name = name,

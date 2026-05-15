@@ -1,115 +1,158 @@
 GuideGlyph <- ggproto(
   "GuideGlyph",
-  GuideLegend,
-  params = c(
-    GuideLegend$params,
-    list(
-      breaks = NULL,
-      glyph = NULL,
-      label = NULL,
-      font_size = NULL
-    )
+  Guide,
+
+  params = list(
+    name = "glyph",
+    title = waiver(),
+    theme = NULL,
+    direction = "vertical",
+    order = 99,
+    position = NULL,
+    hash = "glyph-angle",
+    available_aes = "angle"
   ),
+
+  train = function(self, params = self$params, scale, aesthetic = NULL, ...) {
+    lims <- scale$get_limits()
+    lims <- lims[is.finite(lims)]
+
+    if (!length(lims)) {
+      return(NULL)
+    }
+
+    maxv <- max(abs(lims), na.rm = TRUE)
+
+    key <- c(0, maxv / 2, maxv)
+
+    params$title <- if (is_waiver(params$title)) scale$name else params$title
+    if (is_waiver(params$title)) params$title <- NULL
+
+    params$key <- data.frame(
+      angle = key,
+      .value = key,
+      .label = format(round(key, 2), trim = TRUE)
+    )
+
+    params$breaks <- key
+    params$labels <- format(round(key, 2), trim = TRUE)
+    params$angles <- c(0, -pi / 2, -pi)
+    params$hash <- paste0("glyph-angle-", paste(round(key, 3), collapse = "-"))
+
+    params
+  },
+
   draw = function(self, theme, params = self$params, ...) {
+    title_el <- calc_element("legend.title", theme)
+    text_el <- calc_element("legend.text", theme)
+
     draw_glyph_key(
-      key = params$breaks,
-      glyph = params$glyph,
-      label = params$label,
-      font_size = params$font_size
+      title = params$title,
+      labels = params$labels,
+      angles = params$angles,
+      title_gp = grid::gpar(
+        fontsize = title_el$size,
+        fontface = title_el$face,
+        col = title_el$colour
+      ),
+      text_gp = grid::gpar(
+        fontsize = text_el$size,
+        fontface = text_el$face,
+        col = text_el$colour
+      )
     )
   }
 )
 
-guide_glyph <- function(breaks,
-                        glyph = c("icone", "semi"),
-                        label = NULL,
-                        font_size = NULL,
-                        theme = NULL,
+guide_glyph <- function(theme = NULL,
                         title = waiver(),
                         order = 99,
-                        position = NULL) {
-  glyph <- match.arg(glyph)
+                        position = NULL,
+                        direction = "vertical") {
   new_guide(
-    breaks = breaks,
-    glyph = glyph,
-    label = label,
-    font_size = font_size,
-    theme = theme,
+    name = "glyph",
     title = title,
+    theme = theme,
+    direction = direction,
     order = order,
     position = position,
-    available_aes = "glyph",
+    hash = "glyph-angle",
+    available_aes = "angle",
     super = GuideGlyph
   )
 }
 
-draw_glyph_key <- function(key,
-                           glyph = c("icone", "semi"),
-                           label = NULL,
-                           font_size = NULL,
+draw_glyph_key <- function(title = NULL,
+                           labels = c("0", "0.5", "1"),
+                           angles = c(0, -pi / 2, -pi),
+                           title_gp = grid::gpar(fontsize = 11),
+                           text_gp = grid::gpar(fontsize = 9),
                            minor_n = 6,
                            alpha_major = 0.70,
                            alpha_minor = 0.20,
                            axis_col = "black",
-                           axis_alpha = 0.45,
-                           title_lift = grid::unit(2, "mm"),
-                           lab_nudge_top = c(-3, 0.0),
-                           lab_nudge_right = c(0.9, 2),
-                           lab_nudge_bottom = c(-3, 0.0)) {
-  glyph <- match.arg(glyph)
+                           axis_alpha = 0.45) {
+  x0 <- seq(-3, 3, by = 0.05)
+  y0 <- sqrt(pmax(0, 9 - x0^2)) + 5
 
-  base_shape <- function(g) {
-    x0 <- seq(-3, 3, by = 0.05)
-    y0 <- sqrt(pmax(0, 9 - x0^2)) + 5
-    cir <- data.frame(x = x0, y = y0)
-    if (g == "icone") {
-      rbind(cir, data.frame(x = c(-3, 0, 3), y = c(5, 0, 5)))
-    } else {
-      cir
-    }
-  }
-  base_xy <- base_shape(glyph)
+  base_xy <- rbind(
+    data.frame(x = x0, y = y0),
+    data.frame(x = c(-3, 0, 3), y = c(5, 0, 5))
+  )
 
-  ang_major <- c(pi, -pi / 2, 0)
-  ang_minor <- seq(0, -pi, length.out = minor_n)
-
-  rot <- function(th)
+  rot <- function(th) {
     matrix(c(cos(th), sin(th), -sin(th), cos(th)), 2)
-  rotate_df <- function(xy, th)
-    as.data.frame(t(rot(th) %*% t(as.matrix(xy))))
+  }
 
-  make_polys <- function(thetas, a) {
+  rotate_df <- function(xy, th) {
+    as.data.frame(t(rot(th) %*% t(as.matrix(xy))))
+  }
+
+  make_polys <- function(thetas, alpha) {
     grobs <- lapply(thetas, function(th) {
       xy <- rotate_df(base_xy, th)
+
       grid::polygonGrob(
         x = grid::unit(xy$V1, "native"),
         y = grid::unit(xy$V2, "native"),
         gp = grid::gpar(
-          fill = grDevices::adjustcolor("black", alpha.f = a),
+          fill = grDevices::adjustcolor("black", alpha.f = alpha),
           col = NA
         )
       )
     })
+
     do.call(grid::gList, grobs)
   }
 
-  grobs_minor <- make_polys(ang_minor, alpha_minor)
-  grobs_major <- make_polys(ang_major, alpha_major)
+  grobs_minor <- make_polys(seq(0, -pi, length.out = minor_n), alpha_minor)
+  grobs_major <- make_polys(angles, alpha_major)
 
-  key <- as.numeric(key)
-  vals <- c(min(key, na.rm = TRUE),
-            stats::median(key, na.rm = TRUE),
-            max(key, na.rm = TRUE))
-  labs <- sprintf("%.2f", vals)
+  g_title <- if (!is.null(title) && !identical(title, "")) {
+    grid::textGrob(
+      title,
+      x = grid::unit(0, "native"),
+      y = grid::unit(17.5, "native"),
+      gp = title_gp
+    )
+  } else {
+    zeroGrob()
+  }
 
-  vp <- grid::viewport(xscale = c(-6, 12), yscale = c(-11, 13))
+  g_labels <- list(
+    grid::textGrob(labels[1], x = grid::unit(0, "native"), y = grid::unit(12.5, "native"), gp = text_gp),
+    grid::textGrob(labels[2], x = grid::unit(14.5, "native"), y = grid::unit(0, "native"), gp = text_gp),
+    grid::textGrob(labels[3], x = grid::unit(0, "native"), y = grid::unit(-12.5, "native"), gp = text_gp)
+  )
+
   g_axis_x <- grid::segmentsGrob(
-    grid::unit(-5, "native"),
+    grid::unit(-6, "native"),
     grid::unit(0, "native"),
-    grid::unit(10, "native"),
+    grid::unit(11.5, "native"),
     grid::unit(0, "native"),
     gp = grid::gpar(col = axis_col, alpha = axis_alpha)
   )
+
   g_axis_y <- grid::segmentsGrob(
     grid::unit(0, "native"),
     grid::unit(10.5, "native"),
@@ -118,61 +161,33 @@ draw_glyph_key <- function(key,
     gp = grid::gpar(col = axis_col, alpha = axis_alpha)
   )
 
-  y_title <- if (inherits(title_lift, "unit"))
-    grid::unit(12, "native") + title_lift
-  else
-    grid::unit(12 + title_lift, "native")
-  g_title <- grid::textGrob(
-    label,
-    x = grid::unit(0, "native"),
-    y = y_title,
-    gp = grid::gpar(fontsize = 11)
+  main_tree <- grid::gTree(
+    children = do.call(grid::gList, c(
+      list(grid::rectGrob(gp = grid::gpar(col = NA)), g_title),
+      g_labels,
+      grobs_minor,
+      grobs_major,
+      list(g_axis_x, g_axis_y)
+    )),
+    vp = grid::viewport(
+      xscale = c(-8, 20),
+      yscale = c(-16, 20)
+    )
   )
-
-  pos_top <- c(0, 9.5) + lab_nudge_top
-  pos_right <- c(10, 0.0) + lab_nudge_right
-  pos_bottom <- c(0, -9.5) + lab_nudge_bottom
-
-  g_lab_top <- grid::textGrob(
-    labs[1],
-    x = grid::unit(pos_top[1], "native"),
-    y = grid::unit(pos_top[2], "native"),
-    gp = grid::gpar(fontsize = font_size)
-  )
-  g_lab_right <- grid::textGrob(
-    labs[2],
-    x = grid::unit(pos_right[1], "native"),
-    y = grid::unit(pos_right[2], "native"),
-    gp = grid::gpar(fontsize = font_size)
-  )
-  g_lab_bottom <- grid::textGrob(
-    labs[3],
-    x = grid::unit(pos_bottom[1], "native"),
-    y = grid::unit(pos_bottom[2], "native"),
-    gp = grid::gpar(fontsize = font_size)
-  )
-
-  children <- do.call(grid::gList, c(
-    list(
-      grid::rectGrob(gp = grid::gpar(col = NA)),
-      g_title,
-      g_lab_top,
-      g_lab_right,
-      g_lab_bottom
-    ),
-    grobs_minor,
-    grobs_major,
-    list(g_axis_x, g_axis_y)
-  ))
-
-  main_tree <- grid::gTree(children = children,
-                           vp = vp,
-                           name = "glyph_key_tree")
 
   gt <- gtable::gtable(
-    widths  = grid::unit.c(grid::unit(0, "cm"), grid::unit(2, "cm"), grid::unit(0, "cm")),
-    heights = grid::unit.c(grid::unit(1, "cm"), grid::unit(2, "cm"), grid::unit(1, "cm"))
+    widths = grid::unit.c(
+      grid::unit(0, "cm"),
+      grid::unit(2.8, "cm"),
+      grid::unit(0, "cm")
+    ),
+    heights = grid::unit.c(
+      grid::unit(0.3, "cm"),
+      grid::unit(3.2, "cm"),
+      grid::unit(0.3, "cm")
+    )
   )
+
   gtable::gtable_add_grob(
     gt,
     main_tree,
@@ -182,3 +197,4 @@ draw_glyph_key <- function(key,
     name = "glyph_key"
   )
 }
+

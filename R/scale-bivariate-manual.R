@@ -1,69 +1,108 @@
-manual_bivariate_scale <- function(
-    aesthetics,
-    ...,
-    values,
-    breaks = waiver(),
-    name = waiver(),
-    na.value = NA
-) {
+manual_bivariate_scale <- function(aesthetics,
+                                   ...,
+                                   values,
+                                   name = waiver(),
+                                   breaks = list(waiver(), waiver()),
+                                   labels = list(waiver(), waiver()),
+                                   limits = list(NULL, NULL),
+                                   transform = list("identity", "identity"),
+                                   na.value = NA,
+                                   na.translate = TRUE,
+                                   drop = FALSE,
+                                   guide = guide_bivariate(),
+                                   n_breaks = c(4, 4),
+                                   bin_method = c("equal", "equal"),
+                                   flip = "none",
+                                   var1_name = NULL,
+                                   var2_name = NULL,
+                                   super = ScaleBivariate) {
   if (rlang::is_missing(values) || is.null(values)) {
     cli::cli_abort("{.arg values} must be supplied for a manual bivariate scale.")
   }
 
-  force(values)
+  normalize_pair <- function(x, name) {
+    if (length(x) == 1)
+      x <- rep(x, 2)
+    if (length(x) != 2) {
+      cli::cli_abort("{.arg {name}} must have length 1 or 2.")
+    }
+    x
+  }
 
-  pal <- function(n) {
-    if (n > length(values)) {
+  n_breaks <- normalize_pair(n_breaks, "n_breaks")
+
+  palette <- function(colours, n_breaks) {
+    n_required <- prod(n_breaks)
+
+    if (length(values) < n_required) {
       cli::cli_abort(
-        "Insufficient values in manual bivariate scale. {n} needed but only {length(values)} provided."
+        "Manual bivariate scale needs {n_required} colours, but only {length(values)} provided."
       )
     }
-    unname(values[seq_len(n)])
+
+    matrix(
+      unname(values[seq_len(n_required)]),
+      nrow = n_breaks[1],
+      ncol = n_breaks[2],
+      byrow = TRUE
+    ) |> as.vector()
   }
 
   bivariate_scale(
     aesthetics = aesthetics,
-    palette = pal,
-    breaks = breaks,
+    ...,
     name = name,
+    breaks = breaks,
+    labels = labels,
+    limits = limits,
+    transform = transform,
     na.value = na.value,
-    ...
+    na.translate = na.translate,
+    drop = drop,
+    guide = guide,
+    colors = NULL,
+    palette = palette,
+    n_breaks = n_breaks,
+    bin_method = bin_method,
+    flip = flip,
+    var1_name = var1_name,
+    var2_name = var2_name,
+    super = super
   )
 }
 
-scale_fill_bivariate_manual <- function(
-    ...,
-    values,
-    var1_name = NULL,
-    var2_name = NULL,
-    n_breaks = 4,
-    bin_method = c("quantile", "equal"),
-    key_size = 1.5,
-    na.value = NA,
-    na.translate = TRUE,
-    aesthetics = "fill",
-    guide = guide_bivariate()
-) {
-  if (length(n_breaks) == 1L && is.numeric(n_breaks)) {
-    n_breaks <- rep.int(as.integer(n_breaks), 2)
-  } else {
-    n_breaks <- as.integer(n_breaks)
-  }
-
-  bin_method <- match.arg(bin_method)
-
+scale_fill_bivariate_manual <- function(...,
+                                        values,
+                                        name = waiver(),
+                                        var1_name = NULL,
+                                        var2_name = NULL,
+                                        n_breaks = c(4, 4),
+                                        breaks = list(waiver(), waiver()),
+                                        labels = list(waiver(), waiver()),
+                                        limits = list(NULL, NULL),
+                                        transform = list("identity", "identity"),
+                                        bin_method = c("equal", "equal"),
+                                        flip = "none",
+                                        na.value = NA,
+                                        na.translate = TRUE,
+                                        aesthetics = "fill",
+                                        guide = guide_bivariate()) {
   manual_bivariate_scale(
     aesthetics = aesthetics,
+    ...,
     values = values,
-    guide = guide,
+    name = name,
+    breaks = breaks,
+    labels = labels,
+    limits = limits,
+    transform = transform,
     na.value = na.value,
     na.translate = na.translate,
-    drop = FALSE,
+    guide = guide,
     n_breaks = n_breaks,
     bin_method = bin_method,
+    flip = flip,
     var1_name = var1_name,
-    var2_name = var2_name,
-    key_size = key_size,
-    ...
+    var2_name = var2_name
   )
 }
