@@ -243,7 +243,7 @@ ScaleBivariate <- ggproto(
 #'   ramp that variables are mapped to. For details on how supplied colours are
 #'   used to construct the resulting palette, see [bivar_palette()] and
 #'   [bivar_fade_palette()].
-#' @param palette A palette function that, when called with `colours` and
+#' @param palette_fun A palette function that, when called with `colours` and
 #'   `n_breaks`, returns a character vector of colours for all binned
 #'   combinations. If `NULL`, the default, [bivar_palette()] is used.
 #' @param palette_params A list of additional arguments passed to `palette`. For
@@ -273,7 +273,7 @@ bivariate_scale <- function(aesthetics,
                             drop = FALSE,
                             guide = waiver(),
                             colours = c("gold", "red4"),
-                            palette = NULL,
+                            palette_fun = NULL,
                             palette_params = list(),
                             n_breaks = c(4, 4),
                             bin_method = c("equal", "equal"),
@@ -300,17 +300,17 @@ bivariate_scale <- function(aesthetics,
     x
   }
 
-  resolve_palette <- function(palette, colours, palette_params) {
-    if (is.null(palette)) {
-      palette <- bivar_palette
+  resolve_palette <- function(palette_fun, colours, palette_params) {
+    if (is.null(palette_fun)) {
+      palette_fun <- bivar_palette
     }
 
-    if (!is.function(palette)) {
-      cli::cli_abort("{.arg palette} must be NULL or a function.")
+    if (!is.function(palette_fun)) {
+      cli::cli_abort("{.arg palette_fun} must be NULL or a function.")
     }
 
     function(n_breaks) {
-      do.call(palette, c(
+      do.call(palette_fun, c(
         list(colours = colours, n_breaks = n_breaks),
         palette_params
       ))
@@ -348,9 +348,11 @@ bivariate_scale <- function(aesthetics,
   sc$transforms <- transform
   sc$var1_name <- var1_name
   sc$var2_name <- var2_name
-  sc$palette_fn <- resolve_palette(palette = palette,
-                                   colours = colours,
-                                   palette_params = palette_params)
+  sc$palette_fn <- resolve_palette(
+    palette_fun = palette_fun,
+    colours = colours,
+    palette_params = palette_params
+  )
 
   sc
 }
@@ -364,7 +366,7 @@ bivariate_scale <- function(aesthetics,
 #' ggplot(nc) +
 #'   geom_sf(aes(fill = duo(value, sd))) +
 #'   scale_fill_bivariate(
-#'     palette = bivar_fade_palette,
+#'     palette_fun = bivar_fade_palette,
 #'     colours = c("#F6E8C3", "orange", "red")
 #'   )
 #'
@@ -379,7 +381,7 @@ scale_fill_bivariate <- function(...,
                                  var1_name = NULL,
                                  var2_name = NULL,
                                  colours = c("gold", "red4"),
-                                 palette = NULL,
+                                 palette_fun = NULL,
                                  palette_params = list(),
                                  n_breaks = c(4, 4),
                                  breaks = list(waiver(), waiver()),
@@ -401,7 +403,7 @@ scale_fill_bivariate <- function(...,
     na.value = na.value,
     guide = guide,
     colours = colours,
-    palette = palette,
+    palette_fun = palette_fun,
     palette_params = palette_params,
     n_breaks = n_breaks,
     bin_method = bin_method,
@@ -417,7 +419,7 @@ scale_color_bivariate <- function(...,
                                   var1_name = NULL,
                                   var2_name = NULL,
                                   colours = c("gold", "red4"),
-                                  palette = NULL,
+                                  palette_fun = NULL,
                                   palette_params = list(),
                                   n_breaks = c(4, 4),
                                   breaks = list(waiver(), waiver()),
@@ -433,7 +435,7 @@ scale_color_bivariate <- function(...,
     var1_name = var1_name,
     var2_name = var2_name,
     colours = colours,
-    palette = palette,
+    palette_fun = palette_fun,
     palette_params = palette_params,
     n_breaks = n_breaks,
     breaks = breaks,
