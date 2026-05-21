@@ -1,3 +1,5 @@
+#' @rdname geom_sf_pixel
+#' @export
 StatPixel <- ggproto(
   "StatPixel",
   StatSf,
@@ -11,15 +13,9 @@ StatPixel <- ggproto(
                            seed,
                            pixel_shape = "hex",
                            flat_topped = FALSE) {
-    pixel_shape <- rlang::arg_match(
-      pixel_shape,
-      values = c("rect", "square", "hex")
-    )
+    pixel_shape <- rlang::arg_match(pixel_shape, values = c("rect", "square", "hex"))
 
-    distribution <- rlang::arg_match(
-      distribution,
-      values = c("uniform", "normal")
-    )
+    distribution <- rlang::arg_match(distribution, values = c("uniform", "normal"))
 
     label <- {
       vars <- attr(data$fill, "vars", exact = TRUE)
@@ -72,7 +68,8 @@ StatPixel <- ggproto(
       flat_topped = flat_topped
     )
 
-    if (isTRUE(sf::st_is_longlat(sf_data)) && isTRUE(sf::sf_use_s2())) {
+    if (isTRUE(sf::st_is_longlat(sf_data)) &&
+        isTRUE(sf::sf_use_s2())) {
       message(
         paste(
           "geom_sf_pixel_new(): input data has a geographic CRS and sf is using s2;",
@@ -83,13 +80,9 @@ StatPixel <- ggproto(
       flush.console()
     }
 
-    pix_sf <- suppressWarnings(
-      sf::st_intersection(sf_data[, c("ID", "v1", "v2")], grid_sf)
-    )
+    pix_sf <- suppressWarnings(sf::st_intersection(sf_data[, c("ID", "v1", "v2")], grid_sf))
     pix_sf <- suppressWarnings(sf::st_make_valid(pix_sf))
-    pix_sf <- suppressWarnings(
-      sf::st_collection_extract(pix_sf, "POLYGON", warn = FALSE)
-    )
+    pix_sf <- suppressWarnings(sf::st_collection_extract(pix_sf, "POLYGON", warn = FALSE))
 
     is_empty <- sf::st_is_empty(pix_sf)
     if (any(is_empty)) {
@@ -111,21 +104,19 @@ StatPixel <- ggproto(
 
     sample_fill <- function(x, distribution) {
       dplyr::group_by(x, ID) |>
-        dplyr::mutate(
-          fill = {
-            m <- dplyr::first(v1)
-            s <- dplyr::first(v2)
+        dplyr::mutate(fill = {
+          m <- dplyr::first(v1)
+          s <- dplyr::first(v2)
 
-            if (is.na(m) || is.na(s)) {
-              rep(NA_real_, dplyr::n())
-            } else if (distribution == "uniform") {
-              vec <- seq(m - s, m + s, length.out = 5)
-              sample(vec, dplyr::n(), replace = TRUE)
-            } else {
-              stats::rnorm(dplyr::n(), mean = m, sd = s)
-            }
+          if (is.na(m) || is.na(s)) {
+            rep(NA_real_, dplyr::n())
+          } else if (distribution == "uniform") {
+            vec <- seq(m - s, m + s, length.out = 5)
+            sample(vec, dplyr::n(), replace = TRUE)
+          } else {
+            stats::rnorm(dplyr::n(), mean = m, sd = s)
           }
-        ) |>
+        }) |>
         dplyr::ungroup()
     }
 
@@ -135,10 +126,7 @@ StatPixel <- ggproto(
       if (!is.numeric(seed) || length(seed) != 1L || !is.finite(seed)) {
         rlang::abort("`seed` must be a finite numeric scalar.")
       }
-      pix_sf <- withr::with_seed(
-        as.integer(seed),
-        sample_fill(pix_sf, distribution)
-      )
+      pix_sf <- withr::with_seed(as.integer(seed), sample_fill(pix_sf, distribution))
     }
 
     if (!is.null(label)) {
@@ -149,21 +137,52 @@ StatPixel <- ggproto(
   }
 )
 
+#' Pixel map
+#'
+#' `geom_sf_pixel()` generates a pixel map layer on areal sf data. Each region
+#' is tessellated into small pixels, with pixel colours mapped from values
+#' sampled from a specified distribution.
+#'
+#' Mappings in `geom_sf_pixel()` is also supplied with [duo_pixel()] inside
+#' `aes()`, which automatically dispatches an scale.
+#'
+#' Since [sf::st_intersection()] is used internally, operating directly on
+#' geographic (s2) sf objects can be slow, especially when a large number of
+#' pixels are generated. Projecting data to a planar coordinate system in
+#' advance is recommended.
+#'
+#' @inheritParams ggplot2::geom_sf
+#' @inheritParams sf::st_make_grid
+#' @param distribution Distribution used to sample pixel values within each
+#'   region. Currently supports `"uniform"` (the default) and `"normal"`.
+#' @param seed Integer seed used for reproducible sampling.
+#' @param pixel_shape Shape of the generated pixels. One of `"hex"` (the default), `"square"`,
+#'   or `"rect"`. `"rect"` is when dividing the x and y ranges into the same
+#'   number of intervals, so cells may be rectangular.
+#' @returns A list of ggplot2 layer objects.
+#' @examples
+#' # Transform sf data into a planar crs for faster geometric intersection
+#' nc_flat <- sf::st_transform(nc, sf::st_crs(3857))
+#'
+#' # Basic pixel map
+#' ggplot(nc_flat, aes(fill = duo_pixel(value, sd))) +
+#'   geom_sf_pixel()
+#'
+#' # Control pixel shape and resolution
+#' ggplot(nc_flat, aes(fill = duo_pixel(value, sd))) +
+#'   geom_sf_pixel(n = 50, pixel_shape = "square")
+#' @export
 geom_sf_pixel <- function(mapping = NULL,
-                              data = NULL,
-                              n = 60,
-                              distribution = "uniform",
-                              seed = NULL,
-                              pixel_shape = "hex",
-                              flat_topped = FALSE,
-                              na.rm = FALSE,
-                              show.legend = NA,
-                              inherit.aes = TRUE,
-                              ...) {
-  pixel_shape <- rlang::arg_match(
-    pixel_shape,
-    values = c("rect", "square", "hex")
-  )
+                          data = NULL,
+                          n = 60,
+                          distribution = "uniform",
+                          seed = NULL,
+                          pixel_shape = "hex",
+                          flat_topped = FALSE,
+                          show.legend = NA,
+                          inherit.aes = TRUE,
+                          ...) {
+  pixel_shape <- rlang::arg_match(pixel_shape, values = c("rect", "square", "hex"))
 
   list(
     layer_sf(
@@ -175,7 +194,6 @@ geom_sf_pixel <- function(mapping = NULL,
       show.legend = show.legend,
       inherit.aes = inherit.aes,
       params = list(
-        na.rm = na.rm,
         colour = NA,
         n = n,
         distribution = distribution,
@@ -188,8 +206,7 @@ geom_sf_pixel <- function(mapping = NULL,
     geom_sf(
       fill = NA,
       color = "black",
-      linewidth = 0.7
-    ),
-    coord_sf()
+      linewidth = 0.2
+    )
   )
 }

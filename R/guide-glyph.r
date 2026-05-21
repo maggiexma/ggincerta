@@ -1,3 +1,5 @@
+#' @rdname guide_glyph
+#' @export
 GuideGlyph <- ggproto(
   "GuideGlyph",
   Guide,
@@ -13,7 +15,11 @@ GuideGlyph <- ggproto(
     available_aes = "angle"
   ),
 
-  train = function(self, params = self$params, scale, aesthetic = NULL, ...) {
+  train = function(self,
+                   params = self$params,
+                   scale,
+                   aesthetic = NULL,
+                   ...) {
     lims <- scale$get_limits()
     lims <- lims[is.finite(lims)]
 
@@ -25,8 +31,12 @@ GuideGlyph <- ggproto(
 
     key <- c(0, maxv / 2, maxv)
 
-    params$title <- if (is_waiver(params$title)) scale$name else params$title
-    if (is_waiver(params$title)) params$title <- NULL
+    params$title <- if (is_waiver(params$title))
+      scale$name
+    else
+      params$title
+    if (is_waiver(params$title))
+      params$title <- NULL
 
     params$key <- data.frame(
       angle = key,
@@ -64,6 +74,16 @@ GuideGlyph <- ggproto(
   }
 )
 
+#' Drop glyph guide
+#'
+#' Guide for drop glyph consists of two axes and a sequence of example drop
+#' grobs illustrating the mapping between uncertainty and glyph rotation angles.
+#'
+#' Rotation angles range from \eqn{\pi} to \eqn{-\pi}, corresponding to the
+#' minimum and maximum uncertainty values respectively.
+#'
+#' @inheritParams ggplot2::guide_legend
+#' @export
 guide_glyph <- function(theme = NULL,
                         title = waiver(),
                         order = 99,
@@ -95,10 +115,7 @@ draw_glyph_key <- function(title = NULL,
   x0 <- seq(-3, 3, by = 0.05)
   y0 <- sqrt(pmax(0, 9 - x0^2)) + 5
 
-  base_xy <- rbind(
-    data.frame(x = x0, y = y0),
-    data.frame(x = c(-3, 0, 3), y = c(5, 0, 5))
-  )
+  base_xy <- rbind(data.frame(x = x0, y = y0), data.frame(x = c(-3, 0, 3), y = c(5, 0, 5)))
 
   rot <- function(th) {
     matrix(c(cos(th), sin(th), -sin(th), cos(th)), 2)
@@ -140,9 +157,24 @@ draw_glyph_key <- function(title = NULL,
   }
 
   g_labels <- list(
-    grid::textGrob(labels[1], x = grid::unit(0, "native"), y = grid::unit(12.5, "native"), gp = text_gp),
-    grid::textGrob(labels[2], x = grid::unit(14.5, "native"), y = grid::unit(0, "native"), gp = text_gp),
-    grid::textGrob(labels[3], x = grid::unit(0, "native"), y = grid::unit(-12.5, "native"), gp = text_gp)
+    grid::textGrob(
+      labels[1],
+      x = grid::unit(0, "native"),
+      y = grid::unit(12.5, "native"),
+      gp = text_gp
+    ),
+    grid::textGrob(
+      labels[2],
+      x = grid::unit(14.5, "native"),
+      y = grid::unit(0, "native"),
+      gp = text_gp
+    ),
+    grid::textGrob(
+      labels[3],
+      x = grid::unit(0, "native"),
+      y = grid::unit(-12.5, "native"),
+      gp = text_gp
+    )
   )
 
   g_axis_x <- grid::segmentsGrob(
@@ -162,28 +194,24 @@ draw_glyph_key <- function(title = NULL,
   )
 
   main_tree <- grid::gTree(
-    children = do.call(grid::gList, c(
-      list(grid::rectGrob(gp = grid::gpar(col = NA)), g_title),
-      g_labels,
-      grobs_minor,
-      grobs_major,
-      list(g_axis_x, g_axis_y)
-    )),
-    vp = grid::viewport(
-      xscale = c(-8, 20),
-      yscale = c(-16, 20)
-    )
+    children = do.call(
+      grid::gList,
+      c(
+        list(grid::rectGrob(gp = grid::gpar(col = NA)), g_title),
+        g_labels,
+        grobs_minor,
+        grobs_major,
+        list(g_axis_x, g_axis_y)
+      )
+    ),
+    vp = grid::viewport(xscale = c(-8, 20), yscale = c(-16, 20))
   )
 
   gt <- gtable::gtable(
-    widths = grid::unit.c(
-      grid::unit(0, "cm"),
-      grid::unit(2.8, "cm"),
-      grid::unit(0, "cm")
-    ),
+    widths = grid::unit.c(grid::unit(0, "cm"), grid::unit(2, "cm"), grid::unit(0, "cm")),
     heights = grid::unit.c(
       grid::unit(0.3, "cm"),
-      grid::unit(3.2, "cm"),
+      grid::unit(2.4, "cm"),
       grid::unit(0.3, "cm")
     )
   )
@@ -197,4 +225,3 @@ draw_glyph_key <- function(title = NULL,
     name = "glyph_key"
   )
 }
-

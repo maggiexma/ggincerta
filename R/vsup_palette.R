@@ -1,32 +1,44 @@
-pal_vsup <- function(leaf_info,
-                     values,
-                     unc_levels = 4,
+#' Value-Suppressing Uncertainty Palettes
+#'
+#' `vsup_palette()` handles colour generation for VSUP scales. It modifies the
+#' supplied base colours by progressively desaturating and lightening them as
+#' uncertainty increases.
+#'
+#' @inheritParams scale_fill_vsup
+#' @param leaf_info A data frame describing the VSUP bin structure, produced by
+#'   [vsup_quantize()]. It stores the leaf identifiers, uncertainty layers, and
+#'   value positions used to assign colours.
+#' @param colours A character vector of colours used as key points for
+#'   interpolating the value colour scale at the lowest uncertainty level.
+vsup_palette <- function(leaf_info,
+                     colours,
+                     layers = 4,
                      branch = 2,
                      max_light = 0.7,
                      max_desat = 0.9,
                      pow_light = 1,
                      pow_desat = 1,
                      space = "Lab") {
-  n_base <- branch^(unc_levels - 1)
+  n_base <- branch^(layers - 1)
 
-  if (length(values) < 1) {
+  if (length(colours) < 1) {
     stop("At least one colour must be provided.", call. = FALSE)
   }
 
-  if (length(values) == 1) {
-    base_cols <- colorRampPalette(c("white", values), space = space)(n_base)
+  if (length(colours) == 1) {
+    base_cols <- grDevices::colorRampPalette(c("white", colours), space = space)(n_base)
   } else {
-    base_cols <- colorRampPalette(values, space = space)(n_base)
+    base_cols <- grDevices::colorRampPalette(colours, space = space)(n_base)
   }
 
   ramp <- scales::colour_ramp(base_cols)
 
   leaf_info <- leaf_info[order(leaf_info$leaf), , drop = FALSE]
 
-  if (unc_levels <= 1) {
+  if (layers <= 1) {
     u_norm <- rep(0, nrow(leaf_info))
   } else {
-    u_norm <- 1 - leaf_info$layer / (unc_levels - 1)
+    u_norm <- 1 - leaf_info$layer / (layers - 1)
   }
 
   v_mapped <- numeric(nrow(leaf_info))

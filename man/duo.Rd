@@ -2,17 +2,17 @@
 % Please edit documentation in R/duo.R
 \name{duo}
 \alias{duo}
-\alias{duo_exceed}
+\alias{duo_pixel}
 \title{Format input and assign the "map" class}
 \usage{
 duo(v1, v2)
 
-duo_exceed(estimate, error)
+duo_pixel(estimate, error)
 }
 \arguments{
 \item{v1, v2}{Input variables for \code{duo()}.}
 
-\item{estimate, error}{Input variables for \code{duo_exceed()} representing the
+\item{estimate, error}{Input variables for \code{duo_pixel()} representing the
 point estimate and its uncertainty.}
 }
 \value{
@@ -20,16 +20,16 @@ A list-like object containing pairs of values from the two variables,
 with attributes storing the variable names and the class.
 }
 \description{
-\code{duo()} and \code{duo_exceed()} create paired mapping objects that combine two
-variables, record their names, and assign the bivariate/exceed class as
+\code{duo()} and \code{duo_pixel()} create paired mapping objects that combine two
+variables, record their names, and assign the bivariate/pixel class as
 an attribute for use in aesthetic mappings.
 }
 \examples{
 value <- nc$value
 sd <- nc$sd
 res <- duo(value, sd)
-res_exceed <- duo_exceed(value, sd)
-class(res); class(res_exceed)
-attr(res, "vars"); attr(res_exceed, "vars")
+res_pixel <- duo_pixel(value, sd)
+class(res); class(res_pixel)
+attr(res, "vars"); attr(res_pixel, "vars")
 
 }

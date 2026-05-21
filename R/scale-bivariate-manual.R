@@ -1,3 +1,24 @@
+#' Create your own bivariate colour scale
+#'
+#' These scales allow users to provide all colours used for the combinations of
+#' two variables in a bivariate colour scale.
+#'
+#' @inheritParams bivariate_scale
+#' @param values A character vector of colours. The length should be at least
+#'   the product of `n_breaks`, giving one colour for each combination of the
+#'   two binned variables.
+#' @examples
+#' ggplot(nc, aes(fill = duo(value, sd))) +
+#'   geom_sf() +
+#'   scale_fill_bivariate_manual(
+#'     values = c(
+#'       "#F7F4F9", "#D4B9DA", "#C994C7", "#980043",
+#'       "#E0ECF4", "#BFD3E6", "#9EBCDA", "#8856A7",
+#'       "#D0D1E6", "#A6BDDB", "#74A9CF", "#2B8CBE",
+#'       "#B8E186", "#7FBC41", "#4D9221", "#276419"
+#'     )
+#'   )
+#' @export
 manual_bivariate_scale <- function(aesthetics,
                                    ...,
                                    values,
@@ -12,7 +33,6 @@ manual_bivariate_scale <- function(aesthetics,
                                    guide = guide_bivariate(),
                                    n_breaks = c(4, 4),
                                    bin_method = c("equal", "equal"),
-                                   flip = "none",
                                    var1_name = NULL,
                                    var2_name = NULL,
                                    super = ScaleBivariate) {
@@ -60,17 +80,17 @@ manual_bivariate_scale <- function(aesthetics,
     na.translate = na.translate,
     drop = drop,
     guide = guide,
-    colors = NULL,
     palette = palette,
     n_breaks = n_breaks,
     bin_method = bin_method,
-    flip = flip,
     var1_name = var1_name,
     var2_name = var2_name,
     super = super
   )
 }
 
+#' @rdname manual_bivariate_scale
+#' @export
 scale_fill_bivariate_manual <- function(...,
                                         values,
                                         name = waiver(),
@@ -82,7 +102,6 @@ scale_fill_bivariate_manual <- function(...,
                                         limits = list(NULL, NULL),
                                         transform = list("identity", "identity"),
                                         bin_method = c("equal", "equal"),
-                                        flip = "none",
                                         na.value = NA,
                                         na.translate = TRUE,
                                         aesthetics = "fill",
@@ -101,8 +120,46 @@ scale_fill_bivariate_manual <- function(...,
     guide = guide,
     n_breaks = n_breaks,
     bin_method = bin_method,
-    flip = flip,
     var1_name = var1_name,
     var2_name = var2_name
   )
 }
+
+#' @rdname manual_bivariate_scale
+#' @export
+scale_colour_bivariate_manual <- function(...,
+                                          values,
+                                          name = waiver(),
+                                          var1_name = NULL,
+                                          var2_name = NULL,
+                                          n_breaks = c(4, 4),
+                                          breaks = list(waiver(), waiver()),
+                                          labels = list(waiver(), waiver()),
+                                          limits = list(NULL, NULL),
+                                          transform = list("identity", "identity"),
+                                          bin_method = c("equal", "equal"),
+                                          na.value = NA,
+                                          na.translate = TRUE,
+                                          aesthetics = "colour",
+                                          guide = guide_bivariate()) {
+  scale_fill_bivariate_manual(
+    name = name,
+    var1_name = var1_name,
+    var2_name = var2_name,
+    n_breaks = n_breaks,
+    breaks = breaks,
+    labels = labels,
+    limits = limits,
+    transform = transform,
+    bin_method = bin_method,
+    na.value = na.value,
+    na.translate = na.translate,
+    aesthetics = aesthetics,
+    guide = guide,
+    ...
+  )
+}
+
+#' @rdname manual_bivariate_scale
+#' @export
+scale_color_bivariate_manual <- scale_colour_bivariate_manual

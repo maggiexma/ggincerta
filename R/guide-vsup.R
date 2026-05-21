@@ -1,3 +1,5 @@
+#' @rdname guide_vsup
+#' @export
 GuideVSUP <- ggproto(
   "GuideVSUP",
   GuideLegend,
@@ -31,8 +33,8 @@ GuideVSUP <- ggproto(
       is_waiver(scale$name)
 
     if (nzchar(title_chr) &&
-      scale_name_missing &&
-      grepl("^duo\\s*\\(", title_chr)) {
+        scale_name_missing &&
+        grepl("^duo\\s*\\(", title_chr)) {
       return(NULL)
     }
 
@@ -78,12 +80,12 @@ GuideVSUP <- ggproto(
     min_key_height <- grid::unit(4, "cm")
 
     if (grid::convertWidth(key_width, "cm", valueOnly = TRUE) <
-      grid::convertWidth(min_key_width, "cm", valueOnly = TRUE)) {
+        grid::convertWidth(min_key_width, "cm", valueOnly = TRUE)) {
       key_width <- min_key_width
     }
 
     if (grid::convertHeight(key_height, "cm", valueOnly = TRUE) <
-      grid::convertHeight(min_key_height, "cm", valueOnly = TRUE)) {
+        grid::convertHeight(min_key_height, "cm", valueOnly = TRUE)) {
       key_height <- min_key_height
     }
 
@@ -114,22 +116,18 @@ GuideVSUP <- ggproto(
     key
   },
   extract_params = function(self, scale, params, title = NULL, ...) {
-    params <- ggproto_parent(GuideLegend, self)$extract_params(
-      scale = scale,
-      params = params,
-      title = title,
-      ...
-    )
+    params <- ggproto_parent(GuideLegend, self)$extract_params(scale = scale,
+                                                               params = params,
+                                                               title = title,
+                                                               ...)
 
     guide_info <- self$get_vsup_info(scale)
     if (is.null(guide_info)) {
       return(params)
     }
 
-    params$title <- self$resolve_title(
-      title = params$title %||% scale$name %||% waiver(),
-      scale = scale
-    )
+    params$title <- self$resolve_title(title = params$title %||% scale$name %||% waiver(),
+                                       scale = scale)
 
     params$layer_sizes <- guide_info$layer_sizes
     params$value_breaks <- format(guide_info$value_breaks, digits = 2)
@@ -181,7 +179,7 @@ GuideVSUP <- ggproto(
     title <- params$title
 
     if (is.null(title) ||
-      identical(title, "") || inherits(title, "waiver")) {
+        identical(title, "") || inherits(title, "waiver")) {
       return(zeroGrob())
     }
 
@@ -206,7 +204,12 @@ GuideVSUP <- ggproto(
       title_position = "top"
     )
   },
-  assemble_drawing = function(self, grobs, layout, sizes, params, elements) {
+  assemble_drawing = function(self,
+                              grobs,
+                              layout,
+                              sizes,
+                              params,
+                              elements) {
     theme_margin <- elements$margin %||% margin(0, 0, 0, 0)
     unit_name <- attr(theme_margin, "unit")
 
@@ -217,49 +220,51 @@ GuideVSUP <- ggproto(
 
     has_title <- !inherits(grobs$title, "zeroGrob")
     title_gap <- grid::unit(2, "mm")
-    title_height <- if (has_title) grid::grobHeight(grobs$title) else grid::unit(0, "mm")
+    title_height <- if (has_title)
+      grid::grobHeight(grobs$title)
+    else
+      grid::unit(0, "mm")
 
-    widths <- grid::unit.c(
-      margin_left,
-      sizes$decor_width,
-      margin_right
-    )
+    widths <- grid::unit.c(margin_left, sizes$decor_width, margin_right)
 
     if (has_title) {
-      heights <- grid::unit.c(
-        margin_top,
-        title_height,
-        title_gap,
-        sizes$decor_height,
-        margin_bottom
-      )
+      heights <- grid::unit.c(margin_top,
+                              title_height,
+                              title_gap,
+                              sizes$decor_height,
+                              margin_bottom)
 
       gt <- gtable::gtable(widths = widths, heights = heights)
 
       gt <- gtable::gtable_add_grob(
-        gt, grobs$title,
-        t = 2, l = 2,
-        clip = "off", name = "title"
+        gt,
+        grobs$title,
+        t = 2,
+        l = 2,
+        clip = "off",
+        name = "title"
       )
 
       gt <- gtable::gtable_add_grob(
-        gt, grobs$decor,
-        t = 4, l = 2,
-        clip = "off", name = "decor"
+        gt,
+        grobs$decor,
+        t = 4,
+        l = 2,
+        clip = "off",
+        name = "decor"
       )
     } else {
-      heights <- grid::unit.c(
-        margin_top,
-        sizes$decor_height,
-        margin_bottom
-      )
+      heights <- grid::unit.c(margin_top, sizes$decor_height, margin_bottom)
 
       gt <- gtable::gtable(widths = widths, heights = heights)
 
       gt <- gtable::gtable_add_grob(
-        gt, grobs$decor,
-        t = 2, l = 2,
-        clip = "off", name = "decor"
+        gt,
+        grobs$decor,
+        t = 2,
+        l = 2,
+        clip = "off",
+        name = "decor"
       )
     }
 
@@ -470,18 +475,22 @@ GuideVSUP <- ggproto(
     }
 
     if (!is.null(title_uncertainty) &&
-      !identical(title_uncertainty, "")) {
-      y_title <- (p_axis_start$y + p_axis_end$y) / 2 - 0.05
+        !identical(title_uncertainty, "")) {
+      p_axis_mid <- list(
+        x = (p_axis_start_base$x + p_axis_end_base$x) / 2,
+        y = (p_axis_start_base$y + p_axis_end_base$y) / 2
+      )
 
-      p_title_base <- polar_to_npc(r_levels[n_layers], theta_axis)
-      p_title <- shift_point(p_title_base, axis_shift + label_shift + 0.14)
+      p_title <- shift_point(
+        p_axis_mid,
+        axis_shift + label_shift + 0.05
+      )
 
       add_grob(
         grid::textGrob(
           label = title_uncertainty,
-          x = p_title$x,
-          y = y_title,
-          default.units = "npc",
+          x = grid::unit(p_title$x, "npc") + grid::unit(4.5, "mm"),
+          y = grid::unit(p_title$y, "npc"),
           rot = theta_axis * 180 / pi,
           just = c("center", "center"),
           gp = title_gp
@@ -517,6 +526,15 @@ GuideVSUP <- ggproto(
   }
 )
 
+#' VSUP guide
+#'
+#' This guide is displayed as a fan-shaped legend. Uncertainty levels are
+#' arranged along the radial axis, while value groups are arranged along the arc
+#' axis. As uncertainty increases towards the centre of the guide, the number of
+#' value groups progressively decreases until only a single group remains.
+#'
+#' @inheritParams ggplot2::guide_legend
+#' @export
 guide_vsup <- function(theme = NULL,
                        title = waiver(),
                        order = 0,

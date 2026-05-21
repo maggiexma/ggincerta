@@ -1,3 +1,5 @@
+#' @rdname guide_bivariate
+#' @export
 GuideBivariate <- ggproto(
   "GuideBivariate",
   GuideLegend,
@@ -377,11 +379,21 @@ GuideBivariate <- ggproto(
   }
 )
 
+#' Bivariate colour guide
+#'
+#' The bivariate colour guide is displayed as a grid, where each cell represents
+#' the mapping between a colour and the corresponding bin intervals of the two
+#' variables along the guide axes.
+#'
+#' @inheritParams ggplot2::guide_legend
+#' @param rotated Logical indicating whether the guide should be displayed in a
+#'   rotated orientation.
+#' @param angle A numeric value specifying the rotation angle of the guide.
+#' @export
 guide_bivariate <- function(theme = NULL,
                             title = NULL,
                             order = 0,
                             position = NULL,
-                            aesthetics = NULL,
                             rotated = FALSE,
                             angle = 45) {
   new_guide(
@@ -389,7 +401,6 @@ guide_bivariate <- function(theme = NULL,
     title = title,
     order = order,
     position = position,
-    aesthetics = aesthetics,
     rotated = rotated,
     angle = angle,
     super = GuideBivariate

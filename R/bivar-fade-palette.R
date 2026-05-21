@@ -1,4 +1,24 @@
-bivar_fade_palette <- function(colors,
+#' Colour fading palette
+#'
+#' One or more supplied colours construct a value colour scale, then varies
+#' perceptual properties such as lightness, saturation, or transparency along
+#' the uncertainty dimension.
+#'
+#' @inheritParams bivariate_scale
+#' @param colours A character vector of colours used as key points in
+#'   interpolation.
+#' @param fade A character string specifying the fading method: `"lighten"`,
+#'   `"desaturate"`, or `"alpha"`.
+#' @param alpha_range A numeric vector of length two specifying the
+#'   range of transparency values used when `fade = "alpha"`.
+#' @param max_light A numeric value specifying the maximum amount of
+#'   lightening applied across uncertainty levels.
+#' @param max_desat A numeric value specifying the maximum amount of
+#'   desaturation applied across uncertainty levels.
+#' @param space A character string specifying the colour space used
+#'   for interpolation.
+#' @export
+bivar_fade_palette <- function(colours,
                                n_breaks,
                                fade = c("lighten", "alpha", "desaturate"),
                                alpha_range = c(1, 0.3),
@@ -10,14 +30,14 @@ bivar_fade_palette <- function(colors,
   n_row <- n_breaks[1]
   n_col <- n_breaks[2]
 
-  if (length(colors) == 1) {
-    base_cols <- colorRampPalette(
-      c("white", colors),
+  if (length(colours) == 1) {
+    base_cols <- grDevices::colorRampPalette(
+      c("white", colours),
       space = space
     )(n_row)
   } else {
-    base_cols <- colorRampPalette(
-      colors,
+    base_cols <- grDevices::colorRampPalette(
+      colours,
       space = space
     )(n_row)
   }

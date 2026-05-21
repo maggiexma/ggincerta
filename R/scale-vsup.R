@@ -1,3 +1,5 @@
+#' @rdname vsup_scale
+#' @export
 ScaleVSUP <- ggproto(
   "ScaleVSUP",
   ScaleDiscrete,
@@ -33,11 +35,11 @@ ScaleVSUP <- ggproto(
     leaf_info <- leaf_info[order(leaf_info$leaf), , drop = FALSE]
     layer_sizes <- as.integer(table(leaf_info$layer))
 
-    legend_cols <- pal_vsup(
+    legend_cols <- vsup_palette(
       leaf_info = leaf_info,
-      values = self$values,
+      colours = self$colours,
       branch = self$branch,
-      unc_levels = self$layers,
+      layers = self$layers,
       max_light = self$max_light,
       max_desat = self$max_desat,
       pow_light = self$pow_light,
@@ -52,8 +54,7 @@ ScaleVSUP <- ggproto(
       uncertainty_breaks = res$uncertainty_breaks,
       title_value = self$title_value,
       title_uncertainty = self$title_uncertainty,
-      aesthetics = self$aesthetics,
-      key_size = self$key_size
+      aesthetics = self$aesthetics
     )
 
     res$value
@@ -80,13 +81,46 @@ ScaleVSUP <- ggproto(
     self$guide_info
   },
 
-  train_df = function(self, df, ...) {
-    ggproto_parent(ScaleDiscrete, self)$train_df(df, ...)
-  }
+  train = function(self, x)
+    invisible(),
+
+  train_df = function(self, df, ...)
+    invisible()
 )
 
+#' Value-Suppressing Uncertainty Palette (VSUP) scale
+#'
+#' This scale implements Value-Suppressing Uncertainty Palettes (VSUPs),
+#' proposed by Correll et al. (2018). The main idea is to suppress colour
+#' variation in regions with higher uncertainty, thereby directing visual
+#' attention towards more reliable value differences.
+#'
+#' @seealso Correll et al. (2018) \doi{10.1145/3173574.3174216} for technical
+#'   details.
+#'
+#' @inheritParams ggplot2::discrete_scale
+#' @inheritParams bivariate_scale
+#' @param colours A character vector of colours used as key points in the value
+#'   colour scale. See [vsup_palette()] for details.
+#' @param layers An integer specifying the number of uncertainty levels.
+#' @param branch An integer specifying the branching factor used to allocate
+#'   value bins across uncertainty levels. The maximum number of value bins is
+#'   `branch^(layers - 1)`, and higher uncertainty levels are assigned fewer
+#'   value bins.
+#' @param title_value,title_uncertainty Optional titles for the value and
+#'   uncertainty dimensions in the guide.
+#' @param max_light A numeric value specifying the maximum amount of lightening
+#'   applied across uncertainty levels.
+#' @param max_desat A numeric value specifying the maximum amount of
+#'   desaturation applied across uncertainty levels.
+#' @param pow_light,pow_desat Numeric values controlling the rate of lightening
+#'   and desaturation across uncertainty levels.
+#' @param space A character string specifying the colour space used for colour
+#'   interpolation.
+#' @rdname vsup_scale
+#' @export
 scale_fill_vsup <- function(name = waiver(),
-                            values = c("gold", "red4"),
+                            colours = c("gold", "red4"),
                             layers = 4,
                             branch = 2L,
                             breaks = list(NULL, NULL),
@@ -102,7 +136,6 @@ scale_fill_vsup <- function(name = waiver(),
                             pow_light = 1,
                             pow_desat = 1,
                             space = "Lab",
-                            key_size = 5,
                             guide = guide_vsup(),
                             ...) {
   if (!is.list(breaks))
@@ -135,7 +168,7 @@ scale_fill_vsup <- function(name = waiver(),
 
   sc$layers <- as.integer(layers)
   sc$branch <- as.integer(branch)
-  sc$values <- values
+  sc$colours <- colours
   sc$breaks <- breaks
   sc$limits <- limits
   sc$transform_spec <- transform
@@ -146,49 +179,50 @@ scale_fill_vsup <- function(name = waiver(),
   sc$space <- space
   sc$title_value <- title_value
   sc$title_uncertainty <- title_uncertainty
-  sc$key_size <- key_size
 
   sc
 }
 
+#' @rdname vsup_scale
+#' @export
 scale_colour_vsup <- function(name = waiver(),
-                            values = c("gold", "red4"),
-                            layers = 4,
-                            branch = 2L,
-                            breaks = list(NULL, NULL),
-                            limits = list(NULL, NULL),
-                            transform = list("identity", "identity"),
-                            title_value = "Value",
-                            title_uncertainty = "Uncertainty",
-                            na.value = NA,
-                            na.translate = TRUE,
-                            aesthetics = "colour",
-                            max_light = 0.7,
-                            max_desat = 0.9,
-                            pow_light = 1,
-                            pow_desat = 1,
-                            space = "Lab",
-                            key_size = 5,
-                            guide = guide_vsup(),
-                            ...) {
-  scale_fill_vsup(name = name,
-                  values = values,
-                  layers = layers,
-                  branch = branch,
-                  breaks = breaks,
-                  limits = limits,
-                  transform = transform,
-                  title_value = title_value,
-                  title_uncertainty = title_uncertainty,
-                  na.value = na.value,
-                  na.translate = na.translate,
-                  aesthetics = aesthetics,
-                  max_light = max_light,
-                  max_desat = max_desat,
-                  pow_light = pow_light,
-                  pow_desat = pow_desat,
-                  space = space,
-                  key_size = key_size,
-                  guide = guide,
-                  ...)
+                              colours = c("gold", "red4"),
+                              layers = 4,
+                              branch = 2L,
+                              breaks = list(NULL, NULL),
+                              limits = list(NULL, NULL),
+                              transform = list("identity", "identity"),
+                              title_value = "Value",
+                              title_uncertainty = "Uncertainty",
+                              na.value = NA,
+                              na.translate = TRUE,
+                              aesthetics = "colour",
+                              max_light = 0.7,
+                              max_desat = 0.9,
+                              pow_light = 1,
+                              pow_desat = 1,
+                              space = "Lab",
+                              guide = guide_vsup(),
+                              ...) {
+  scale_fill_vsup(
+    name = name,
+    colours = colours,
+    layers = layers,
+    branch = branch,
+    breaks = breaks,
+    limits = limits,
+    transform = transform,
+    title_value = title_value,
+    title_uncertainty = title_uncertainty,
+    na.value = na.value,
+    na.translate = na.translate,
+    aesthetics = aesthetics,
+    max_light = max_light,
+    max_desat = max_desat,
+    pow_light = pow_light,
+    pow_desat = pow_desat,
+    space = space,
+    guide = guide,
+    ...
+  )
 }

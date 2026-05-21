@@ -14,6 +14,8 @@ Description: Provide specialized 'ggplot2' layers and scales for spatial
     uncertainty visualization, including bivariate choropleth maps, pixel maps,
     glyph maps, and exceedance probability maps.
 Imports:
+    cli,
+    colorspace,
     dplyr,
     grDevices,
     grid,
@@ -21,7 +23,6 @@ Imports:
     rlang,
     scales,
     sf,
-    stats,
     withr
 License: MIT + file LICENSE
 Encoding: UTF-8

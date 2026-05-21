@@ -3,50 +3,54 @@ parse_glyph_mapping <- function(mapping) {
 
   list(
     mapping = mapping,
-    has_angle = !is.null(rlang::get_expr(mapping$angle)),
-    has_smile = !is.null(rlang::get_expr(mapping$smile))
+    has_angle = !is.null(mapping$angle),
+    has_smile = !is.null(mapping$smile)
   )
 }
 
-#' Generate glyph maps on sf objects
+#' Glyph map
 #'
-#' `geom_sf_glyph()` adds a glyph map layer based on simple feature (sf) objects
-#' to a ggplot. A glyph map is essentially a centroid-based map, where each
-#' region is represented by a rotated glyph, and the rotation angle indicates
-#' the value of `v2` specified in the mapping.
+#' `geom_sf_glyph()` generates a glyph map sf layer. A glyph map is a
+#' centroid-based map, where each region is represented by a chosen glyph.
 #'
-#' @section Glyph map layer contents:
-#' The layer returned by `geom_sf_glyph()` actually contains two scales,
-#' corresponding to the two variables specified in the mapping.
-#' Therefore, modifying the scale for `v1` will trigger a warning
-#' indicating that the scale for `fill` is being replaced.
+#' Regular shape glyphs can be treated as ordinary point-like symbols and used
+#' together with `bivariate_scale()`. Drop-shaped glyphs use rotation angle to
+#' represent uncertainty. Chernoff glyphs are adapted from the `ggChernoff`
+#' package and work with the `smile` aesthetic.
 #'
-#' @inheritParams geom_sf
-#' @param mapping Set of aesthetic mappings created by [aes()].
-#'   `v1` and `v2` are required, which are the variables used for glyph fill
-#'   and rotation, respectively.
+#' @inheritParams ggplot2::geom_sf
+#' @param shape Glyph shape. One of `"circle"` (the default), `"square"`,
+#'   `"triangle"`, `"hex"`, `"drop"`, or `"chernoff"`.
+#' @param max_angle Maximum value of the `angle` aesthetic used for rescaling
+#'   glyph rotation.
 #' @param size A positive numeric scaling factor controlling glyph size.
-#'   Larger values produce smaller glyphs.
-#' @param style Either `"icone"` or `"semi"`. Controls the glyph shape.
-#' @param max_v2 Numeric value setting the upper limit for `v2`.
-#'
+#' @param point_fun Function used to calculate the representative point for each
+#'   region. The default is usually [sf::st_point_on_surface()].
+#' @param border_colour Colour used for glyph borders.
+#' @param angle_guide Logical indicating whether to display a guide for the
+#'   `angle` aesthetic.
+#' @param angle_name Title used for the angle guide.
+#' @param angle_order Order of the angle guide relative to other guides.
 #' @returns A list of ggplot2 layer objects.
-#'
 #' @examples
-#' # Basic glyph map
-#' p <- ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd))
-#' p1 <- ggplot(nc) + geom_sf_glyph(mapping = aes(v1 = value, v2 = sd), style = "semi")
+#' # Regular glyph map
+#' ggplot(nc) +
+#'   geom_sf_glyph(aes(colour = value), shape = "hex")
 #'
-#' # Customize labels and theme
-#' p + labs(title = "glyph map on nc") + theme(legend.position = "left", legend.box = "horizontal")
+#' # Rotated drop glyph map
+#' ggplot(nc) +
+#'   geom_sf_glyph(
+#'     aes(colour = value, angle = sd),
+#'     shape = "drop"
+#'   )
 #'
-#' # Replacing the internal fill scale triggers a message
-#' # ("Scale for fill is already present. Adding another scale for fill...")
-#' p + scale_fill_distiller(palette = "Blues")
-#'
-#' @rdname ggsfgl
+#' # Chernoff face glyph map
+#' ggplot(nc) +
+#'   geom_sf_glyph(
+#'     aes(colour = value, smile = sd),
+#'     shape = "chernoff"
+#'   )
 #' @export
-#'
 geom_sf_glyph <- function(mapping = NULL,
                           data = NULL,
                           ...,
@@ -64,6 +68,16 @@ geom_sf_glyph <- function(mapping = NULL,
   parsed <- parse_glyph_mapping(mapping)
   mapping <- parsed$mapping
 
+  if (parsed$has_angle && shape != "drop") {
+    cli::cli_warn("{.aes angle} is only used when {.code shape = 'drop'}.")
+    mapping$angle <- NULL
+  }
+
+  if (parsed$has_smile && shape != "chernoff") {
+    cli::cli_warn("{.aes smile} is only used when {.code shape = 'chernoff'}.")
+    mapping$smile <- NULL
+  }
+
   if (shape == "chernoff") {
     return(
       geom_sf_chernoff(
@@ -75,12 +89,6 @@ geom_sf_glyph <- function(mapping = NULL,
         show.legend = show.legend,
         inherit.aes = inherit.aes
       )
-    )
-  }
-
-  if (parsed$has_smile) {
-    cli::cli_warn(
-      "{.aes smile} is only used when {.code shape = 'chernoff'}."
     )
   }
 
@@ -98,7 +106,8 @@ geom_sf_glyph <- function(mapping = NULL,
     inherit.aes = inherit.aes
   )
 
-  if (!parsed$has_angle || !isTRUE(angle_guide)) {
+  if (!parsed$has_angle ||
+      shape != "drop" || !isTRUE(angle_guide)) {
     return(layer)
   }
 
@@ -108,11 +117,6 @@ geom_sf_glyph <- function(mapping = NULL,
     angle_name
   }
 
-  list(
-    layer,
-    scale_angle_continuous(
-      name = angle_label,
-      order = angle_order
-    )
-  )
+  list(layer,
+       scale_angle_continuous(name = angle_label, order = angle_order))
 }

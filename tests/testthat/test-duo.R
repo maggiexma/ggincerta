@@ -12,12 +12,12 @@ test_that("duo() returns correct structure and attributes", {
   expect_equal(attr(res, "vars"), c(quote(v1), quote(v2)))
 })
 
-test_that("duo_exceed() returns correct structure and attributes", {
+test_that("duo_pixel() returns correct structure and attributes", {
   est <- c(5, 6)
   err <- c(0.5, 0.6)
-  res <- duo_exceed(est, err)
+  res <- duo_pixel(est, err)
 
-  expect_s3_class(res, "exceed")
+  expect_s3_class(res, "pixel")
   expect_true(inherits(res, "list"))
   expect_length(res, length(est))
   expect_named(res[[1]], c("v1", "v2"))
