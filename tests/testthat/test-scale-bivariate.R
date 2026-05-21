@@ -99,7 +99,7 @@ test_that("bivariate scale handles missing values", {
 test_that("bivariate scale works with custom palette", {
   p <- ggplot(nc) +
     geom_sf(aes(fill = duo(value, sd))) +
-    scale_fill_bivariate(palette = bivar_fade_palette,
+    scale_fill_bivariate(palette_fun = bivar_fade_palette,
                          colours = c("red", "yellow", "green", "blue", "black"))
 
   expect_s3_class(ggplot_build(p), "ggplot_built")

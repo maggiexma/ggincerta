@@ -27,7 +27,7 @@ bivariate_scale(
   drop = FALSE,
   guide = waiver(),
   colours = c("gold", "red4"),
-  palette = NULL,
+  palette_fun = NULL,
   palette_params = list(),
   n_breaks = c(4, 4),
   bin_method = c("equal", "equal"),
@@ -42,7 +42,7 @@ scale_fill_bivariate(
   var1_name = NULL,
   var2_name = NULL,
   colours = c("gold", "red4"),
-  palette = NULL,
+  palette_fun = NULL,
   palette_params = list(),
   n_breaks = c(4, 4),
   breaks = list(waiver(), waiver()),
@@ -61,7 +61,7 @@ scale_color_bivariate(
   var1_name = NULL,
   var2_name = NULL,
   colours = c("gold", "red4"),
-  palette = NULL,
+  palette_fun = NULL,
   palette_params = list(),
   n_breaks = c(4, 4),
   breaks = list(waiver(), waiver()),
@@ -80,7 +80,7 @@ scale_colour_bivariate(
   var1_name = NULL,
   var2_name = NULL,
   colours = c("gold", "red4"),
-  palette = NULL,
+  palette_fun = NULL,
   palette_params = list(),
   n_breaks = c(4, 4),
   breaks = list(waiver(), waiver()),
@@ -139,7 +139,7 @@ ramp that variables are mapped to. For details on how supplied colours are
 used to construct the resulting palette, see \code{\link[=bivar_palette]{bivar_palette()}} and
 \code{\link[=bivar_fade_palette]{bivar_fade_palette()}}.}
 
-\item{palette}{A palette function that, when called with \code{colours} and
+\item{palette_fun}{A palette function that, when called with \code{colours} and
 \code{n_breaks}, returns a character vector of colours for all binned
 combinations. If \code{NULL}, the default, \code{\link[=bivar_palette]{bivar_palette()}} is used.}
 
@@ -180,7 +180,7 @@ ggplot(nc) +
 ggplot(nc) +
   geom_sf(aes(fill = duo(value, sd))) +
   scale_fill_bivariate(
-    palette = bivar_fade_palette,
+    palette_fun = bivar_fade_palette,
     colours = c("#F6E8C3", "orange", "red")
   )
 
