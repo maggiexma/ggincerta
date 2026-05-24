@@ -18,7 +18,7 @@ geom_sf_glyph(
   inherit.aes = TRUE,
   angle_guide = TRUE,
   angle_name = waiver(),
-  angle_order = 2
+  angle_order = 99
 )
 }
 \arguments{

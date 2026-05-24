@@ -137,13 +137,47 @@ by the rotation angle through the newly introduced `angle` aesthetic.
 
 ``` r
 ggplot(nc) +
-    geom_sf_glyph(
-      aes(colour = value, angle = sd),
-      shape = "drop"
-    )
+  geom_sf_glyph(aes(colour = value, angle = sd), shape = "drop")
 #> Warning: st_point_on_surface assumes attributes are constant over geometries
 #> Warning in st_point_on_surface.sfc(st_geometry(x)): st_point_on_surface may not
 #> give correct results for longitude/latitude data
 ```
 
 <img src="man/figures/README-unnamed-chunk-8-1.png" alt="" width="100%" />
+
+The remaining glyph form is the Chernoff face, originally proposed by
+Herman Chernoff (1973), which uses human facial expressions to represent
+multivariate values. The implementation in ggincerta builds upon the
+grob and scale design provided by the ggChernoff package. In the example
+below, facial colour is mapped to the estimated value, while facial
+expression conveys uncertainty in an intuitive and perceptually
+meaningful manner: lower uncertainty produces smiling faces, whereas
+higher uncertainty results in frowning faces.
+
+``` r
+ggplot(nc) +
+  geom_sf_glyph(aes(colour = value, smile = sd), shape = "chernoff")
+#> Warning in st_point_on_surface.sfc(data$geometry): st_point_on_surface may not
+#> give correct results for longitude/latitude data
+```
+
+<img src="man/figures/README-unnamed-chunk-9-1.png" alt="" width="100%" />
+
+The final visualisation type in ggincerta is the dual map, which
+combines a glyph map with a conventional colour-filled choropleth map in
+a two-layer display. This design allows two variables to be represented
+using separate mappings, scales, and guides, so that their original
+values remain directly interpretable. At the same time, it preserves the
+ability of the choropleth layer to show the spatial trend of the primary
+variable. In addition, it supports the `duo()` mapping and can therefore
+be used together with `scale_bivariate()` to achieve three-variable
+visualisation within a single map.
+
+``` r
+ggplot(nc) + geom_sf_dualmap(aes(fill = sd, colour = value))
+#> Warning: st_point_on_surface assumes attributes are constant over geometries
+#> Warning in st_point_on_surface.sfc(st_geometry(x)): st_point_on_surface may not
+#> give correct results for longitude/latitude data
+```
+
+<img src="man/figures/README-unnamed-chunk-10-1.png" alt="" width="100%" />

@@ -1,6 +1,6 @@
 scale_angle_continuous <- function(...,
                                    name = waiver(),
-                                   order = 2) {
+                                   order = 99) {
   continuous_scale(
     aesthetics = "angle",
     palette = scales::identity_pal(),

@@ -64,7 +64,7 @@ geom_sf_glyph <- function(mapping = NULL,
                           inherit.aes = TRUE,
                           angle_guide = TRUE,
                           angle_name = waiver(),
-                          angle_order = 2) {
+                          angle_order = 99) {
   parsed <- parse_glyph_mapping(mapping)
   mapping <- parsed$mapping
 
@@ -79,7 +79,7 @@ geom_sf_glyph <- function(mapping = NULL,
   }
 
   if (shape == "chernoff") {
-    return(
+    return(list(
       geom_sf_chernoff(
         mapping = mapping,
         data = data,
@@ -88,8 +88,9 @@ geom_sf_glyph <- function(mapping = NULL,
         na.rm = na.rm,
         show.legend = show.legend,
         inherit.aes = inherit.aes
-      )
-    )
+      ),
+      scale_smile_continuous()
+    ))
   }
 
   layer <- geom_sf_pin(

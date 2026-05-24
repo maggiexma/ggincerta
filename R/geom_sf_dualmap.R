@@ -53,32 +53,35 @@ geom_sf_dualmap <- function(mapping = NULL,
                             fill_scale = NULL) {
   parsed <- parse_dualmap_mapping(mapping)
 
-  layers <- list(
-    geom_sf(
-      mapping = parsed$outer,
-      data = data,
-      ...,
-      na.rm = na.rm,
-      show.legend = show.legend,
-      inherit.aes = inherit.aes
-    ),
+  glyph_layers <- geom_sf_glyph(
+    mapping = parsed$inner,
+    data = data,
+    ...,
+    shape = shape,
+    max_angle = max_angle,
+    size = size,
+    point_fun = point_fun,
+    border_colour = border_colour,
+    na.rm = na.rm,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    angle_guide = angle_guide,
+    angle_name = angle_name,
+    angle_order = angle_order
+  )
 
-    geom_sf_glyph(
-      mapping = parsed$inner,
-      data = data,
-      ...,
-      shape = shape,
-      max_angle = max_angle,
-      size = size,
-      point_fun = point_fun,
-      border_colour = border_colour,
-      na.rm = na.rm,
-      show.legend = show.legend,
-      inherit.aes = inherit.aes,
-      angle_guide = angle_guide,
-      angle_name = angle_name,
-      angle_order = angle_order
-    )
+  layers <- c(
+    list(
+      geom_sf(
+        mapping = parsed$outer,
+        data = data,
+        ...,
+        na.rm = na.rm,
+        show.legend = show.legend,
+        inherit.aes = inherit.aes
+      )
+    ),
+    glyph_layers
   )
 
   if (is.null(fill_scale) &&
