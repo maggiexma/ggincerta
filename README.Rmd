@@ -79,7 +79,7 @@ ggplot(nc) +
 ggincerta defines two layer functions `geom_sf_pixel()` and `geom_sf_glyph()` for creating pixel and glyph maps, respectively. They can be used in the same way as other `geom_*()` functions in ggplot2, like `geom_point()`.
 
 ```{r}
-ggplot(nc) + geom_sf_pixel(mapping = aes(fill = duo_pixel(value, sd)))
+ggplot(nc) + geom_sf_pixel(mapping = aes(fill = duo_pixel(value, sd)), seed = 123)
 ```
 
 Each unit region in a pixel map is tessellated into pixels. Pixel values are sampled from a specified probability distribution parameterised by `v1` and `v2` for each region, and are then mapped to the colour aesthetic. Greater variation in pixel colours within a region indicates higher uncertainty.

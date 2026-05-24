@@ -105,7 +105,7 @@ can be used in the same way as other `geom_*()` functions in ggplot2,
 like `geom_point()`.
 
 ``` r
-ggplot(nc) + geom_sf_pixel(mapping = aes(fill = duo_pixel(value, sd)))
+ggplot(nc) + geom_sf_pixel(mapping = aes(fill = duo_pixel(value, sd)), seed = 123)
 #> geom_sf_pixel_new(): input data has a geographic CRS and sf is using s2; pixelation may be slow. Consider transforming to a projected planar CRS first.
 ```
 

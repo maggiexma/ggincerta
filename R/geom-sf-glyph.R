@@ -45,11 +45,13 @@ parse_glyph_mapping <- function(mapping) {
 #'   )
 #'
 #' # Chernoff face glyph map
-#' ggplot(nc) +
-#'   geom_sf_glyph(
-#'     aes(colour = value, smile = sd),
-#'     shape = "chernoff"
-#'   )
+#' if (requireNamespace("ggChernoff", quietly = TRUE)) {
+#'   ggplot(nc) +
+#'     geom_sf_glyph(
+#'       aes(colour = value, smile = sd),
+#'       shape = "chernoff"
+#'     )
+#' }
 #' @export
 geom_sf_glyph <- function(mapping = NULL,
                           data = NULL,
