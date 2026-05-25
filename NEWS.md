@@ -4,15 +4,15 @@
 
 * Added VSUP scales and guides for value-suppressing uncertainty palettes.
 
-* Added Chernoff face glyphs for glyph maps.
-
 * Added regular glyph shapes for `geom_sf_glyph()`, including circle, square, triangle, hexagon.
+
+* Added Chernoff face glyphs for glyph maps.
 
 * Added `geom_sf_dualmap()` for combining a colour-filled choropleth layer with a centroid-based glyph layer.
 
 ## Improvements
 
-* `scale_bivariate()` now supports user-specified `breaks`, `limits`, and transformations.
+* `scale_bivariate()` now supports user-specified `breaks`, `limits`, `labels`, and transformations.
 
 * `scale_bivariate()` now supports unequal numbers of groups across the two mapped variables.
 
