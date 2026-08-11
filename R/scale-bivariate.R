@@ -80,6 +80,11 @@ ScaleBivariate <- ggproto(
       return(br)
     }
 
+    if (is.function(br)) {
+      br <- br(limits)
+      return(numeric_breaks(br))
+    }
+
     trans <- scales::as.transform(self$transforms[[i]])
     x_raw <- self$.trained_values_raw[[i]]
     x_t <- self$.trained_values_transformed[[i]]
@@ -95,7 +100,11 @@ ScaleBivariate <- ggproto(
     limits_t <- sort(as.numeric(trans$transform(limits)))
 
     if (!length(x_t)) {
-      br_t <- seq(limits_t[1], limits_t[2], length.out = self$n_breaks[i] + 1)
+      br_t <- seq(
+        limits_t[1],
+        limits_t[2],
+        length.out = self$n_breaks[i] + 1
+      )
       return(as.numeric(trans$inverse(br_t)))
     }
 
@@ -108,12 +117,31 @@ ScaleBivariate <- ggproto(
       )
 
       if (length(unique(br_t)) < length(br_t)) {
-        br_t <- seq(limits_t[1], limits_t[2], length.out = self$n_breaks[i] + 1)
+        br_t <- seq(
+          limits_t[1],
+          limits_t[2],
+          length.out = self$n_breaks[i] + 1
+        )
       } else {
         br_t[c(1, length(br_t))] <- limits_t
       }
     } else {
-      br_t <- seq(limits_t[1], limits_t[2], length.out = self$n_breaks[i] + 1)
+      br_t <- scales::breaks_extended(
+        n = self$n_breaks[i] + 1
+      )(limits_t)
+
+      br_t <- sort(unique(as.numeric(br_t)))
+      br_t <- br_t[is.finite(br_t)]
+
+      if (length(br_t) != self$n_breaks[i] + 1) {
+        br_t <- seq(
+          limits_t[1],
+          limits_t[2],
+          length.out = self$n_breaks[i] + 1
+        )
+      } else {
+        br_t[c(1, length(br_t))] <- limits_t
+      }
     }
 
     as.numeric(trans$inverse(br_t))

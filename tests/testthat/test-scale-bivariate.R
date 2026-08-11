@@ -7,14 +7,39 @@ expected_bivariate_fill <- function(data,
   bin_method <- rep(bin_method, length.out = 2)
 
   get_breaks <- function(z, n, method) {
+    limits <- range(z, na.rm = TRUE)
+
     if (method == "quantile") {
-      quantile(z, seq(0, 1, length.out = n + 1), na.rm = TRUE)
+      breaks <- quantile(
+        z,
+        probs = seq(0, 1, length.out = n + 1),
+        na.rm = TRUE,
+        names = FALSE
+      )
+
+      if (length(unique(breaks)) < length(breaks)) {
+        breaks <- seq(limits[1], limits[2], length.out = n + 1)
+      } else {
+        breaks[c(1, length(breaks))] <- limits
+      }
     } else {
-      seq(min(z, na.rm = TRUE), max(z, na.rm = TRUE), length.out = n + 1)
+      breaks <- scales::breaks_extended(n = n + 1)(limits)
+
+      breaks <- sort(unique(breaks))
+      breaks <- breaks[is.finite(breaks)]
+
+      if (length(breaks) != n + 1) {
+        breaks <- seq(limits[1], limits[2], length.out = n + 1)
+      } else {
+        breaks[c(1, length(breaks))] <- limits
+      }
     }
+
+    breaks
   }
 
   bx <- get_breaks(data[[x]], n_breaks[1], bin_method[1])
+
   by <- get_breaks(data[[y]], n_breaks[2], bin_method[2])
 
   bin1 <- cut(
@@ -23,6 +48,7 @@ expected_bivariate_fill <- function(data,
     include.lowest = TRUE,
     labels = FALSE
   )
+
   bin2 <- cut(
     data[[y]],
     breaks = by,
@@ -31,6 +57,7 @@ expected_bivariate_fill <- function(data,
   )
 
   combo <- (bin2 - 1L) * n_breaks[1] + bin1
+
   pal <- bivar_palette(colours = colours, n_breaks = n_breaks)
 
   unname(pal[combo])
@@ -99,8 +126,10 @@ test_that("bivariate scale handles missing values", {
 test_that("bivariate scale works with custom palette", {
   p <- ggplot(nc) +
     geom_sf(aes(fill = duo(value, sd))) +
-    scale_fill_bivariate(palette_fun = bivar_fade_palette,
-                         colours = c("red", "yellow", "green", "blue", "black"))
+    scale_fill_bivariate(
+      palette_fun = bivar_fade_palette,
+      colours = c("red", "yellow", "green", "blue", "black")
+    )
 
   expect_s3_class(ggplot_build(p), "ggplot_built")
 })

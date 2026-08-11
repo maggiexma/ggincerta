@@ -9,3 +9,7 @@ sa3_3857 <- sf::st_transform(sa3, 3857) |>
     value_log10 = 10^rnorm(dplyr::n()),
     sd_log2 = 2^runif(dplyr::n(), 0.5, 4)
   )
+sa3_3857_main <- sa3_3857 |>
+  dplyr::mutate(area = sf::st_area(geometry)) |>
+  dplyr::filter(area > units::set_units(500, km^2)) |>
+  dplyr::select(-area)

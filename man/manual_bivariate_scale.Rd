@@ -108,7 +108,7 @@ values to include for each variable.}
 
 \item{transform}{A list of two transformations applied to the variables
 before binning. Each element can be a transformation name or a
-transformer object accepted by \code{\link[scales:new_transform]{scales::as.transform()}}.}
+transformer object accepted by \code{\link[scales:as.transform]{scales::as.transform()}}.}
 
 \item{na.value}{If \code{na.translate = TRUE}, what aesthetic value should the
 missing values be displayed as? Does not apply to position scales

@@ -15,3 +15,25 @@
 #'
 #' plot(sf::st_geometry(nc))
 "nc"
+
+#' Simulated North Carolina spatial patterns
+#'
+#' @description
+#' A simulated areal dataset based on the North Carolina county boundaries.
+#' It contains three spatial patterns, linear trend, hotspot, and CAR smooth
+#' field, each generated at medium and strong signal strengths.
+#'
+#' @format An `sf` object with 600 rows. It contains the original variables
+#' from `nc`, together with:
+#' \describe{
+#'   \item{pattern}{Spatial pattern type.}
+#'   \item{strength}{Signal strength.}
+#'   \item{noise_level}{Noise level used in the simulation.}
+#'   \item{value_sim}{Simulated value.}
+#' }
+#'
+#' @examples
+#' head(nc_sim)
+#'
+#' plot(sf::st_geometry(nc_sim))
+"nc_sim"

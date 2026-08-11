@@ -97,7 +97,7 @@ GuideBivariate <- ggproto(
     if (!is.null(params$var2_labels)) left_anno_w <- left_anno_w + var2_label_w + label_gap
     if (!is.null(params$var2_title))  left_anno_w <- left_anno_w + var2_title_w  + title_gap
 
-    key_w <- grid::unit.pmax(elements$key_width,  grid::unit(2, "cm"))
+    key_w <- grid::unit.pmax(elements$key_width, grid::unit(2, "cm"))
     key_h <- grid::unit.pmax(elements$key_height, grid::unit(2, "cm"))
 
     list(
@@ -125,11 +125,11 @@ GuideBivariate <- ggproto(
   },
 
   compute_panel_geometry = function(self, layout) {
-    decor_w_mm <- grid::convertWidth(layout$decor_w,  "mm", valueOnly = TRUE)
+    decor_w_mm <- grid::convertWidth(layout$decor_w, "mm", valueOnly = TRUE)
     decor_h_mm <- grid::convertHeight(layout$decor_h, "mm", valueOnly = TRUE)
 
     to_npc_x <- function(u)
-      grid::unit(grid::convertWidth(u,  "mm", valueOnly = TRUE) / decor_w_mm, "npc")
+      grid::unit(grid::convertWidth(u, "mm", valueOnly = TRUE) / decor_w_mm, "npc")
     to_npc_y <- function(u)
       grid::unit(grid::convertHeight(u, "mm", valueOnly = TRUE) / decor_h_mm, "npc")
 

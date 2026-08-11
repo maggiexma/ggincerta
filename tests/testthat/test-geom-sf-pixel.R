@@ -4,7 +4,7 @@ test_that("geom_sf_pixel draws correctly", {
   p <- ggplot(nc_flat) +
     geom_sf_pixel(
       mapping = aes(fill = duo_pixel(value, sd)),
-      seed = 123
+      seed = 123, n = 20
     )
 
   vdiffr::expect_doppelganger("pixel map", p)

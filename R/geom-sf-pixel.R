@@ -166,11 +166,11 @@ StatPixel <- ggproto(
 #'
 #' # Basic pixel map
 #' ggplot(nc_flat, aes(fill = duo_pixel(value, sd))) +
-#'   geom_sf_pixel()
+#'   geom_sf_pixel(n = 40)
 #'
 #' # Control pixel shape and resolution
 #' ggplot(nc_flat, aes(fill = duo_pixel(value, sd))) +
-#'   geom_sf_pixel(n = 50, pixel_shape = "square")
+#'   geom_sf_pixel(n = 30, pixel_shape = "square")
 #' @export
 geom_sf_pixel <- function(mapping = NULL,
                           data = NULL,

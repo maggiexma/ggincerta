@@ -79,7 +79,7 @@ glyph rotation.}
 \item{size}{A positive numeric scaling factor controlling glyph size.}
 
 \item{point_fun}{Function used to calculate the representative point for each
-region. The default is usually \code{\link[sf:geos_unary]{sf::st_point_on_surface()}}.}
+region. The default is usually \code{\link[sf:st_point_on_surface]{sf::st_point_on_surface()}}.}
 
 \item{border_colour}{Colour used for glyph borders.}
 

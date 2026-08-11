@@ -8,13 +8,13 @@ geom_sf_chernoff <- function(mapping = aes(),
                              show.legend = NA,
                              inherit.aes = TRUE) {
   list(
-    geom_sf(
-      data = data,
-      inherit.aes = FALSE,
-      fill = NA,
-      colour = NA,
-      show.legend = FALSE
-    ),
+    # geom_sf(
+    #   data = data,
+    #   inherit.aes = FALSE,
+    #   fill = NA,
+    #   colour = NA,
+    #   show.legend = FALSE
+    # ),
 
     layer_sf(
       geom = get("GeomChernoff", envir = getNamespace("ggChernoff")),
@@ -25,6 +25,7 @@ geom_sf_chernoff <- function(mapping = aes(),
       show.legend = show.legend,
       inherit.aes = inherit.aes,
       params = list(fun.geometry = fun.geometry, na.rm = na.rm, ...)
-    )
+    ),
+    coord_sf()
   )
 }

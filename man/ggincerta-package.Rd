@@ -21,6 +21,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Xueqi Ma \email{maggiexma07@gmail.com} [copyright holder]
   \item Emi Tanaka \email{dr.emi.tanaka@gmail.com} (\href{https://orcid.org/0000-0002-1455-259X}{ORCID}) [thesis advisor]
 }
 

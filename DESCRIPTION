@@ -1,6 +1,6 @@
 Package: ggincerta
 Title: Extend 'ggplot2' with Layers and Scales for Spatial Uncertainty Visualization
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: 
     c(person("Xueqi", "Ma", , "maggiexma07@gmail.com", role = c("aut", "cre", "cph")),
       person("Emi", "Tanaka", , "dr.emi.tanaka@gmail.com", role = c("aut", "ths"),
@@ -28,7 +28,6 @@ Imports:
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Suggests: 
     ggChernoff,
     testthat (>= 3.0.0),
@@ -40,3 +39,4 @@ Depends:
 LazyData: true
 URL: https://github.com/maggiexma/ggincerta
 BugReports: https://github.com/maggiexma/ggincerta/issues
+Config/roxygen2/version: 8.1.0

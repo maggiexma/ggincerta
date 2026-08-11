@@ -48,7 +48,7 @@ notation.
 
 \item{transform}{A list of two transformations applied to the variables
 before binning. Each element can be a transformation name or a
-transformer object accepted by \code{\link[scales:new_transform]{scales::as.transform()}}.}
+transformer object accepted by \code{\link[scales:as.transform]{scales::as.transform()}}.}
 }
 \value{
 A list containing quantized leaf ids and break information.
