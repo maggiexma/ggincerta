@@ -12,29 +12,30 @@
 #'   `"none"` (the default), `"vertical"`, `"horizontal"`, or `"both"`.
 #' @export
 bivar_palette <- function(colours = NULL,
-                          n_breaks = c(4, 4),
-                          flip = c("none", "vertical", "horizontal", "both")) {
+                              n_breaks = c(4, 4),
+                              flip = c("none", "vertical", "horizontal", "both")) {
   flip <- match.arg(flip)
 
   n_x <- n_breaks[1]
   n_y <- n_breaks[2]
 
-  grad1 <- grDevices::colorRampPalette(c("white", colours[1]))
-  grad2 <- grDevices::colorRampPalette(c("white", colours[2]))
+  col1 <- grDevices::col2rgb(colours[1])[, 1]
+  col2 <- grDevices::col2rgb(colours[2])[, 1]
+  white <- c(255, 255, 255)
 
-  dif1 <- rev(grad1(round(n_x * 2.5))[1:n_x])
-  dif2 <- rev(grad2(round(n_y * 2.5))[1:n_y])
-
-  ramp1 <- grDevices::colorRamp(c(dif1[n_x], colours[1]))
-  ramp2 <- grDevices::colorRamp(c(dif2[n_y], colours[2]))
+  blend <- (col1 + col2) / 2
 
   lam1 <- rep(seq(0, 1, length.out = n_x), times = n_y)
   lam2 <- rep(seq(0, 1, length.out = n_y), each = n_x)
 
-  m1 <- ramp1(lam1)
-  m2 <- ramp2(lam2)
+  mix <- t(vapply(seq_along(lam1), function(i) {
+    (1 - lam1[i]) * (1 - lam2[i]) * white +
+      lam1[i] * (1 - lam2[i]) * col1 +
+      (1 - lam1[i]) * lam2[i] * col2 +
+      lam1[i] * lam2[i] * blend
+  }, numeric(3)))
 
-  mix <- round((m1 + m2) / 2)
+  mix <- round(mix)
 
   cols <- apply(mix, 1, function(v) {
     grDevices::rgb(v[1], v[2], v[3], maxColorValue = 255)
