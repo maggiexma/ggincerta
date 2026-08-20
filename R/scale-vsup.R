@@ -120,7 +120,7 @@ ScaleVSUP <- ggproto(
 #' @rdname vsup_scale
 #' @export
 scale_fill_vsup <- function(name = waiver(),
-                            colours = c("gold", "red4"),
+                            colours = RColorBrewer::brewer.pal(3, "YlGnBu"),
                             layers = 4,
                             branch = 2L,
                             breaks = list(NULL, NULL),
@@ -186,7 +186,7 @@ scale_fill_vsup <- function(name = waiver(),
 #' @rdname vsup_scale
 #' @export
 scale_colour_vsup <- function(name = waiver(),
-                              colours = c("gold", "red4"),
+                              colours = RColorBrewer::brewer.pal(3, "YlGnBu"),
                               layers = 4,
                               branch = 2L,
                               breaks = list(NULL, NULL),

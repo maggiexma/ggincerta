@@ -2,7 +2,7 @@ expected_bivariate_fill <- function(data,
                                     x,
                                     y,
                                     n_breaks = c(4, 4),
-                                    colours = c("gold", "red4"),
+                                    colours = c("#EDF8B1", "#2C7FB8"),
                                     bin_method = c("equal", "equal")) {
   bin_method <- rep(bin_method, length.out = 2)
 
@@ -103,7 +103,7 @@ test_that("bivariate scale works with unequal numbers of breaks", {
     x = "value",
     y = "sd",
     n_breaks = c(3, 4),
-    colours = c("gold", "red4")
+    colours = c("#EDF8B1", "#2C7FB8")
   )
 
   expect_equal(fills_mapped, fills_expected)

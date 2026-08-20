@@ -3,6 +3,7 @@
 GuideVSUP <- ggproto(
   "GuideVSUP",
   GuideLegend,
+
   params = c(
     GuideLegend$params,
     list(
@@ -14,14 +15,19 @@ GuideVSUP <- ggproto(
       aesthetics = NULL
     )
   ),
+
   available_aes = c("fill", "colour", "color"),
+
   hashables = rlang::exprs(title, order),
+
   get_vsup_info = function(self, scale) {
     if (!inherits(scale, "ScaleVSUP")) {
       return(NULL)
     }
+
     scale$get_guide_info()
   },
+
   resolve_title = function(self, title, scale) {
     title_chr <- if (inherits(title, "waiver")) {
       ""
@@ -40,6 +46,7 @@ GuideVSUP <- ggproto(
 
     title
   },
+
   element_gpar = function(self, element, default = grid::gpar()) {
     if (is.null(element)) {
       return(default)
@@ -52,6 +59,7 @@ GuideVSUP <- ggproto(
       lineheight = element$lineheight %||% default$lineheight
     )
   },
+
   get_layout_info = function(self, elements) {
     text_gp <- self$element_gpar(
       elements$text,
@@ -98,8 +106,10 @@ GuideVSUP <- ggproto(
       decor_height = key_height
     )
   },
+
   extract_key = function(self, scale, aesthetic, ...) {
     guide_info <- self$get_vsup_info(scale)
+
     if (is.null(guide_info)) {
       return(NULL)
     }
@@ -113,8 +123,10 @@ GuideVSUP <- ggproto(
     )
 
     key[[aesthetic]] <- guide_info$key_colours
+
     key
   },
+
   extract_params = function(self, scale, params, title = NULL, ...) {
     params <- ggproto_parent(GuideLegend, self)$extract_params(scale = scale,
                                                                params = params,
@@ -122,11 +134,14 @@ GuideVSUP <- ggproto(
                                                                ...)
 
     guide_info <- self$get_vsup_info(scale)
+
     if (is.null(guide_info)) {
       return(params)
     }
 
-    params$title <- self$resolve_title(title = params$title %||% scale$name %||% waiver(),
+    params$title <- self$resolve_title(title = params$title %||%
+                                         scale$name %||%
+                                         waiver(),
                                        scale = scale)
 
     params$layer_sizes <- guide_info$layer_sizes
@@ -138,20 +153,25 @@ GuideVSUP <- ggproto(
 
     params
   },
+
   setup_params = function(self, params) {
     params <- ggproto_parent(GuideLegend, self)$setup_params(params)
 
-    if (is.null(params$aesthetics) && !is.null(params$key)) {
+    if (is.null(params$aesthetics) &&
+        !is.null(params$key)) {
       params$aesthetics <- intersect(names(params$key), c("fill", "colour", "color"))
     }
 
     params
   },
+
   build_labels = function(self, key, elements, params) {
     zeroGrob()
   },
+
   build_decor = function(self, decor, grobs, elements, params) {
-    if (is.null(params$key) || is.null(params$layer_sizes)) {
+    if (is.null(params$key) ||
+        is.null(params$layer_sizes)) {
       return(zeroGrob())
     }
 
@@ -162,6 +182,7 @@ GuideVSUP <- ggproto(
       label = params$key$.label,
       stringsAsFactors = FALSE
     )
+
     key[[aesthetic]] <- params$key[[aesthetic]]
 
     self$draw_vsup_decor(
@@ -175,11 +196,13 @@ GuideVSUP <- ggproto(
       elements = elements
     )
   },
+
   build_title_grob = function(self, params, elements) {
     title <- params$title
 
     if (is.null(title) ||
-        identical(title, "") || inherits(title, "waiver")) {
+        identical(title, "") ||
+        inherits(title, "waiver")) {
       return(zeroGrob())
     }
 
@@ -188,6 +211,7 @@ GuideVSUP <- ggproto(
       gp = self$element_gpar(elements$title, default = grid::gpar())
     )
   },
+
   measure_grobs = function(self, grobs, params, elements) {
     layout_info <- self$get_layout_info(elements)
 
@@ -198,32 +222,42 @@ GuideVSUP <- ggproto(
       decor_height = layout_info$decor_height
     )
   },
+
   arrange_layout = function(self, key, sizes, params, elements) {
     list(
       has_title = !inherits(sizes$title_height, "zeroUnit"),
       title_position = "top"
     )
   },
+
   assemble_drawing = function(self,
                               grobs,
                               layout,
                               sizes,
                               params,
                               elements) {
-    theme_margin <- elements$margin %||% margin(0, 0, 0, 0)
+    theme_margin <- elements$margin %||%
+      margin(0, 0, 0, 0)
+
     unit_name <- attr(theme_margin, "unit")
 
     margin_top <- grid::unit(theme_margin[[1]], unit_name)
+
     margin_right <- grid::unit(theme_margin[[2]], unit_name)
+
     margin_bottom <- grid::unit(theme_margin[[3]], unit_name)
+
     margin_left <- grid::unit(theme_margin[[4]], unit_name)
 
     has_title <- !inherits(grobs$title, "zeroGrob")
+
     title_gap <- grid::unit(2, "mm")
-    title_height <- if (has_title)
+
+    title_height <- if (has_title) {
       grid::grobHeight(grobs$title)
-    else
+    } else {
       grid::unit(0, "mm")
+    }
 
     widths <- grid::unit.c(margin_left, sizes$decor_width, margin_right)
 
@@ -270,6 +304,7 @@ GuideVSUP <- ggproto(
 
     gt
   },
+
   draw_vsup_decor = function(self,
                              key,
                              layer_sizes,
@@ -280,6 +315,7 @@ GuideVSUP <- ggproto(
                              title_uncertainty = "Uncertainty",
                              elements) {
     n_layers <- length(layer_sizes)
+
     if (n_layers == 0L) {
       return(grid::nullGrob())
     }
@@ -296,6 +332,7 @@ GuideVSUP <- ggproto(
     r_center <- 0
     r_outer <- 0.50
     r_levels <- seq(0.14, r_outer, length.out = n_layers)
+
     arc_steps <- 60
 
     polar_to_npc <- function(r, theta) {
@@ -303,12 +340,14 @@ GuideVSUP <- ggproto(
     }
 
     grobs <- list()
+
     add_grob <- function(grob) {
       grobs[[length(grobs) + 1L]] <<- grob
     }
 
     for (layer in seq_len(n_layers)) {
       n_cells <- layer_sizes[layer]
+
       layer_fills <- fills[start_idx[layer]:end_idx[layer]]
 
       if (layer == 1L) {
@@ -335,9 +374,11 @@ GuideVSUP <- ggproto(
         }
 
         theta_outer <- seq(theta0, theta1, length.out = arc_steps)
+
         theta_inner <- seq(theta1, theta0, length.out = arc_steps)
 
         p_outer <- polar_to_npc(r_outer_layer, theta_outer)
+
         p_inner <- polar_to_npc(r_inner, theta_inner)
 
         add_grob(grid::polygonGrob(
@@ -353,7 +394,9 @@ GuideVSUP <- ggproto(
     title_gp <- layout_info$title_gp
 
     r_tick <- r_levels[n_layers] + 0.015
+
     theta_arc <- seq(theta_start, theta_end, length.out = 120)
+
     p_arc <- polar_to_npc(r_tick, theta_arc)
 
     add_grob(grid::linesGrob(
@@ -364,14 +407,18 @@ GuideVSUP <- ggproto(
     ))
 
     n_value_ticks <- length(value_breaks)
+
     if (n_value_ticks > 0L) {
       theta_ticks <- seq(theta_start, theta_end, length.out = n_value_ticks)
-      tick_length <- 0.02
+
+      value_tick_length <- 0.02
 
       for (i in seq_along(theta_ticks)) {
         theta <- theta_ticks[i]
+
         p0 <- polar_to_npc(r_tick, theta)
-        p1 <- polar_to_npc(r_tick + tick_length, theta)
+
+        p1 <- polar_to_npc(r_tick + value_tick_length, theta)
 
         add_grob(
           grid::segmentsGrob(
@@ -384,17 +431,23 @@ GuideVSUP <- ggproto(
           )
         )
 
-        keep_label <- (i == 1L) ||
-          (i == n_value_ticks) || (i %% 2 == 1L)
+        keep_label <-
+          i == 1L ||
+          i == n_value_ticks ||
+          i %% 2 == 1L
+
         if (!keep_label) {
           next
         }
 
         p_label <- polar_to_npc(r_tick + 0.045, theta)
+
         rot_deg <- theta * 180 / pi - 90
+
         if (rot_deg < -90) {
           rot_deg <- rot_deg + 180
         }
+
         if (rot_deg > 90) {
           rot_deg <- rot_deg - 180
         }
@@ -406,7 +459,7 @@ GuideVSUP <- ggproto(
             y = p_label$y,
             default.units = "npc",
             rot = rot_deg,
-            just = c("centre", "bottom"),
+            just = c("center", "bottom"),
             gp = text_gp
           )
         )
@@ -414,7 +467,9 @@ GuideVSUP <- ggproto(
     }
 
     theta_axis <- theta_end
+
     nx <- -cos(theta_axis + pi / 2)
+
     ny <- -sin(theta_axis + pi / 2)
 
     shift_point <- function(point, shift) {
@@ -422,13 +477,16 @@ GuideVSUP <- ggproto(
     }
 
     axis_shift <- 0.015
-    tick_length <- 0.015
+    uncertainty_tick_length <- 0.015
     label_shift <- 0.05
+    title_shift <- 0.15
 
     p_axis_start_base <- polar_to_npc(r_center, theta_axis)
+
     p_axis_end_base <- polar_to_npc(r_levels[n_layers], theta_axis)
 
     p_axis_start <- shift_point(p_axis_start_base, axis_shift)
+
     p_axis_end <- shift_point(p_axis_end_base, axis_shift)
 
     add_grob(grid::linesGrob(
@@ -439,10 +497,13 @@ GuideVSUP <- ggproto(
     ))
 
     r_ticks <- seq(r_center, r_levels[n_layers], length.out = n_layers + 1L)
+
     for (i in seq_along(r_ticks)) {
       p_base <- polar_to_npc(r_ticks[i], theta_axis)
+
       p_tick_start <- shift_point(p_base, axis_shift)
-      p_tick_end <- shift_point(p_base, axis_shift + tick_length)
+
+      p_tick_end <- shift_point(p_base, axis_shift + uncertainty_tick_length)
 
       add_grob(
         grid::segmentsGrob(
@@ -457,40 +518,53 @@ GuideVSUP <- ggproto(
     }
 
     n_uncertainty_labels <- length(uncertainty_breaks)
+
+    uncertainty_label_grobs <- vector("list", n_uncertainty_labels)
+
     for (j in seq_len(n_uncertainty_labels)) {
       rj <- r_ticks[n_uncertainty_labels - j + 1L]
+
       p_base <- polar_to_npc(rj, theta_axis)
+
       p_label <- shift_point(p_base, axis_shift + label_shift)
 
-      add_grob(
-        grid::textGrob(
-          label = uncertainty_breaks[j],
-          x = p_label$x,
-          y = p_label$y,
-          default.units = "npc",
-          just = c("left", "center"),
-          gp = text_gp
-        )
+      label_grob <- grid::textGrob(
+        label = uncertainty_breaks[j],
+        x = p_label$x,
+        y = p_label$y,
+        default.units = "npc",
+        just = c("left", "center"),
+        gp = text_gp
       )
+
+      uncertainty_label_grobs[[j]] <- label_grob
+      add_grob(label_grob)
     }
 
     if (!is.null(title_uncertainty) &&
         !identical(title_uncertainty, "")) {
       p_axis_mid <- list(
-        x = (p_axis_start_base$x + p_axis_end_base$x) / 2,
-        y = (p_axis_start_base$y + p_axis_end_base$y) / 2
+        x = (p_axis_start_base$x +
+               p_axis_end_base$x) / 2,
+        y = (p_axis_start_base$y +
+               p_axis_end_base$y) / 2
       )
 
-      p_title <- shift_point(
-        p_axis_mid,
-        axis_shift + label_shift + 0.05
-      )
+      p_title_base <- shift_point(p_axis_mid, axis_shift + label_shift)
+
+      label_widths <- lapply(uncertainty_label_grobs, grid::grobWidth)
+
+      max_label_width <- Reduce(grid::unit.pmax, label_widths)
+
+      title_gap <- grid::unit(3, "mm")
 
       add_grob(
         grid::textGrob(
           label = title_uncertainty,
-          x = grid::unit(p_title$x, "npc") + grid::unit(4.5, "mm"),
-          y = grid::unit(p_title$y, "npc"),
+          x = grid::unit(p_title_base$x, "npc") +
+            max_label_width +
+            title_gap,
+          y = grid::unit(p_title_base$y, "npc"),
           rot = theta_axis * 180 / pi,
           just = c("center", "center"),
           gp = title_gp
@@ -498,8 +572,11 @@ GuideVSUP <- ggproto(
       )
     }
 
-    if (!is.null(title_value) && !identical(title_value, "")) {
-      theta_mid <- (theta_start + theta_end) / 2
+    if (!is.null(title_value) &&
+        !identical(title_value, "")) {
+      theta_mid <- (theta_start +
+                      theta_end) / 2
+
       p_value_title <- polar_to_npc(r_tick + 0.16, theta_mid)
 
       add_grob(
@@ -525,6 +602,7 @@ GuideVSUP <- ggproto(
     )
   }
 )
+
 
 #' VSUP guide
 #'
