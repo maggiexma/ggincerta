@@ -170,9 +170,9 @@ GuideBivariate <- ggproto(
 
     var2_label_w <- self$measure_labels(params$var2_labels, text_el, "width")
 
-    key_w <- grid::unit.pmax(elements$key_width, grid::unit(1.5, "cm"))
+    key_w <- grid::unit.pmax(elements$key_width, grid::unit(2, "cm"))
 
-    key_h <- grid::unit.pmax(elements$key_height, grid::unit(1.5, "cm"))
+    key_h <- grid::unit.pmax(elements$key_height, grid::unit(2, "cm"))
 
     var1_label_angle <- self$get_var1_label_angle(
       params$var1_labels,
@@ -373,7 +373,10 @@ GuideBivariate <- ggproto(
           0.5
         else
           0,
-        vjust = 1,
+        vjust = if (angle == -90)
+          0.5
+        else
+          1,
         angle = angle
       )
     })
