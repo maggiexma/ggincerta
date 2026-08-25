@@ -121,12 +121,18 @@ ScaleBivariate <- ggproto(
       return(br)
     }
 
+    # User-supplied breaks
     if (is.function(br)) {
-      br <- br(limits)
-      return(numeric_breaks(br))
+      return(numeric_breaks(br(limits)))
     }
 
     trans <- scales::as.transform(self$transforms[[i]])
+
+    limits <- sort(as.numeric(limits))
+
+    limits_t <- sort(as.numeric(trans$transform(limits)))
+
+    n <- self$n_breaks[i]
 
     x_raw <- self$.trained_values_raw[[i]]
     x_t <- self$.trained_values_transformed[[i]]
@@ -136,47 +142,75 @@ ScaleBivariate <- ggproto(
     x_raw <- x_raw[keep]
     x_t <- x_t[keep]
 
-    if (!is.null(limits)) {
-      x_t <- x_t[x_raw >= limits[1] &
-                   x_raw <= limits[2]]
-    }
+    keep <- x_raw >= limits[1] &
+      x_raw <= limits[2]
 
-    limits_t <- sort(as.numeric(trans$transform(limits)))
+    x_raw <- x_raw[keep]
+    x_t <- x_t[keep]
 
-    if (!length(x_t)) {
-      br_t <- seq(limits_t[1], limits_t[2], length.out = self$n_breaks[i] + 1)
-
-      return(as.numeric(trans$inverse(br_t)))
-    }
-
-    if (identical(self$bin_method[[i]], "quantile")) {
-      br_t <- quantile(
+    # Quantile breaks
+    if (self$quantile[i] && length(x_t)) {
+      breaks_t <- quantile(
         x_t,
-        probs = seq(0, 1, length.out = self$n_breaks[i] + 1),
+        probs = seq(0, 1, length.out = n + 1),
         na.rm = TRUE,
         names = FALSE
       )
 
-      if (length(unique(br_t)) < length(br_t)) {
-        br_t <- seq(limits_t[1], limits_t[2], length.out = self$n_breaks[i] + 1)
+      if (length(unique(breaks_t)) < n + 1) {
+        breaks_t <- seq(limits_t[1], limits_t[2], length.out = n + 1)
       } else {
-        br_t[c(1, length(br_t))] <- limits_t
+        breaks_t[c(1, length(breaks_t))] <-
+          limits_t
       }
-    } else {
-      br_t <- scales::breaks_extended(n = self$n_breaks[i] + 1)(limits_t)
 
-      br_t <- sort(unique(as.numeric(br_t)))
-
-      br_t <- br_t[is.finite(br_t)]
-
-      if (length(br_t) != self$n_breaks[i] + 1) {
-        br_t <- seq(limits_t[1], limits_t[2], length.out = self$n_breaks[i] + 1)
-      } else {
-        br_t[c(1, length(br_t))] <- limits_t
-      }
+      return(as.numeric(trans$inverse(breaks_t)))
     }
 
-    as.numeric(trans$inverse(br_t))
+    # Exact equal-width bins
+    if (!self$nice.breaks[i]) {
+      breaks_t <- seq(limits_t[1], limits_t[2], length.out = n + 1)
+
+      return(as.numeric(trans$inverse(breaks_t)))
+    }
+
+    # Nice internal breaks
+    if (n > 1) {
+      internal <- trans$breaks(limits, n = n + 1)
+
+      internal <- numeric_breaks(internal)
+
+      internal <- internal[internal > limits[1] &
+                             internal < limits[2]]
+
+      if (length(internal) > n - 1) {
+        internal <- internal[round(seq(1, length(internal), length.out = n - 1))]
+      }
+    } else {
+      internal <- numeric()
+    }
+
+    # Construct endpoints from the internal step
+    if (length(internal) == n - 1) {
+      internal_t <- as.numeric(trans$transform(internal))
+
+      step <- median(diff(internal_t))
+
+      if (!is.null(self$limits[[i]])) {
+        endpoints_t <- limits_t
+      } else {
+        endpoints_t <- c(internal_t[1] - step, internal_t[length(internal_t)] + step)
+      }
+
+      breaks_t <- c(endpoints_t[1], internal_t, endpoints_t[2])
+
+      return(as.numeric(trans$inverse(breaks_t)))
+    }
+
+    # Fallback
+    breaks_t <- seq(limits_t[1], limits_t[2], length.out = n + 1)
+
+    as.numeric(trans$inverse(breaks_t))
   },
 
   get_breaks = function(self, limits = self$get_limits()) {
@@ -415,7 +449,8 @@ bivariate_scale <- function(aesthetics,
                             palette_fun = NULL,
                             palette_params = list(),
                             n_breaks = c(4, 4),
-                            bin_method = c("equal", "equal"),
+                            nice.breaks = TRUE,
+                            quantile = FALSE,
                             var1_name = NULL,
                             var2_name = NULL,
                             super = ScaleBivariate) {
@@ -457,11 +492,19 @@ bivariate_scale <- function(aesthetics,
   }
 
   n_breaks <- normalize_pair(n_breaks, "n_breaks")
-  bin_method <- normalize_pair(match.arg(bin_method, c("quantile", "equal"), several.ok = TRUE), "bin_method")
+  nice.breaks <- normalize_pair(nice.breaks, "nice.breaks")
+  quantile <- normalize_pair(quantile, "quantile")
   transform <- normalize_pair_list(transform, "transform")
   breaks <- normalize_pair_list(breaks, "breaks")
   labels <- normalize_pair_list(labels, "labels")
   limits <- normalize_pair_list(limits, "limits")
+
+  limits <- lapply(limits, function(x) {
+    if (is_waiver(x))
+      NULL
+    else
+      x
+  })
 
   invisible(lapply(transform, scales::as.transform))
 
@@ -483,7 +526,8 @@ bivariate_scale <- function(aesthetics,
   sc$limits <- limits
   sc$colours <- colours
   sc$n_breaks <- n_breaks
-  sc$bin_method <- bin_method
+  sc$nice.breaks <- nice.breaks
+  sc$quantile <- quantile
   sc$transforms <- transform
   sc$var1_name <- var1_name
   sc$var2_name <- var2_name
@@ -523,11 +567,12 @@ scale_fill_bivariate <- function(...,
                                  palette_fun = NULL,
                                  palette_params = list(),
                                  n_breaks = c(4, 4),
+                                 nice.breaks = TRUE,
+                                 quantile = FALSE,
                                  breaks = list(waiver(), waiver()),
                                  labels = list(waiver(), waiver()),
                                  limits = list(NULL, NULL),
                                  transform = list("identity", "identity"),
-                                 bin_method = c("equal", "equal"),
                                  na.value = NA,
                                  aesthetics = "fill",
                                  guide = guide_bivariate()) {
@@ -545,7 +590,8 @@ scale_fill_bivariate <- function(...,
     palette_fun = palette_fun,
     palette_params = palette_params,
     n_breaks = n_breaks,
-    bin_method = bin_method,
+    nice.breaks = nice.breaks,
+    quantile = quantile,
     var1_name = var1_name,
     var2_name = var2_name
   )
@@ -565,7 +611,6 @@ scale_color_bivariate <- function(...,
                                   labels = list(waiver(), waiver()),
                                   limits = list(NULL, NULL),
                                   transform = list("identity", "identity"),
-                                  bin_method = c("equal", "equal"),
                                   na.value = NA,
                                   aesthetics = "colour",
                                   guide = guide_bivariate()) {
@@ -581,7 +626,6 @@ scale_color_bivariate <- function(...,
     labels = labels,
     limits = limits,
     transform = transform,
-    bin_method = bin_method,
     na.value = na.value,
     aesthetics = aesthetics,
     guide = guide,
