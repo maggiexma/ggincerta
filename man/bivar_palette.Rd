@@ -15,7 +15,7 @@ bivar_palette(
 two colour ramps.}
 
 \item{n_breaks}{An integer or a length-two vector specifying the number of
-bins for each variable. The default is 4 for both variables, and unequal
+bins for each variable. The default is 4 for both variables. Unequal
 numbers of bins are supported.}
 
 \item{flip}{A character string specifying how to flip the palette:

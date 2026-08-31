@@ -402,15 +402,17 @@ ScaleBivariate <- ggproto(
 #'
 #' @inheritParams ggplot2::discrete_scale
 #' @param breaks A list of two numeric vectors specifying bin boundaries for
-#'   each variable. If `waiver()`, breaks are computed from the data according
-#'   to `n_breaks` and `bin_method`.
-#' @param labels A list of two character vectors or labelling functions
-#'   used to label the bin boundaries for each variable. If `waiver()`,
-#'   default numeric labels are used.
-#' @param limits A list of two numeric vectors specifying the range of
-#'   values to include for each variable.
-#' @param transform A list of two transformations applied to the variables
-#'   before binning. Each element can be a transformation name or a
+#'   the two variables. If `waiver()`, breaks are computed automatically
+#'   according to `n_breaks`, `nice.breaks`, and `quantile`.
+#' @param labels A list of two character vectors or labelling functions used
+#'   to label the bin boundaries for the two variables. If `waiver()`,
+#'   default labels are generated from the breaks.
+#' @param limits A list of two vectors specifying the limits for the two
+#'   variables. For continuous variables, each element specifies the numeric
+#'   range to include. For discrete variables, it specifies the levels to
+#'   include.
+#' @param transform A list of one or two transformations applied to continuous
+#'   variables before binning. Each element can be a transformation name or a
 #'   transformer object accepted by [scales::as.transform()].
 #' @param colours A character vector of colours used as key points in the colour
 #'   ramp that variables are mapped to. For details on how supplied colours are
@@ -419,13 +421,18 @@ ScaleBivariate <- ggproto(
 #' @param palette_fun A palette function that, when called with `colours` and
 #'   `n_breaks`, returns a character vector of colours for all binned
 #'   combinations. If `NULL`, the default, [bivar_palette()] is used.
-#' @param palette_params A list of additional arguments passed to `palette`. For
-#'   details of arguments, see [bivar_palette()] and [bivar_fade_palette()].
+#' @param palette_params A list of additional arguments passed to `palette_fun`.
+#'   See [bivar_palette()] and [bivar_fade_palette()] for available arguments.
 #' @param n_breaks An integer or a length-two vector specifying the number of
-#'   bins for each variable. The default is 4 for both variables, and unequal
+#'   bins for each variable. The default is 4 for both variables. Unequal
 #'   numbers of bins are supported.
-#' @param bin_method A character string or a length-two vector specifying the
-#'   method used to bin each variable: `"equal"` (the default) or `"quantile"`.
+#' @param nice.breaks A logical value or length-two logical vector indicating
+#'   whether automatically generated breaks should use nice, human-readable
+#'   values. When `TRUE`, equal-width bins may extend beyond the data range to
+#'   preserve nice boundaries and the requested number of bins.
+#' @param quantile A logical value or length-two logical vector indicating
+#'   whether the variables should be divided using quantile-based bins.
+#'   If quantile breaks are not unique, equal-width bins are used instead.
 #' @param ... Other arguments passed to [ggplot2::discrete_scale()].
 #' @param var1_name,var2_name Optional names for `v1` and `v2`. Used as axis
 #'   titles in the legend. If `NULL`, the default, the names are taken from the
@@ -607,6 +614,8 @@ scale_color_bivariate <- function(...,
                                   palette_fun = NULL,
                                   palette_params = list(),
                                   n_breaks = c(4, 4),
+                                  nice.breaks = TRUE,
+                                  quantile = FALSE,
                                   breaks = list(waiver(), waiver()),
                                   labels = list(waiver(), waiver()),
                                   limits = list(NULL, NULL),
@@ -622,6 +631,8 @@ scale_color_bivariate <- function(...,
     palette_fun = palette_fun,
     palette_params = palette_params,
     n_breaks = n_breaks,
+    nice.breaks = nice.breaks,
+    quantile = quantile,
     breaks = breaks,
     labels = labels,
     limits = limits,

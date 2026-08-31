@@ -32,7 +32,8 @@ manual_bivariate_scale <- function(aesthetics,
                                    drop = FALSE,
                                    guide = guide_bivariate(),
                                    n_breaks = c(4, 4),
-                                   bin_method = c("equal", "equal"),
+                                   nice.breaks = TRUE,
+                                   quantile = FALSE,
                                    var1_name = NULL,
                                    var2_name = NULL,
                                    super = ScaleBivariate) {
@@ -43,9 +44,11 @@ manual_bivariate_scale <- function(aesthetics,
   normalize_pair <- function(x, name) {
     if (length(x) == 1)
       x <- rep(x, 2)
+
     if (length(x) != 2) {
       cli::cli_abort("{.arg {name}} must have length 1 or 2.")
     }
+
     x
   }
 
@@ -65,7 +68,8 @@ manual_bivariate_scale <- function(aesthetics,
       nrow = n_breaks[1],
       ncol = n_breaks[2],
       byrow = TRUE
-    ) |> as.vector()
+    ) |>
+      as.vector()
   }
 
   bivariate_scale(
@@ -82,7 +86,8 @@ manual_bivariate_scale <- function(aesthetics,
     guide = guide,
     palette_fun = palette,
     n_breaks = n_breaks,
-    bin_method = bin_method,
+    nice.breaks = nice.breaks,
+    quantile = quantile,
     var1_name = var1_name,
     var2_name = var2_name,
     super = super
@@ -97,11 +102,12 @@ scale_fill_bivariate_manual <- function(...,
                                         var1_name = NULL,
                                         var2_name = NULL,
                                         n_breaks = c(4, 4),
+                                        nice.breaks = TRUE,
+                                        quantile = FALSE,
                                         breaks = list(waiver(), waiver()),
                                         labels = list(waiver(), waiver()),
                                         limits = list(NULL, NULL),
                                         transform = list("identity", "identity"),
-                                        bin_method = c("equal", "equal"),
                                         na.value = NA,
                                         na.translate = TRUE,
                                         aesthetics = "fill",
@@ -119,7 +125,8 @@ scale_fill_bivariate_manual <- function(...,
     na.translate = na.translate,
     guide = guide,
     n_breaks = n_breaks,
-    bin_method = bin_method,
+    nice.breaks = nice.breaks,
+    quantile = quantile,
     var1_name = var1_name,
     var2_name = var2_name
   )
@@ -133,11 +140,12 @@ scale_colour_bivariate_manual <- function(...,
                                           var1_name = NULL,
                                           var2_name = NULL,
                                           n_breaks = c(4, 4),
+                                          nice.breaks = TRUE,
+                                          quantile = FALSE,
                                           breaks = list(waiver(), waiver()),
                                           labels = list(waiver(), waiver()),
                                           limits = list(NULL, NULL),
                                           transform = list("identity", "identity"),
-                                          bin_method = c("equal", "equal"),
                                           na.value = NA,
                                           na.translate = TRUE,
                                           aesthetics = "colour",
@@ -147,15 +155,17 @@ scale_colour_bivariate_manual <- function(...,
     var1_name = var1_name,
     var2_name = var2_name,
     n_breaks = n_breaks,
+    nice.breaks = nice.breaks,
+    quantile = quantile,
     breaks = breaks,
     labels = labels,
     limits = limits,
     transform = transform,
-    bin_method = bin_method,
     na.value = na.value,
     na.translate = na.translate,
     aesthetics = aesthetics,
     guide = guide,
+    values = values,
     ...
   )
 }

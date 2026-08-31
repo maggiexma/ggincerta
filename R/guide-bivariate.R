@@ -122,39 +122,6 @@ GuideBivariate <- ggproto(
     }
   },
 
-  get_var1_label_angle = function(self,
-                                  labels,
-                                  label_w,
-                                  key_w,
-                                  discrete = FALSE,
-                                  rotated = FALSE) {
-    if (rotated ||
-        is.null(labels) ||
-        length(labels) <= 1) {
-      return(0)
-    }
-
-    spacing <- if (discrete) {
-      key_w / length(labels)
-    } else {
-      key_w / (length(labels) - 1)
-    }
-
-    label_w_mm <- grid::convertWidth(label_w, "mm", valueOnly = TRUE)
-
-    spacing_mm <- grid::convertWidth(spacing, "mm", valueOnly = TRUE)
-
-    ratio <- label_w_mm / spacing_mm
-
-    if (ratio <= 1) {
-      0
-    } else if (ratio <= 1.6) {
-      -45
-    } else {
-      -90
-    }
-  },
-
   compute_bivariate_layout = function(self, params, elements) {
     text_el <- elements$text
     title_el <- elements$theme.title
@@ -174,19 +141,7 @@ GuideBivariate <- ggproto(
 
     key_h <- grid::unit.pmax(elements$key_height, grid::unit(2, "cm"))
 
-    var1_label_angle <- self$get_var1_label_angle(
-      params$var1_labels,
-      var1_label_w,
-      key_w,
-      discrete = isTRUE(params$x_discrete),
-      rotated = rotated
-    )
-
-    angle_rad <- var1_label_angle * pi / 180
-
-    var1_label_rot_h <-
-      abs(sin(angle_rad)) * var1_label_w +
-      abs(cos(angle_rad)) * var1_label_h
+    var1_label_rot_h <- var1_label_h
 
     var1_title_h <- if (!is.null(params$var1_title)) {
       grid::grobHeight(self$make_text_grob(title_el, params$var1_title))
@@ -252,7 +207,6 @@ GuideBivariate <- ggproto(
       var1_label_h = var1_label_h,
       var1_label_w = var1_label_w,
       var1_label_rot_h = var1_label_rot_h,
-      var1_label_angle = var1_label_angle,
       var2_label_w = var2_label_w,
       var1_title_h = var1_title_h,
       var1_title_w_rot = var1_title_w_rot,
@@ -359,8 +313,6 @@ GuideBivariate <- ggproto(
       }))
     }
 
-    angle <- layout$var1_label_angle
-
     y <- panel$to_npc_y(layout$bottom_anno_h - layout$label_gap)
 
     lapply(seq_along(labels), function(i) {
@@ -369,15 +321,9 @@ GuideBivariate <- ggproto(
         labels[i],
         x = panel$x + xs[i] * panel$w,
         y = y,
-        hjust = if (angle == 0)
-          0.5
-        else
-          0,
-        vjust = if (angle == -90)
-          0.5
-        else
-          1,
-        angle = angle
+        hjust = 0.5,
+        vjust = 1,
+        angle = 0
       )
     })
   },

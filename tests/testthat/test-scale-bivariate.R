@@ -3,13 +3,15 @@ expected_bivariate_fill <- function(data,
                                     y,
                                     n_breaks = c(4, 4),
                                     colours = c("#EDF8B1", "#2C7FB8"),
-                                    bin_method = c("equal", "equal")) {
-  bin_method <- rep(bin_method, length.out = 2)
+                                    nice.breaks = TRUE,
+                                    quantile = FALSE) {
+  nice.breaks <- rep(nice.breaks, length.out = 2)
+  quantile <- rep(quantile, length.out = 2)
 
-  get_breaks <- function(z, n, method) {
+  get_breaks <- function(z, n, nice, quantile) {
     limits <- range(z, na.rm = TRUE)
 
-    if (method == "quantile") {
+    if (quantile) {
       breaks <- quantile(
         z,
         probs = seq(0, 1, length.out = n + 1),
@@ -17,30 +19,43 @@ expected_bivariate_fill <- function(data,
         names = FALSE
       )
 
-      if (length(unique(breaks)) < length(breaks)) {
+      if (length(unique(breaks)) < n + 1) {
         breaks <- seq(limits[1], limits[2], length.out = n + 1)
       } else {
         breaks[c(1, length(breaks))] <- limits
       }
-    } else {
-      breaks <- scales::breaks_extended(n = n + 1)(limits)
 
-      breaks <- sort(unique(breaks))
-      breaks <- breaks[is.finite(breaks)]
-
-      if (length(breaks) != n + 1) {
-        breaks <- seq(limits[1], limits[2], length.out = n + 1)
-      } else {
-        breaks[c(1, length(breaks))] <- limits
-      }
+      return(breaks)
     }
 
-    breaks
+    if (!nice) {
+      return(seq(limits[1], limits[2], length.out = n + 1))
+    }
+
+    internal <- scales::breaks_extended(n = n + 1)(limits)
+
+    internal <- sort(unique(internal))
+    internal <- internal[is.finite(internal)]
+
+    internal <- internal[internal > limits[1] &
+                           internal < limits[2]]
+
+    if (length(internal) > n - 1) {
+      internal <- internal[round(seq(1, length(internal), length.out = n - 1))]
+    }
+
+    if (length(internal) == n - 1) {
+      step <- median(diff(internal))
+
+      return(c(internal[1] - step, internal, internal[length(internal)] + step))
+    }
+
+    seq(limits[1], limits[2], length.out = n + 1)
   }
 
-  bx <- get_breaks(data[[x]], n_breaks[1], bin_method[1])
+  bx <- get_breaks(data[[x]], n_breaks[1], nice.breaks[1], quantile[1])
 
-  by <- get_breaks(data[[y]], n_breaks[2], bin_method[2])
+  by <- get_breaks(data[[y]], n_breaks[2], nice.breaks[2], quantile[2])
 
   bin1 <- cut(
     data[[x]],
@@ -63,7 +78,7 @@ expected_bivariate_fill <- function(data,
   unname(pal[combo])
 }
 
-test_that("bivariate scale maps default equal bin combinations to colours", {
+test_that("bivariate scale maps default nice bin combinations to colours", {
   p <- ggplot(nc) +
     geom_sf(aes(fill = duo(value, sd)))
 
@@ -77,16 +92,14 @@ test_that("bivariate scale maps default equal bin combinations to colours", {
 test_that("bivariate scale maps quantile bin combinations to colours", {
   p <- ggplot(nc) +
     geom_sf(aes(fill = duo(value, sd))) +
-    scale_fill_bivariate(bin_method = "quantile")
+    scale_fill_bivariate(quantile = TRUE)
 
   fills_mapped <- ggplot_build(p)$data[[1]]$fill
 
-  fills_expected <- expected_bivariate_fill(
-    nc,
-    x = "value",
-    y = "sd",
-    bin_method = c("quantile", "quantile")
-  )
+  fills_expected <- expected_bivariate_fill(nc,
+                                            x = "value",
+                                            y = "sd",
+                                            quantile = TRUE)
 
   expect_equal(fills_mapped, fills_expected)
 })
@@ -108,6 +121,22 @@ test_that("bivariate scale works with unequal numbers of breaks", {
 
   expect_equal(fills_mapped, fills_expected)
 })
+
+test_that("bivariate scale uses exact equal-width bins when nice.breaks is FALSE",
+          {
+            p <- ggplot(nc) +
+              geom_sf(aes(fill = duo(value, sd))) +
+              scale_fill_bivariate(nice.breaks = FALSE)
+
+            fills_mapped <- ggplot_build(p)$data[[1]]$fill
+
+            fills_expected <- expected_bivariate_fill(nc,
+                                                      x = "value",
+                                                      y = "sd",
+                                                      nice.breaks = FALSE)
+
+            expect_equal(fills_mapped, fills_expected)
+          })
 
 test_that("bivariate scale handles missing values", {
   nc_na <- nc
@@ -191,38 +220,74 @@ test_that("bivariate scale works automatically with geom_sf", {
   vdiffr::expect_doppelganger("bivariate map", p)
 })
 
-test_that("bivariate scale respects custom breaks, limits, labels, and transform",
+test_that("bivariate scale respects custom breaks, limits, labels, and transform", {
+  p <- ggplot(nc) +
+    geom_sf(aes(fill = duo(value, sd))) +
+    scale_fill_bivariate(
+      breaks = list(
+        c(0, 2, 4, 6, 8),
+        c(1, 2, 4, 8, 16)
+      ),
+      limits = list(
+        c(0, 8),
+        c(1, 16)
+      ),
+      labels = list(
+        c("very low", "low", "high", "very high"),
+        c("small", "medium", "large", "very large")
+      ),
+      transform = list("identity", "log2"),
+      n_breaks = c(4, 4)
+    )
+
+  gb <- ggplot_build(p)
+  fills_mapped <- gb$data[[1]]$fill
+
+  expect_equal(length(fills_mapped), nrow(nc))
+  expect_true(any(is.na(fills_mapped)))
+  expect_true(any(!is.na(fills_mapped)))
+
+  guide_info <- gb$plot$scales$get_scales("fill")$get_guide_info()
+
+  expect_equal(
+    guide_info$x_breaks,
+    c(0, 2, 4, 6, 8)
+  )
+
+  expect_equal(
+    guide_info$y_breaks,
+    c(1, 2, 4, 8, 16)
+  )
+
+  expect_equal(
+    guide_info$x_labels,
+    c("very low", "low", "high", "very high")
+  )
+
+  expect_equal(
+    guide_info$y_labels,
+    c("small", "medium", "large", "very large")
+  )
+})
+
+test_that("bivariate scale supports different binning methods for each variable",
           {
             p <- ggplot(nc) +
               geom_sf(aes(fill = duo(value, sd))) +
-              scale_fill_bivariate(
-                breaks = list(c(0, 2, 4, 6, 8), c(1, 2, 4, 8, 16)),
-                limits = list(c(0, 8), c(1, 16)),
-                labels = list(
-                  c("very low", "low", "high", "very high"),
-                  c("small", "medium", "large", "very large")
-                ),
-                transform = list("identity", "log2"),
-                n_breaks = c(4, 4),
-                bin_method = c("equal", "equal")
-              )
+              scale_fill_bivariate(nice.breaks = c(TRUE, FALSE),
+                                   quantile = c(FALSE, TRUE))
 
-            gb <- ggplot_build(p)
-            fills_mapped <- gb$data[[1]]$fill
+            fills_mapped <- ggplot_build(p)$data[[1]]$fill
 
-            expect_equal(length(fills_mapped), nrow(nc))
-            expect_true(any(is.na(fills_mapped)))
-            expect_true(any(!is.na(fills_mapped)))
+            fills_expected <- expected_bivariate_fill(
+              nc,
+              x = "value",
+              y = "sd",
+              nice.breaks = c(TRUE, FALSE),
+              quantile = c(FALSE, TRUE)
+            )
 
-            guide_info <- gb$plot$scales$get_scales("fill")$get_guide_info()
-
-            expect_equal(guide_info$x_breaks, c(0, 2, 4, 6, 8))
-            expect_equal(guide_info$y_breaks, c(1, 2, 4, 8, 16))
-
-            expect_equal(guide_info$x_labels, c("very low", "low", "high", "very high"))
-
-            expect_equal(guide_info$y_labels,
-                         c("small", "medium", "large", "very large"))
+            expect_equal(fills_mapped, fills_expected)
           })
 
 test_that("bivariate scale transforms breaks and limits before binning", {
@@ -232,7 +297,6 @@ test_that("bivariate scale transforms breaks and limits before binning", {
     transform = list("identity", "log2"),
     breaks = list(c(0, 2, 4), c(1, 2, 4, 8, 16)),
     limits = list(c(0, 4), c(1, 16)),
-    bin_method = c("equal", "equal"),
     na.value = "grey80"
   )
 

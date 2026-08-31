@@ -21,6 +21,7 @@ Imports:
     grid,
     gtable,
     purrr,
+    RColorBrewer,
     rlang,
     scales,
     sf,

@@ -88,8 +88,8 @@ new ones. Also accepts rlang \link[rlang:as_function]{lambda} function
 notation.
 }}
 
-\item{transform}{A list of two transformations applied to the variables
-before binning. Each element can be a transformation name or a
+\item{transform}{A list of one or two transformations applied to continuous
+variables before binning. Each element can be a transformation name or a
 transformer object accepted by \code{\link[scales:as.transform]{scales::as.transform()}}.}
 
 \item{title_value, title_uncertainty}{Optional titles for the value and

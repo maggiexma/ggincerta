@@ -26,7 +26,8 @@ bivariate_scale(
   palette_fun = NULL,
   palette_params = list(),
   n_breaks = c(4, 4),
-  bin_method = c("equal", "equal"),
+  nice.breaks = TRUE,
+  quantile = FALSE,
   var1_name = NULL,
   var2_name = NULL,
   super = ScaleBivariate
@@ -41,11 +42,12 @@ scale_fill_bivariate(
   palette_fun = NULL,
   palette_params = list(),
   n_breaks = c(4, 4),
+  nice.breaks = TRUE,
+  quantile = FALSE,
   breaks = list(waiver(), waiver()),
   labels = list(waiver(), waiver()),
   limits = list(NULL, NULL),
   transform = list("identity", "identity"),
-  bin_method = c("equal", "equal"),
   na.value = NA,
   aesthetics = "fill",
   guide = guide_bivariate()
@@ -60,11 +62,12 @@ scale_color_bivariate(
   palette_fun = NULL,
   palette_params = list(),
   n_breaks = c(4, 4),
+  nice.breaks = TRUE,
+  quantile = FALSE,
   breaks = list(waiver(), waiver()),
   labels = list(waiver(), waiver()),
   limits = list(NULL, NULL),
   transform = list("identity", "identity"),
-  bin_method = c("equal", "equal"),
   na.value = NA,
   aesthetics = "colour",
   guide = guide_bivariate()
@@ -79,11 +82,12 @@ scale_colour_bivariate(
   palette_fun = NULL,
   palette_params = list(),
   n_breaks = c(4, 4),
+  nice.breaks = TRUE,
+  quantile = FALSE,
   breaks = list(waiver(), waiver()),
   labels = list(waiver(), waiver()),
   limits = list(NULL, NULL),
   transform = list("identity", "identity"),
-  bin_method = c("equal", "equal"),
   na.value = NA,
   aesthetics = "colour",
   guide = guide_bivariate()
@@ -100,18 +104,20 @@ mapping used for that aesthetic. If \code{NULL}, the legend title will be
 omitted.}
 
 \item{breaks}{A list of two numeric vectors specifying bin boundaries for
-each variable. If \code{waiver()}, breaks are computed from the data according
-to \code{n_breaks} and \code{bin_method}.}
+the two variables. If \code{waiver()}, breaks are computed automatically
+according to \code{n_breaks}, \code{nice.breaks}, and \code{quantile}.}
 
-\item{labels}{A list of two character vectors or labelling functions
-used to label the bin boundaries for each variable. If \code{waiver()},
-default numeric labels are used.}
+\item{labels}{A list of two character vectors or labelling functions used
+to label the bin boundaries for the two variables. If \code{waiver()},
+default labels are generated from the breaks.}
 
-\item{limits}{A list of two numeric vectors specifying the range of
-values to include for each variable.}
+\item{limits}{A list of two vectors specifying the limits for the two
+variables. For continuous variables, each element specifies the numeric
+range to include. For discrete variables, it specifies the levels to
+include.}
 
-\item{transform}{A list of two transformations applied to the variables
-before binning. Each element can be a transformation name or a
+\item{transform}{A list of one or two transformations applied to continuous
+variables before binning. Each element can be a transformation name or a
 transformer object accepted by \code{\link[scales:as.transform]{scales::as.transform()}}.}
 
 \item{na.value}{If \code{na.translate = TRUE}, what aesthetic value should the
@@ -139,15 +145,21 @@ used to construct the resulting palette, see \code{\link[=bivar_palette]{bivar_p
 \code{n_breaks}, returns a character vector of colours for all binned
 combinations. If \code{NULL}, the default, \code{\link[=bivar_palette]{bivar_palette()}} is used.}
 
-\item{palette_params}{A list of additional arguments passed to \code{palette}. For
-details of arguments, see \code{\link[=bivar_palette]{bivar_palette()}} and \code{\link[=bivar_fade_palette]{bivar_fade_palette()}}.}
+\item{palette_params}{A list of additional arguments passed to \code{palette_fun}.
+See \code{\link[=bivar_palette]{bivar_palette()}} and \code{\link[=bivar_fade_palette]{bivar_fade_palette()}} for available arguments.}
 
 \item{n_breaks}{An integer or a length-two vector specifying the number of
-bins for each variable. The default is 4 for both variables, and unequal
+bins for each variable. The default is 4 for both variables. Unequal
 numbers of bins are supported.}
 
-\item{bin_method}{A character string or a length-two vector specifying the
-method used to bin each variable: \code{"equal"} (the default) or \code{"quantile"}.}
+\item{nice.breaks}{A logical value or length-two logical vector indicating
+whether automatically generated breaks should use nice, human-readable
+values. When \code{TRUE}, equal-width bins may extend beyond the data range to
+preserve nice boundaries and the requested number of bins.}
+
+\item{quantile}{A logical value or length-two logical vector indicating
+whether the variables should be divided using quantile-based bins.
+If quantile breaks are not unique, equal-width bins are used instead.}
 
 \item{var1_name, var2_name}{Optional names for \code{v1} and \code{v2}. Used as axis
 titles in the legend. If \code{NULL}, the default, the names are taken from the
