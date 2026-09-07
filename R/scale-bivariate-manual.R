@@ -16,7 +16,8 @@
 #'       "#E0ECF4", "#BFD3E6", "#9EBCDA", "#8856A7",
 #'       "#D0D1E6", "#A6BDDB", "#74A9CF", "#2B8CBE",
 #'       "#B8E186", "#7FBC41", "#4D9221", "#276419"
-#'     )
+#'     ),
+#'     n_breaks = 4
 #'   )
 #' @export
 manual_bivariate_scale <- function(aesthetics,
@@ -32,7 +33,6 @@ manual_bivariate_scale <- function(aesthetics,
                                    drop = FALSE,
                                    guide = guide_bivariate(),
                                    n_breaks = c(4, 4),
-                                   nice.breaks = TRUE,
                                    quantile = FALSE,
                                    var1_name = NULL,
                                    var2_name = NULL,
@@ -42,8 +42,9 @@ manual_bivariate_scale <- function(aesthetics,
   }
 
   normalize_pair <- function(x, name) {
-    if (length(x) == 1)
+    if (length(x) == 1) {
       x <- rep(x, 2)
+    }
 
     if (length(x) != 2) {
       cli::cli_abort("{.arg {name}} must have length 1 or 2.")
@@ -86,13 +87,14 @@ manual_bivariate_scale <- function(aesthetics,
     guide = guide,
     palette_fun = palette,
     n_breaks = n_breaks,
-    nice.breaks = nice.breaks,
+    nice.breaks = FALSE,
     quantile = quantile,
     var1_name = var1_name,
     var2_name = var2_name,
     super = super
   )
 }
+
 
 #' @rdname manual_bivariate_scale
 #' @export
@@ -102,7 +104,6 @@ scale_fill_bivariate_manual <- function(...,
                                         var1_name = NULL,
                                         var2_name = NULL,
                                         n_breaks = c(4, 4),
-                                        nice.breaks = TRUE,
                                         quantile = FALSE,
                                         breaks = list(waiver(), waiver()),
                                         labels = list(waiver(), waiver()),
@@ -125,12 +126,12 @@ scale_fill_bivariate_manual <- function(...,
     na.translate = na.translate,
     guide = guide,
     n_breaks = n_breaks,
-    nice.breaks = nice.breaks,
     quantile = quantile,
     var1_name = var1_name,
     var2_name = var2_name
   )
 }
+
 
 #' @rdname manual_bivariate_scale
 #' @export
@@ -140,7 +141,6 @@ scale_colour_bivariate_manual <- function(...,
                                           var1_name = NULL,
                                           var2_name = NULL,
                                           n_breaks = c(4, 4),
-                                          nice.breaks = TRUE,
                                           quantile = FALSE,
                                           breaks = list(waiver(), waiver()),
                                           labels = list(waiver(), waiver()),
@@ -155,7 +155,6 @@ scale_colour_bivariate_manual <- function(...,
     var1_name = var1_name,
     var2_name = var2_name,
     n_breaks = n_breaks,
-    nice.breaks = nice.breaks,
     quantile = quantile,
     breaks = breaks,
     labels = labels,
@@ -169,6 +168,7 @@ scale_colour_bivariate_manual <- function(...,
     ...
   )
 }
+
 
 #' @rdname manual_bivariate_scale
 #' @export

@@ -91,22 +91,37 @@ ScaleVSUP <- ggproto(
 #' Value-Suppressing Uncertainty Palette (VSUP) scale
 #'
 #' This scale implements Value-Suppressing Uncertainty Palettes (VSUPs),
-#' proposed by Correll et al. (2018). The main idea is to suppress colour
-#' variation in regions with higher uncertainty, thereby directing visual
-#' attention towards more reliable value differences.
+#' proposed by Correll et al. (2018). VSUPs reduce colour variation as
+#' uncertainty increases, so that value differences are progressively
+#' suppressed in less reliable regions.
 #'
 #' @seealso Correll et al. (2018) \doi{10.1145/3173574.3174216} for technical
 #'   details.
 #'
 #' @inheritParams ggplot2::discrete_scale
-#' @inheritParams bivariate_scale
 #' @param colours A character vector of colours used as key points in the value
 #'   colour scale. See [vsup_palette()] for details.
-#' @param layers An integer specifying the number of uncertainty levels.
-#' @param branch An integer specifying the branching factor used to allocate
-#'   value bins across uncertainty levels. The maximum number of value bins is
-#'   `branch^(layers - 1)`, and higher uncertainty levels are assigned fewer
-#'   value bins.
+#' @param layers An integer specifying the number of uncertainty levels in the
+#'   VSUP hierarchy.
+#' @param branch An integer specifying the branching factor used to determine
+#'   the number of value bins across uncertainty levels. The maximum number of
+#'   value bins is `branch^(layers - 1)`, with fewer value bins used at higher
+#'   uncertainty levels.
+#' @param breaks A list of two numeric vectors specifying break points for the
+#'   value and uncertainty variables, respectively. If an element is `NULL`,
+#'   breaks are generated automatically as equal-width intervals on the
+#'   transformed scale. The value dimension uses
+#'   `branch^(layers - 1) + 1` break points, while the uncertainty dimension
+#'   uses `layers + 1` break points.
+#' @param limits A list of two numeric vectors specifying the ranges used for
+#'   the value and uncertainty variables. If an element is `NULL`, the finite
+#'   range of the corresponding variable is used. Values outside the specified
+#'   limits are mapped to `na.value`.
+#' @param transform A list of one or two transformations applied to the value
+#'   and uncertainty variables before quantization. Automatic breaks are
+#'   generated as equal-width intervals on the transformed scale. Each element
+#'   can be a transformation name or a transformer object accepted by
+#'   [scales::as.transform()].
 #' @param title_value,title_uncertainty Optional titles for the value and
 #'   uncertainty dimensions in the guide.
 #' @param max_light A numeric value specifying the maximum amount of lightening
@@ -117,6 +132,8 @@ ScaleVSUP <- ggproto(
 #'   and desaturation across uncertainty levels.
 #' @param space A character string specifying the colour space used for colour
 #'   interpolation.
+#' @param ... Other arguments passed to [ggplot2::discrete_scale()].
+#'
 #' @rdname vsup_scale
 #' @export
 scale_fill_vsup <- function(name = waiver(),

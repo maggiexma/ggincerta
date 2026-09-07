@@ -14,9 +14,12 @@ bivar_palette(
 \item{colours}{A character vector of two colours used as the endpoints of the
 two colour ramps.}
 
-\item{n_breaks}{An integer or a length-two vector specifying the number of
-bins for each variable. The default is 4 for both variables. Unequal
-numbers of bins are supported.}
+\item{n_breaks}{An integer or a length-two vector specifying the desired
+number of bins for each variable. The default is 4 for both variables.
+When \code{nice.breaks = TRUE}, this value is treated as a suggestion and the
+actual number of bins may differ. When \code{nice.breaks = FALSE}, exactly
+\code{n_breaks} equal-width bins are generated. Unequal desired numbers of
+bins are supported.}
 
 \item{flip}{A character string specifying how to flip the palette:
 \code{"none"} (the default), \code{"vertical"}, \code{"horizontal"}, or \code{"both"}.}

@@ -1,13 +1,49 @@
-#' Tree quantization for VSUPs
+#' Tree quantization for Value-Suppressing Uncertainty Palettes
 #'
-#' Quantize value and uncertainty variables into a hierarchical VSUP tree.
+#' Quantizes value and uncertainty variables into the hierarchical tree
+#' structure used by Value-Suppressing Uncertainty Palettes (VSUPs).
 #'
-#' @inheritParams scale_fill_vsup
-#' @param v Numeric vector of value variable.
-#' @param u Numeric vector of uncertainty variable.
+#' The uncertainty variable is divided into `layers` intervals. The number of
+#' value bins varies across uncertainty levels according to `branch`, with the
+#' maximum number of value bins equal to `branch^(layers - 1)`. Higher
+#' uncertainty levels therefore use progressively fewer value bins.
 #'
-#' @return
-#' A list containing quantized leaf ids and break information.
+#' When breaks are not supplied, both variables are divided using equal-width
+#' intervals on their transformed scales. User-supplied breaks are restricted
+#' to the corresponding limits and must provide the required number of break
+#' points after limits are applied.
+#'
+#' @param v A numeric vector containing the value variable.
+#' @param u A numeric vector containing the uncertainty variable.
+#' @param layers An integer specifying the number of uncertainty levels.
+#' @param branch An integer specifying the branching factor of the VSUP tree.
+#'   The maximum number of value bins is `branch^(layers - 1)`.
+#' @param breaks A list of two numeric vectors specifying break points for the
+#'   value and uncertainty variables, respectively. If an element is `NULL`,
+#'   breaks are generated automatically as equal-width intervals on the
+#'   transformed scale. The value dimension requires
+#'   `branch^(layers - 1) + 1` break points and the uncertainty dimension
+#'   requires `layers + 1` break points.
+#' @param limits A list of two numeric vectors specifying the ranges used for
+#'   the value and uncertainty variables. If an element is `NULL`, the finite
+#'   data range is used. Values outside these limits are not assigned to a
+#'   VSUP leaf.
+#' @param transform A list of one or two transformations applied to `v` and
+#'   `u` before quantization. Each element can be a transformation name or a
+#'   transformer object accepted by [scales::as.transform()].
+#'
+#' @return A list with the following components:
+#' \describe{
+#'   \item{value}{A factor containing the VSUP leaf identifier assigned to each
+#'   observation. Observations outside the limits or with missing values are
+#'   returned as `NA`.}
+#'   \item{leaf_info}{A data frame describing each VSUP leaf, including its
+#'   leaf identifier, uncertainty layer, normalized value position, and value
+#'   midpoint.}
+#'   \item{value_breaks}{The value break points on the original data scale.}
+#'   \item{uncertainty_breaks}{The uncertainty break points on the original
+#'   data scale.}
+#' }
 #'
 #' @export
 vsup_quantize <- function(v,

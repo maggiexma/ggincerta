@@ -18,9 +18,12 @@ bivar_fade_palette(
 \item{colours}{A character vector of colours used as key points in
 interpolation.}
 
-\item{n_breaks}{An integer or a length-two vector specifying the number of
-bins for each variable. The default is 4 for both variables. Unequal
-numbers of bins are supported.}
+\item{n_breaks}{An integer or a length-two vector specifying the desired
+number of bins for each variable. The default is 4 for both variables.
+When \code{nice.breaks = TRUE}, this value is treated as a suggestion and the
+actual number of bins may differ. When \code{nice.breaks = FALSE}, exactly
+\code{n_breaks} equal-width bins are generated. Unequal desired numbers of
+bins are supported.}
 
 \item{fade}{A character string specifying the fading method: \code{"lighten"},
 \code{"desaturate"}, or \code{"alpha"}.}

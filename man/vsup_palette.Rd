@@ -24,12 +24,13 @@ value positions used to assign colours.}
 \item{colours}{A character vector of colours used as key points for
 interpolating the value colour scale at the lowest uncertainty level.}
 
-\item{layers}{An integer specifying the number of uncertainty levels.}
+\item{layers}{An integer specifying the number of uncertainty levels in the
+VSUP hierarchy.}
 
-\item{branch}{An integer specifying the branching factor used to allocate
-value bins across uncertainty levels. The maximum number of value bins is
-\code{branch^(layers - 1)}, and higher uncertainty levels are assigned fewer
-value bins.}
+\item{branch}{An integer specifying the branching factor used to determine
+the number of value bins across uncertainty levels. The maximum number of
+value bins is \code{branch^(layers - 1)}, with fewer value bins used at higher
+uncertainty levels.}
 
 \item{max_light}{A numeric value specifying the maximum amount of lightening
 applied across uncertainty levels.}

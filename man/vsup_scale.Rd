@@ -61,36 +61,31 @@ omitted.}
 \item{colours}{A character vector of colours used as key points in the value
 colour scale. See \code{\link[=vsup_palette]{vsup_palette()}} for details.}
 
-\item{layers}{An integer specifying the number of uncertainty levels.}
+\item{layers}{An integer specifying the number of uncertainty levels in the
+VSUP hierarchy.}
 
-\item{branch}{An integer specifying the branching factor used to allocate
-value bins across uncertainty levels. The maximum number of value bins is
-\code{branch^(layers - 1)}, and higher uncertainty levels are assigned fewer
-value bins.}
+\item{branch}{An integer specifying the branching factor used to determine
+the number of value bins across uncertainty levels. The maximum number of
+value bins is \code{branch^(layers - 1)}, with fewer value bins used at higher
+uncertainty levels.}
 
-\item{breaks}{One of:
-\itemize{
-\item \code{NULL} for no breaks
-\item \code{waiver()} for the default breaks (the scale limits)
-\item A character vector of breaks
-\item A function that takes the limits as input and returns breaks
-as output. Also accepts rlang \link[rlang:as_function]{lambda} function
-notation.
-}}
+\item{breaks}{A list of two numeric vectors specifying break points for the
+value and uncertainty variables, respectively. If an element is \code{NULL},
+breaks are generated automatically as equal-width intervals on the
+transformed scale. The value dimension uses
+\code{branch^(layers - 1) + 1} break points, while the uncertainty dimension
+uses \code{layers + 1} break points.}
 
-\item{limits}{One of:
-\itemize{
-\item \code{NULL} to use the default scale values
-\item A character vector that defines possible values of the scale and their
-order
-\item A function that accepts the existing (automatic) values and returns
-new ones. Also accepts rlang \link[rlang:as_function]{lambda} function
-notation.
-}}
+\item{limits}{A list of two numeric vectors specifying the ranges used for
+the value and uncertainty variables. If an element is \code{NULL}, the finite
+range of the corresponding variable is used. Values outside the specified
+limits are mapped to \code{na.value}.}
 
-\item{transform}{A list of one or two transformations applied to continuous
-variables before binning. Each element can be a transformation name or a
-transformer object accepted by \code{\link[scales:as.transform]{scales::as.transform()}}.}
+\item{transform}{A list of one or two transformations applied to the value
+and uncertainty variables before quantization. Automatic breaks are
+generated as equal-width intervals on the transformed scale. Each element
+can be a transformation name or a transformer object accepted by
+\code{\link[scales:as.transform]{scales::as.transform()}}.}
 
 \item{title_value, title_uncertainty}{Optional titles for the value and
 uncertainty dimensions in the guide.}
@@ -124,9 +119,9 @@ interpolation.}
 }
 \description{
 This scale implements Value-Suppressing Uncertainty Palettes (VSUPs),
-proposed by Correll et al. (2018). The main idea is to suppress colour
-variation in regions with higher uncertainty, thereby directing visual
-attention towards more reliable value differences.
+proposed by Correll et al. (2018). VSUPs reduce colour variation as
+uncertainty increases, so that value differences are progressively
+suppressed in less reliable regions.
 }
 \seealso{
 Correll et al. (2018) \doi{10.1145/3173574.3174216} for technical

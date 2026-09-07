@@ -21,7 +21,6 @@ manual_bivariate_scale(
   drop = FALSE,
   guide = guide_bivariate(),
   n_breaks = c(4, 4),
-  nice.breaks = TRUE,
   quantile = FALSE,
   var1_name = NULL,
   var2_name = NULL,
@@ -35,7 +34,6 @@ scale_fill_bivariate_manual(
   var1_name = NULL,
   var2_name = NULL,
   n_breaks = c(4, 4),
-  nice.breaks = TRUE,
   quantile = FALSE,
   breaks = list(waiver(), waiver()),
   labels = list(waiver(), waiver()),
@@ -54,7 +52,6 @@ scale_colour_bivariate_manual(
   var1_name = NULL,
   var2_name = NULL,
   n_breaks = c(4, 4),
-  nice.breaks = TRUE,
   quantile = FALSE,
   breaks = list(waiver(), waiver()),
   labels = list(waiver(), waiver()),
@@ -73,7 +70,6 @@ scale_color_bivariate_manual(
   var1_name = NULL,
   var2_name = NULL,
   n_breaks = c(4, 4),
-  nice.breaks = TRUE,
   quantile = FALSE,
   breaks = list(waiver(), waiver()),
   labels = list(waiver(), waiver()),
@@ -113,8 +109,10 @@ range to include. For discrete variables, it specifies the levels to
 include.}
 
 \item{transform}{A list of one or two transformations applied to continuous
-variables before binning. Each element can be a transformation name or a
-transformer object accepted by \code{\link[scales:as.transform]{scales::as.transform()}}.}
+variables before binning. Automatic pretty, equal-width, and quantile
+breaks are computed on the transformed scale. Each element can be a
+transformation name or a transformer object accepted by
+\code{\link[scales:as.transform]{scales::as.transform()}}.}
 
 \item{na.value}{If \code{na.translate = TRUE}, what aesthetic value should the
 missing values be displayed as? Does not apply to position scales
@@ -132,14 +130,12 @@ every level in a legend, the layer should use \code{show.legend = TRUE}.}
 \item{guide}{A function used to create a guide or its name. See
 \code{\link[ggplot2:guides]{guides()}} for more information.}
 
-\item{n_breaks}{An integer or a length-two vector specifying the number of
-bins for each variable. The default is 4 for both variables. Unequal
-numbers of bins are supported.}
-
-\item{nice.breaks}{A logical value or length-two logical vector indicating
-whether automatically generated breaks should use nice, human-readable
-values. When \code{TRUE}, equal-width bins may extend beyond the data range to
-preserve nice boundaries and the requested number of bins.}
+\item{n_breaks}{An integer or a length-two vector specifying the desired
+number of bins for each variable. The default is 4 for both variables.
+When \code{nice.breaks = TRUE}, this value is treated as a suggestion and the
+actual number of bins may differ. When \code{nice.breaks = FALSE}, exactly
+\code{n_breaks} equal-width bins are generated. Unequal desired numbers of
+bins are supported.}
 
 \item{quantile}{A logical value or length-two logical vector indicating
 whether the variables should be divided using quantile-based bins.
@@ -164,6 +160,7 @@ ggplot(nc, aes(fill = duo(value, sd))) +
       "#E0ECF4", "#BFD3E6", "#9EBCDA", "#8856A7",
       "#D0D1E6", "#A6BDDB", "#74A9CF", "#2B8CBE",
       "#B8E186", "#7FBC41", "#4D9221", "#276419"
-    )
+    ),
+    n_breaks = 4
   )
 }

@@ -117,8 +117,10 @@ range to include. For discrete variables, it specifies the levels to
 include.}
 
 \item{transform}{A list of one or two transformations applied to continuous
-variables before binning. Each element can be a transformation name or a
-transformer object accepted by \code{\link[scales:as.transform]{scales::as.transform()}}.}
+variables before binning. Automatic pretty, equal-width, and quantile
+breaks are computed on the transformed scale. Each element can be a
+transformation name or a transformer object accepted by
+\code{\link[scales:as.transform]{scales::as.transform()}}.}
 
 \item{na.value}{If \code{na.translate = TRUE}, what aesthetic value should the
 missing values be displayed as? Does not apply to position scales
@@ -148,14 +150,20 @@ combinations. If \code{NULL}, the default, \code{\link[=bivar_palette]{bivar_pal
 \item{palette_params}{A list of additional arguments passed to \code{palette_fun}.
 See \code{\link[=bivar_palette]{bivar_palette()}} and \code{\link[=bivar_fade_palette]{bivar_fade_palette()}} for available arguments.}
 
-\item{n_breaks}{An integer or a length-two vector specifying the number of
-bins for each variable. The default is 4 for both variables. Unequal
-numbers of bins are supported.}
+\item{n_breaks}{An integer or a length-two vector specifying the desired
+number of bins for each variable. The default is 4 for both variables.
+When \code{nice.breaks = TRUE}, this value is treated as a suggestion and the
+actual number of bins may differ. When \code{nice.breaks = FALSE}, exactly
+\code{n_breaks} equal-width bins are generated. Unequal desired numbers of
+bins are supported.}
 
 \item{nice.breaks}{A logical value or length-two logical vector indicating
-whether automatically generated breaks should use nice, human-readable
-values. When \code{TRUE}, equal-width bins may extend beyond the data range to
-preserve nice boundaries and the requested number of bins.}
+whether automatically generated breaks should use pretty, human-readable
+values. When \code{TRUE}, breaks are generated using \code{\link[=pretty]{pretty()}} on the
+transformed scale, with \code{n_breaks} treated as a suggestion. The resulting
+breaks may extend beyond the data range and the actual number of bins may
+differ from \code{n_breaks}. When \code{FALSE}, exactly \code{n_breaks} equal-width bins
+are generated.}
 
 \item{quantile}{A logical value or length-two logical vector indicating
 whether the variables should be divided using quantile-based bins.
@@ -192,10 +200,18 @@ ggplot(nc) +
     colours = c("#F6E8C3", "orange", "red")
   )
 
-# Customize the number of bins
+# Customize the desired number of bins
 ggplot(nc) +
   geom_sf(aes(fill = duo(value, sd))) +
   scale_fill_bivariate(n_breaks = c(3, 4))
+
+# Use exactly four equal-width bins for each variable
+ggplot(nc) +
+  geom_sf(aes(fill = duo(value, sd))) +
+  scale_fill_bivariate(
+    n_breaks = 4,
+    nice.breaks = FALSE
+  )
 }
 \seealso{
 \link[ggplot2:Scale]{ggplot2::Scale} for the base ggproto class that all scale objects

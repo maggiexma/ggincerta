@@ -2,7 +2,7 @@
 % Please edit documentation in R/vsup-quantize.R
 \name{vsup_quantize}
 \alias{vsup_quantize}
-\title{Tree quantization for VSUPs}
+\title{Tree quantization for Value-Suppressing Uncertainty Palettes}
 \usage{
 vsup_quantize(
   v,
@@ -15,44 +15,57 @@ vsup_quantize(
 )
 }
 \arguments{
-\item{v}{Numeric vector of value variable.}
+\item{v}{A numeric vector containing the value variable.}
 
-\item{u}{Numeric vector of uncertainty variable.}
+\item{u}{A numeric vector containing the uncertainty variable.}
 
 \item{layers}{An integer specifying the number of uncertainty levels.}
 
-\item{branch}{An integer specifying the branching factor used to allocate
-value bins across uncertainty levels. The maximum number of value bins is
-\code{branch^(layers - 1)}, and higher uncertainty levels are assigned fewer
-value bins.}
+\item{branch}{An integer specifying the branching factor of the VSUP tree.
+The maximum number of value bins is \code{branch^(layers - 1)}.}
 
-\item{breaks}{One of:
-\itemize{
-\item \code{NULL} for no breaks
-\item \code{waiver()} for the default breaks (the scale limits)
-\item A character vector of breaks
-\item A function that takes the limits as input and returns breaks
-as output. Also accepts rlang \link[rlang:as_function]{lambda} function
-notation.
-}}
+\item{breaks}{A list of two numeric vectors specifying break points for the
+value and uncertainty variables, respectively. If an element is \code{NULL},
+breaks are generated automatically as equal-width intervals on the
+transformed scale. The value dimension requires
+\code{branch^(layers - 1) + 1} break points and the uncertainty dimension
+requires \code{layers + 1} break points.}
 
-\item{limits}{One of:
-\itemize{
-\item \code{NULL} to use the default scale values
-\item A character vector that defines possible values of the scale and their
-order
-\item A function that accepts the existing (automatic) values and returns
-new ones. Also accepts rlang \link[rlang:as_function]{lambda} function
-notation.
-}}
+\item{limits}{A list of two numeric vectors specifying the ranges used for
+the value and uncertainty variables. If an element is \code{NULL}, the finite
+data range is used. Values outside these limits are not assigned to a
+VSUP leaf.}
 
-\item{transform}{A list of one or two transformations applied to continuous
-variables before binning. Each element can be a transformation name or a
+\item{transform}{A list of one or two transformations applied to \code{v} and
+\code{u} before quantization. Each element can be a transformation name or a
 transformer object accepted by \code{\link[scales:as.transform]{scales::as.transform()}}.}
 }
 \value{
-A list containing quantized leaf ids and break information.
+A list with the following components:
+\describe{
+\item{value}{A factor containing the VSUP leaf identifier assigned to each
+observation. Observations outside the limits or with missing values are
+returned as \code{NA}.}
+\item{leaf_info}{A data frame describing each VSUP leaf, including its
+leaf identifier, uncertainty layer, normalized value position, and value
+midpoint.}
+\item{value_breaks}{The value break points on the original data scale.}
+\item{uncertainty_breaks}{The uncertainty break points on the original
+data scale.}
+}
 }
 \description{
-Quantize value and uncertainty variables into a hierarchical VSUP tree.
+Quantizes value and uncertainty variables into the hierarchical tree
+structure used by Value-Suppressing Uncertainty Palettes (VSUPs).
+}
+\details{
+The uncertainty variable is divided into \code{layers} intervals. The number of
+value bins varies across uncertainty levels according to \code{branch}, with the
+maximum number of value bins equal to \code{branch^(layers - 1)}. Higher
+uncertainty levels therefore use progressively fewer value bins.
+
+When breaks are not supplied, both variables are divided using equal-width
+intervals on their transformed scales. User-supplied breaks are restricted
+to the corresponding limits and must provide the required number of break
+points after limits are applied.
 }
