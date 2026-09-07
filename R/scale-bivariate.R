@@ -177,7 +177,7 @@ ScaleBivariate <- ggproto(
     }
 
     # Pretty breaks
-    breaks_t <- pretty(limits_t, n = n)
+    breaks_t <- scales::breaks_pretty(n = n)(limits_t)
 
     if (!is.null(self$limits[[i]])) {
       internal_t <- breaks_t[breaks_t > limits_t[1] &
@@ -410,7 +410,7 @@ ScaleBivariate <- ggproto(
 #'   bins are supported.
 #' @param nice.breaks A logical value or length-two logical vector indicating
 #'   whether automatically generated breaks should use pretty, human-readable
-#'   values. When `TRUE`, breaks are generated using [pretty()] on the
+#'   values. When `TRUE`, breaks are generated using [scales::breaks_pretty()] on the
 #'   transformed scale, with `n_breaks` treated as a suggestion. The resulting
 #'   breaks may extend beyond the data range and the actual number of bins may
 #'   differ from `n_breaks`. When `FALSE`, exactly `n_breaks` equal-width bins

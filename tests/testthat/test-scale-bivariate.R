@@ -69,7 +69,7 @@ expected_bivariate_fill <- function(data,
       return(seq(limits_t[1], limits_t[2], length.out = n + 1))
     }
 
-    breaks_t <- pretty(limits_t, n = n)
+    breaks_t <- scales::breaks_pretty(n = n)(limits_t)
 
     if (explicit_limits) {
       internal_t <- breaks_t[breaks_t > limits_t[1] &
@@ -152,9 +152,9 @@ test_that("default pretty breaks treat n_breaks as a suggestion", {
 
   expect_equal(n_actual, c(length(breaks[[1]]) - 1L, length(breaks[[2]]) - 1L))
 
-  expect_equal(breaks_t[[1]], pretty(range(nc$value, na.rm = TRUE), n = 4))
+  expect_equal(breaks_t[[1]], scales::breaks_pretty(n = 4)(range(nc$value, na.rm = TRUE)))
 
-  expect_equal(breaks_t[[2]], pretty(range(nc$sd, na.rm = TRUE), n = 4))
+  expect_equal(breaks_t[[2]], scales::breaks_pretty(n = 4)(range(nc$sd, na.rm = TRUE)))
 })
 
 
@@ -252,14 +252,14 @@ test_that("explicit limits use pretty internal breaks", {
   gb <- ggplot_build(p)
   scale <- gb$plot$scales$get_scales("fill")
 
-  expected_x <- pretty(c(-3, 3), n = 4)
+  expected_x <- scales::breaks_pretty(n = 4)(c(-3, 3))
 
   expected_x <- expected_x[expected_x > -3 &
                              expected_x < 3]
 
   expected_x <- c(-3, expected_x, 3)
 
-  expected_y <- pretty(c(0, 4), n = 4)
+  expected_y <- scales::breaks_pretty(n = 4)(c(0, 4))
 
   expected_y <- expected_y[expected_y > 0 &
                              expected_y < 4]
@@ -494,7 +494,7 @@ test_that("pretty breaks are computed on the transformed scale", {
 
   breaks_t <- scale$get_breaks_transformed()
 
-  expected <- pretty(c(0, 3), n = 4)
+  expected <- scales::breaks_pretty(n = 4)(c(0, 3))
 
   expect_equal(breaks_t[[1]], expected)
 

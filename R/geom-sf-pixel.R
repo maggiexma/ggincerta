@@ -72,7 +72,7 @@ StatPixel <- ggproto(
         isTRUE(sf::sf_use_s2())) {
       message(
         paste(
-          "geom_sf_pixel_new(): input data has a geographic CRS and sf is using s2;",
+          "geom_sf_pixel(): input data has a geographic CRS and sf is using s2;",
           "pixelation may be slow.",
           "Consider transforming to a projected planar CRS first."
         )
