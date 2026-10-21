@@ -424,7 +424,7 @@ GuideBivariate <- ggproto(
         vjust = 0.5,
         angle = if (isTRUE(params$rotated))
           270
-        else-90
+        else 90
       )
     )
   },
