@@ -1,5 +1,7 @@
 # ggincerta 0.2.2
 
+* Fixed label orientation in the bivariate colour guide.
+
 # ggincerta 0.2.1
 
 * Added `nc_sim`, a simulated areal dataset with linear trend, hotspot, and CAR spatial patterns at two signal strengths.

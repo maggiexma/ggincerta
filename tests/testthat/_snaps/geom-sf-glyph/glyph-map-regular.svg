@@ -220,7 +220,7 @@
 <text x='647.62' y='268.73' text-anchor='end' style='font-size: 8.80px; font-family: sans;' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>3</text>
 <text x='647.62' y='254.55' text-anchor='end' style='font-size: 8.80px; font-family: sans;' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>4</text>
 <text x='678.80' y='327.65' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='26.30px' lengthAdjust='spacingAndGlyphs'>value</text>
-<text transform='translate(634.01,279.87) rotate(90)' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='11.62px' lengthAdjust='spacingAndGlyphs'>sd</text>
+<text transform='translate(641.58,279.87) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='11.62px' lengthAdjust='spacingAndGlyphs'>sd</text>
 <text x='37.21' y='171.24' style='font-size: 13.20px; font-family: sans;' textLength='105.67px' lengthAdjust='spacingAndGlyphs'>glyph map regular</text>
 </g>
 </svg>
