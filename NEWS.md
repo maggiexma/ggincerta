@@ -1,4 +1,4 @@
-# ggincerta (development version)
+# ggincerta 0.2.2
 
 # ggincerta 0.2.1
 
