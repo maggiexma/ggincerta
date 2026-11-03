@@ -159,7 +159,7 @@ bins are supported.}
 
 \item{nice.breaks}{A logical value or length-two logical vector indicating
 whether automatically generated breaks should use pretty, human-readable
-values. When \code{TRUE}, breaks are generated using \code{\link[=pretty]{pretty()}} on the
+values. When \code{TRUE}, breaks are generated using \code{\link[scales:breaks_pretty]{scales::breaks_pretty()}} on the
 transformed scale, with \code{n_breaks} treated as a suggestion. The resulting
 breaks may extend beyond the data range and the actual number of bins may
 differ from \code{n_breaks}. When \code{FALSE}, exactly \code{n_breaks} equal-width bins
